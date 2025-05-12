@@ -191,6 +191,24 @@
   0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
   40% { opacity: 1; transform: scale(1.2); }
 }
+.branch-banner {
+    position: fixed;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    font-weight: 600;
+    font-family: 'Arial', sans-serif;
+    color: #fff;
+    background: linear-gradient(135deg, #FFA500, #FF8C00);
+    padding: 12px 24px;
+    border-radius: 16px;
+    border: none;
+    z-index: 999;
+    display: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    letter-spacing: 1px;
+}
 
     </style>
 </head>
@@ -232,6 +250,7 @@
 
         async function generatePhotos() {
             var prefix = document.getElementById("rollNumberInput").value.trim().toUpperCase();
+            displayBranch(prefix); // ✅ ADD THIS LINE
             var container = document.getElementById("photoContainer");
             var pagination = document.getElementById("pagination");
 
@@ -437,7 +456,40 @@ const observer = new IntersectionObserver((entries) => {
             }
         }
     </script>
+    <scripts>
+        const branchMap = {
+    "01": "CE", "02": "EEE", "03": "ME", "04": "ECE", "05": "CSE",
+    "06": "CST", "07": "CSIT", "08": "ChemE", "10": "EIE", "11": "BME",
+    "12": "IT", "13": "ECE", "14": "ECT", "15": "CSSE", "19": "ECE",
+    "21": "AE", "22": "ICE", "23": "Biotech", "24": "Auto", "26": "Mining",
+    "27": "PT", "28": "PCE", "29": "Aviation", "30": "AME", "31": "MetaE",
+    "34": "PE", "35": "Agri", "36": "Textile", "40": "Arch", "00": "Pharma",
+    "42": "AIML", "43": "AI", "44": "DS", "45": "AIDS", "46": "CyberSec",
+    "47": "IoT+BC", "48": "CSBS", "49": "IoT", "50": "ECT", "51": "FoodE",
+    "52": "IoT-ECE", "53": "Robotics", "54": "AIDS", "55": "PharmE", "56": "Aero",
+    "57": "CSBS", "58": "BDA", "59": "CyberSec", "60": "IoT", "61": "AIML",
+    "62": "CSD", "63": "CSE-RL"
+};
+
+function displayBranch(rollNumber) {
+    if (rollNumber.length >= 8) {
+        const code = rollNumber.slice(6, 8);
+        const branch = branchMap[code];
+        const displayDiv = document.getElementById("branchDisplay");
+        if (branch) {
+            displayDiv.textContent = branch;
+            displayDiv.style.display = "block";
+        } else {
+            displayDiv.style.display = "none";
+        }
+    } else {
+        document.getElementById("branchDisplay").style.display = "none";
+    }
+}
+
+    </scripts>
   
+<div id="branchDisplay" class="branch-banner"></div>
 
 </body>
 </html>
