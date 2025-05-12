@@ -213,23 +213,43 @@
 
             container.innerHTML = "";
             pagination.innerHTML = "";
+if (prefix.length === 10) {
+    let imageUrl = `https://info.aec.edu.in/acet/studentPhotos/${prefix}.jpg`;
+    if (prefix.substring(2, 4) === "A9") {
+        imageUrl = `https://info.aec.edu.in/AEC/studentPhotos/${prefix}.jpg`;
+    }
 
-            if (prefix.length === 10) {
-                let imageUrl = `https://info.aec.edu.in/acet/studentPhotos/${prefix}.jpg`;
-                
-                if (prefix.substring(2,4) === "A9") {
-                    imageUrl = `https://info.aec.edu.in/AEC/studentPhotos/${prefix}.jpg`;
-                }
+    let exists = await checkImageExists(imageUrl);
+    if (!exists) {
+        alert("Photo not found.");
+        return;
+    }
 
-                let exists = await checkImageExists(imageUrl);
-                if (!exists) {
-                    alert("Photo not found.");
-                    return;
-                }
+    container.innerHTML = `
+        <div class="box">
+            <h4>${prefix}</h4>
+            <img class="photo" src="${imageUrl}" alt="Student Photo">
+            <div class="student-name" id="name-${prefix}">Loading name...</div>
+        </div>
+    `;
 
-                container.innerHTML = `<div class="box"><h4>${prefix}</h4><img class="photo" src="${imageUrl}" alt="Student Photo"></div>`;
-                return;
-            }
+    fetch("https://student-name-api.onrender.com/get_name", {
+
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "roll_number=" + encodeURIComponent(prefix)
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById(`name-${prefix}`).innerText = data.name || "Not found";
+    })
+    .catch(() => {
+        document.getElementById(`name-${prefix}`).innerText = "❌ Error";
+    });
+
+    return;
+}
+
 
             if (prefix.length !== 8) {
                 alert("Please enter a valid roll number prefix (e.g., 23MH1A12).");
@@ -288,7 +308,7 @@
   <div class="student-name" id="name-${roll}">Loading name...</div>
 `;
 
-fetch("https://student-name-api.onrender.com/get_name", {
+fetch("http://127.0.0.1:5000/get_name", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: "roll_number=" + encodeURIComponent(roll)
