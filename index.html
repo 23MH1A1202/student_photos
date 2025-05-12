@@ -233,19 +233,23 @@ if (prefix.length === 10) {
         </div>
     `;
 
+   if (roll.length === 10) {
     fetch("https://student-name-api.onrender.com/get_name", {
-
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: "roll_number=" + encodeURIComponent(prefix)
+        body: "roll_number=" + encodeURIComponent(roll)
     })
     .then(res => res.json())
     .then(data => {
-        document.getElementById(`name-${prefix}`).innerText = data.name || "Not found";
+        document.getElementById(`name-${roll}`).innerText = data.name || "Not found";
     })
     .catch(() => {
-        document.getElementById(`name-${prefix}`).innerText = "❌ Error";
+        document.getElementById(`name-${roll}`).innerText = "❌ Error";
     });
+} else {
+    document.getElementById(`name-${roll}`).innerText = "";
+}
+
 
     return;
 }
