@@ -282,7 +282,24 @@
     imagesToShow.forEach(({ roll, imageUrl }) => {
         const box = document.createElement("div");
         box.classList.add("box");
-        box.innerHTML = `<h4>${roll}</h4><img class="photo" src="${imageUrl}" alt="Student Photo">`;
+       box.innerHTML = `
+  <h4>${roll}</h4>
+  <img class="photo" src="${imageUrl}" alt="Student Photo">
+  <div class="student-name" id="name-${roll}">Loading...</div>
+`;
+
+fetch("https://student-name-api.onrender.com/get_name", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: "roll_number=" + encodeURIComponent(roll)
+})
+.then(res => res.json())
+.then(data => {
+    document.getElementById(`name-${roll}`).innerText = data.name;
+})
+.catch(() => {
+    document.getElementById(`name-${roll}`).innerText = "Name not found";
+});
         fragment.appendChild(box);
 
         
