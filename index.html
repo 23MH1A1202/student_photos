@@ -253,7 +253,11 @@ if (prefix.length === 10) {
         <div class="box">
             <h4>${prefix}</h4>
             <img class="photo" src="${imageUrl}" alt="Student Photo">
-            <div class="student-name" id="name-${prefix}">Loading name...</div>
+             <div class="student-name" id="name-${prefix}">
+  <span class="dot-loader">
+    <span></span><span></span><span></span>
+  </span>
+</div>
         </div>
     `;
 
