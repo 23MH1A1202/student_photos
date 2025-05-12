@@ -312,7 +312,7 @@ if (prefix.length === 10) {
   <div class="student-name" id="name-${roll}">Loading name...</div>
 `;
 
-fetch("http://127.0.0.1:5000/get_name", {
+fetch("https://student-name-api.onrender.com/get_name", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: "roll_number=" + encodeURIComponent(roll)
