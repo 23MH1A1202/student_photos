@@ -54,18 +54,18 @@
             box-shadow: none;
         }
         .input-container input {
-    padding: 10px 15px;
-    font-size: 16px;
-    border: 2px solid #ccc;
-    border-radius: 8px;
-    outline: none;
-    transition: border-color 0.3s ease;
-}
+            padding: 10px 15px;
+            font-size: 16px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
 
-.input-container input:focus {
-    border-color: orange;
-    box-shadow: 0 0 5px rgba(255,165,0,0.4);
-}
+        .input-container input:focus {
+            border-color: orange;
+            box-shadow: 0 0 5px rgba(255,165,0,0.4);
+        }
 
         .btn {
             padding: 12px 24px;
@@ -118,11 +118,8 @@
             0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
             40% { transform: scale(1); opacity: 1; }
         }
-
-
         .pagination {
-            margin-top: 20px;
-          
+            margin-top: 20px; 
         }
         .pagination button {
             padding: 10px 20px;
@@ -138,83 +135,112 @@
         .pagination button:hover {
             background: #ce6d3a;
             color: white;
-      }
+        }
       * {
         user-select: none;
         }
         /* Mobile responsiveness */
-@media (max-width: 600px) {
-    .input-container {
-        flex-direction: column;
-        align-items: center;
-    }
+        @media (max-width: 600px) {
+        .input-container {
+            flex-direction: column;
+            align-items: center;
+        }
 
-    .input-container input,
-    .input-container .btn {
-        width: 90%;
-        max-width: 300px;
-    }
-}
- .box {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.box.animate {
-    transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(255, 140, 0, 0.6);
-    z-index: 1;
-}
+        .input-container input,
+        .input-container .btn {
+            width: 90%;
+            max-width: 300px;
+        }
+        }
+        .box {
+            border: 3px solid white;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .box.animate {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 140, 0, 0.6);
+            z-index: 1;
+        }
 
-.box {
-    border: 3px solid #000;
-    ...
-}
         .dot-loader {
-  display: inline-flex;
-  align-items: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .dot-loader span {
+            width: 8px;
+            height: 8px;
+            background-color: orange;
+            border-radius: 50%;
+            animation: dot-flash 1.2s infinite ease-in-out;
+        }
+
+        .dot-loader span:nth-child(1) { animation-delay: 0s; }
+        .dot-loader span:nth-child(2) { animation-delay: 0.2s; }
+        .dot-loader span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes dot-flash {
+            0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+            40% { opacity: 1; transform: scale(1.2); }
+        }
+        .branch-banner {
+            position: fixed;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            font-weight: 600;
+            font-family: 'Arial', sans-serif;
+            color: #fff;
+            background: linear-gradient(135deg, #FFA500, #FF8C00);
+            padding: 12px 24px;
+            border-radius: 16px;
+            border: none;
+            z-index: 999;
+            display: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            letter-spacing: 1px;
+        }
+        
+        .banner-container {
+  display: flex;
   justify-content: center;
-  gap: 5px;
+  background: #fff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* This adds the shadow below */
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-.dot-loader span {
-  width: 8px;
-  height: 8px;
-  background-color: orange;
-  border-radius: 50%;
-  animation: dot-flash 1.2s infinite ease-in-out;
+.banner-image {
+  height: 120px;
+  width: 100%;
+  max-width: 850px;
+}
+.fade-in {
+  animation: fadeIn 0.6s ease-in-out;
 }
 
-.dot-loader span:nth-child(1) { animation-delay: 0s; }
-.dot-loader span:nth-child(2) { animation-delay: 0.2s; }
-.dot-loader span:nth-child(3) { animation-delay: 0.4s; }
-
-@keyframes dot-flash {
-  0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
-  40% { opacity: 1; transform: scale(1.2); }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-.branch-banner {
-    position: fixed;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 20px;
-    font-weight: 600;
-    font-family: 'Arial', sans-serif;
-    color: #fff;
-    background: linear-gradient(135deg, #FFA500, #FF8C00);
-    padding: 12px 24px;
-    border-radius: 16px;
-    border: none;
-    z-index: 999;
-    display: none;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    letter-spacing: 1px;
+.student-photo {
+    transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 140, 0, 0.6);
+            z-index: 1;
+             border-radius: 10px;
 }
 
     </style>
 </head>
 <body>
-    <img style="height: 120px; width: 100%; max-width: 850px;" src="https://erp.adityauniversity.in/getBannerLogo.json?customerErpAcesLinkId=1">
-    <hr>
+    <div class="banner-container">
+  <img class="banner-image" src="https://erp.adityauniversity.in/getBannerLogo.json?customerErpAcesLinkId=1">
+</div>
+
     <h3>STUDENT PHOTOS</h3>
     <p>Enter Roll Number or Prefix (e.g., 23MH1A12) to generate student photos.</p>
     <div class="input-container">
@@ -250,13 +276,13 @@
 
         async function generatePhotos() {
             var prefix = document.getElementById("rollNumberInput").value.trim().toUpperCase();
-            displayBranch(prefix); // ✅ ADD THIS LINE
+            displayBranch(prefix); 
             var container = document.getElementById("photoContainer");
             var pagination = document.getElementById("pagination");
 
             container.innerHTML = "";
             pagination.innerHTML = "";
-if (prefix.length === 10) {
+    if (prefix.length === 10) {
     let imageUrl = `https://info.aec.edu.in/acet/studentPhotos/${prefix}.jpg`;
     if (prefix.substring(2, 4) === "A9") {
         imageUrl = `https://info.aec.edu.in/AEC/studentPhotos/${prefix}.jpg`;
@@ -267,20 +293,21 @@ if (prefix.length === 10) {
         alert("Photo not found.");
         return;
     }
-
-    container.innerHTML = `
+container.innerHTML = `
+    <div class="student-photo fade-in">
         <div class="box">
-            <h4>${prefix}</h4>
+            <h3>${prefix}</h3>
             <img class="photo" src="${imageUrl}" alt="Student Photo">
-             <div class="student-name" id="name-${prefix}">
-  <span class="dot-loader">
-    <span></span><span></span><span></span>
-  </span>
-</div>
+            <div class="student-name" id="name-${prefix}">
+                <span class="dot-loader">
+                    <span></span><span></span><span></span>
+                </span>
+            </div>
         </div>
-    `;
+    </div>
+`;
 
-    // ✅ Corrected from roll → prefix
+
     fetch("https://student-name-api.onrender.com/get_name", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -296,11 +323,8 @@ if (prefix.length === 10) {
 
     return;
 }
-
-
-
             if (prefix.length !== 8) {
-                alert("Please enter a valid roll number prefix (e.g., 23MH1A12).");
+                alert("Please enter a valid roll number or prefix (e.g., 23MH1A12).");
                 return;
             }
         
@@ -351,7 +375,7 @@ if (prefix.length === 10) {
         const box = document.createElement("div");
         box.classList.add("box");
        box.innerHTML = `
-  <h4>${roll}</h4>
+  <h3>${roll}</h3>
   <img class="photo" src="${imageUrl}" alt="Student Photo">
 <div class="student-name" id="name-${roll}">
   <span class="dot-loader">
@@ -360,6 +384,7 @@ if (prefix.length === 10) {
 </div>
 
 `;
+fragment.appendChild(box);
 
 fetch("https://student-name-api.onrender.com/get_name", {
     method: "POST",
@@ -375,7 +400,6 @@ fetch("https://student-name-api.onrender.com/get_name", {
     document.getElementById(`name-${roll}`).innerText = "❌ Error";
 });
 
-        fragment.appendChild(box);
 
         
         observer.observe(box); // <--- Observe each photo box
