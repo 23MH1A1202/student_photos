@@ -248,10 +248,10 @@
 
 @keyframes bounce {
   0%, 100% {
-    transform: translateX(-50%) translateY(0);
+    transform: translateY(0);
   }
   50% {
-    transform: translateX(-50%) translateY(-10px);
+    transform: translateY(-10px);
   }
 }
 
@@ -304,6 +304,8 @@
             displayBranch(prefix); 
             var container = document.getElementById("photoContainer");
             var pagination = document.getElementById("pagination");
+
+            document.getElementById('scrollGif').style.display = 'none';
 
             container.innerHTML = "";
             pagination.innerHTML = "";
