@@ -233,6 +233,28 @@
             z-index: 1;
              border-radius: 10px;
 }
+.bottom-center-gif {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+}
+
+.bottom-center-gif img {
+  height: 50px;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-10px);
+  }
+}
+
 
     </style>
 </head>
@@ -254,6 +276,9 @@
     </div>
     <div class="container" id="photoContainer"></div>
     <div class="pagination" id="pagination"></div>
+   <div id="scrollGif" class="bottom-center-gif" style="display: none;">
+  <img src="down_image.gif" alt="Scroll Down">
+</div>
 
     <marquee style="position: fixed; bottom: 0; left: 0; width: 100%; background-color: orange; height: 35px; line-height: 35px; z-index: 1000;">
         <i>Thank you for visiting our page! We hope you find it useful and informative.</i>
@@ -358,6 +383,8 @@ container.innerHTML = `
 
             currentPage = 0;
             displayPhotos();
+            document.getElementById('scrollGif').style.display = 'block';
+
         }
 
         function displayPhotos() {
@@ -385,7 +412,7 @@ container.innerHTML = `
 
 `;
 fragment.appendChild(box);
-
+document.getElementById('scrollGif').style.display = 'none';
 fetch("https://student-name-api.onrender.com/get_name", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -512,6 +539,15 @@ function displayBranch(rollNumber) {
 }
 
     </script>
+    <script>
+window.addEventListener('scroll', () => {
+    const gif = document.getElementById('scrollGif');
+    if (window.scrollY > 50) {
+        gif.style.display = 'none';
+    }
+});
+</script>
+
   
 <div id="branchDisplay" class="branch-banner"></div>
 
