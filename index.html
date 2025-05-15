@@ -126,14 +126,14 @@
             font-size: 16px;
             margin: 5px;
             cursor: pointer;
-            border: 2px solid #ce6d3a;
+            border: 2px solid orange;
             background: white;
-            color: #ce6d3a;
+            color: orange;
             border-radius: 5px;
             transition: all 0.3s;
         }
         .pagination button:hover {
-            background: #ce6d3a;
+            background: orange;
             color: white;
         }
       * {
@@ -185,24 +185,22 @@
             0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
             40% { opacity: 1; transform: scale(1.2); }
         }
-        .branch-banner {
-            position: fixed;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 20px;
-            font-weight: 600;
-            font-family: 'Arial', sans-serif;
-            color: #fff;
-            background: linear-gradient(135deg, #FFA500, #FF8C00);
-            padding: 12px 24px;
-            border-radius: 16px;
-            border: none;
-            z-index: 999;
-            display: none;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            letter-spacing: 1px;
-        }
+      .branch-banner {
+    font-size: 20px;
+    font-weight: 600;
+    font-family: 'Arial', sans-serif;
+    color: #fff;
+    background: linear-gradient(135deg, #FF8C00, #11288f);
+    padding: 12px 24px;
+    border-radius: 16px;
+    border: none;
+    display: none; /* still controlled via JavaScript */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    letter-spacing: 1px;
+    margin: 15px auto; /* center and add space */
+    width: fit-content;
+}
+
         
         .banner-container {
   display: flex;
@@ -269,6 +267,9 @@
         <input type="text" id="rollNumberInput" placeholder="Enter Roll Number" onkeypress="handleKeyPress(event)">
         <button class="btn" onclick="generatePhotos()">Generate Photos</button>
     </div>
+
+    <div id="branchDisplay" class="branch-banner"></div>
+
     <div class="loader" id="loader">
         <div></div>
         <div></div>
@@ -300,94 +301,104 @@
         }
 
         async function generatePhotos() {
-            var prefix = document.getElementById("rollNumberInput").value.trim().toUpperCase();
-            displayBranch(prefix); 
-            var container = document.getElementById("photoContainer");
-            var pagination = document.getElementById("pagination");
+    const prefix = document.getElementById("rollNumberInput").value.trim().toUpperCase();
+    const container = document.getElementById("photoContainer");
+    const pagination = document.getElementById("pagination");
+    const branchDisplay = document.getElementById("branchDisplay");
 
-            document.getElementById('scrollGif').style.display = 'none';
+    document.getElementById('scrollGif').style.display = 'none';
+    container.innerHTML = "";
+    pagination.innerHTML = "";
+    branchDisplay.style.display = "none"; // 🔴 Hide branch initially
+    loader.style.display = "flex"; // 🟠 Show loader
 
-            container.innerHTML = "";
-            pagination.innerHTML = "";
+    // 📌 Handle exact 10-character roll numbers (single photo)
     if (prefix.length === 10) {
-    let imageUrl = `https://info.aec.edu.in/acet/studentPhotos/${prefix}.jpg`;
-    if (prefix.substring(2, 4) === "A9") {
-        imageUrl = `https://info.aec.edu.in/AEC/studentPhotos/${prefix}.jpg`;
-    }
+        let imageUrl = `https://info.aec.edu.in/acet/studentPhotos/${prefix}.jpg`;
+        if (prefix.substring(2, 4) === "A9") {
+            imageUrl = `https://info.aec.edu.in/AEC/studentPhotos/${prefix}.jpg`;
+        }
 
-    let exists = await checkImageExists(imageUrl);
-    if (!exists) {
-        alert("Photo not found.");
+        const exists = await checkImageExists(imageUrl);
+        loader.style.display = "none"; // 🟢 Hide loader
+
+        if (!exists) {
+            alert("Photo not found.");
+            return;
+        }
+
+        container.innerHTML = `
+            <div class="student-photo fade-in">
+                <div class="box">
+                    <h3>${prefix}</h3>
+                    <img class="photo" src="${imageUrl}" alt="Student Photo">
+                    <div class="student-name" id="name-${prefix}">
+                        <span class="dot-loader"><span></span><span></span><span></span></span>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // ✅ Only show branch after photo is confirmed
+        displayBranch(prefix);
+
+        fetch("https://student-name-api.onrender.com/get_name", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: "roll_number=" + encodeURIComponent(prefix)
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById(`name-${prefix}`).innerText = data.name || "Not found";
+        })
+        .catch(() => {
+            document.getElementById(`name-${prefix}`).innerText = "❌ Error";
+        });
+
         return;
     }
-container.innerHTML = `
-    <div class="student-photo fade-in">
-        <div class="box">
-            <h3>${prefix}</h3>
-            <img class="photo" src="${imageUrl}" alt="Student Photo">
-            <div class="student-name" id="name-${prefix}">
-                <span class="dot-loader">
-                    <span></span><span></span><span></span>
-                </span>
-            </div>
-        </div>
-    </div>
-`;
 
+    // 📌 Handle 8-character prefixes (multiple photos)
+    if (prefix.length !== 8) {
+        loader.style.display = "none";
+        alert("Please enter a valid roll number or prefix (e.g., 23MH1A12).");
+        return;
+    }
 
-    fetch("https://student-name-api.onrender.com/get_name", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: "roll_number=" + encodeURIComponent(prefix)
-    })
-    .then(res => res.json())
-    .then(data => {
-        document.getElementById(`name-${prefix}`).innerText = data.name || "Not found";
-    })
-    .catch(() => {
-        document.getElementById(`name-${prefix}`).innerText = "❌ Error";
-    });
+    let rollNumbers = [];
+    rollNumbers.push(...generateRollNumbers(prefix));
+    const lePrefix = convertToLE(prefix);
+    rollNumbers.push(...generateRollNumbers(lePrefix));
 
-    return;
+    const results = await Promise.allSettled(
+        rollNumbers.map(roll => {
+            let url = `https://info.aec.edu.in/acet/studentPhotos/${roll}.jpg`;
+            if (prefix.substring(2, 4) === "A9") {
+                url = `https://info.aec.edu.in/AEC/studentPhotos/${roll}.jpg`;
+            }
+            return checkImageExists(url).then(result => (result ? { roll, imageUrl: url } : null));
+        })
+    );
+
+    validImages = results
+        .filter(result => result.status === "fulfilled" && result.value !== null)
+        .map(result => result.value);
+
+    loader.style.display = "none"; // 🟢 Hide loader after loading
+
+    if (validImages.length === 0) {
+        container.innerHTML = "<p>No photos found.</p>";
+        branchDisplay.style.display = "none"; // 🔴 Don't show branch
+        return;
+    }
+
+    // ✅ Show branch only if photos exist
+    displayBranch(prefix);
+
+    currentPage = 0;
+    displayPhotos();
+    document.getElementById('scrollGif').style.display = 'block';
 }
-            if (prefix.length !== 8) {
-                alert("Please enter a valid roll number or prefix (e.g., 23MH1A12).");
-                return;
-            }
-        
-            loader.style.display = "flex";
-
-            let rollNumbers = [];
-            rollNumbers.push(...generateRollNumbers(prefix));
-            var lePrefix = convertToLE(prefix);
-            rollNumbers.push(...generateRollNumbers(lePrefix));
-
-            let results = await Promise.allSettled(
-                rollNumbers.map(roll => {
-                    let url = `https://info.aec.edu.in/acet/studentPhotos/${roll}.jpg`;
-
-                    if (prefix.substring(2,4) === "A9") {
-                        url = `https://info.aec.edu.in/AEC/studentPhotos/${roll}.jpg`;
-                    }
-
-                    return checkImageExists(url).then(result => (result ? { roll, imageUrl: url } : null));
-                })
-            );
-
-            validImages = results.filter(result => result.status === "fulfilled" && result.value !== null).map(result => result.value);
-
-            loader.style.display = "none";
-            
-            if (validImages.length === 0) {
-                container.innerHTML = "<p>No photos found.</p>";
-                return;
-            }
-
-            currentPage = 0;
-            displayPhotos();
-            document.getElementById('scrollGif').style.display = 'block';
-
-        }
 
         function displayPhotos() {
     const container = document.getElementById("photoContainer");
@@ -549,9 +560,6 @@ window.addEventListener('scroll', () => {
     }
 });
 </script>
-
-  
-<div id="branchDisplay" class="branch-banner"></div>
 
 </body>
 </html>
