@@ -563,6 +563,18 @@ window.addEventListener('scroll', () => {
       });
   }
 </script>
+    <script>
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    // Show your own install button if you want
+    console.log('Install prompt available');
+    // Optional: trigger the prompt manually
+    // deferredPrompt.prompt();
+  });
+</script>
+
 
 </body>
 </html>
