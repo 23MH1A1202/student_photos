@@ -256,6 +256,37 @@
   }
 }
 
+/* Scrollbar Base */
+::-webkit-scrollbar {
+    width: 12px;
+    height: 10px;
+}
+
+/* Knob-style Thumb */
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, orange, orangered);
+    border-radius: 20px;
+    border: 3px solid #fff; /* gives a raised, knob-like edge */
+    box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Hover effect */
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #ff9c00, #e63900);
+}
+
+/* Track styling */
+::-webkit-scrollbar-track {
+    background: #eee;
+    border-radius: 10px;
+}
+
+/* Firefox Support */
+* {
+    scrollbar-width: auto;
+    scrollbar-color: orange #eee;
+}
+
 
     </style>
 </head>
