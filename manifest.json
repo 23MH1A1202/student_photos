@@ -1,6 +1,6 @@
 {
   "name": "Student Photos",
-  "short_name": "Photos",
+  "short_name": "Student Photos",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
