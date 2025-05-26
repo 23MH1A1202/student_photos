@@ -296,6 +296,38 @@ body {
     -webkit-overflow-scrolling: touch; /* smooth scroll for iOS */
 }
 
+#scrollToTopBtn {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    z-index: 999;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #FFA500, #FF8C00);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.3s ease;
+    padding: 0;
+}
+
+#scrollToTopBtn::before {
+    content: "";
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-left: 3px solid white;
+    border-bottom: 3px solid white;
+    transform: rotate(135deg);
+    margin-top: 4px;
+}
+#scrollToTopBtn:hover {
+    background: linear-gradient(135deg, #FF8C00, #FFA500);
+}
 
     </style>
 </head>
@@ -616,6 +648,22 @@ window.addEventListener('scroll', () => {
   });
 </script>
 
+<button onclick="scrollToTop()" id="scrollToTopBtn" title="Go to top"></button>
+
+<script>
+    window.onscroll = function() {
+        const btn = document.getElementById("scrollToTopBtn");
+        if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
+            btn.style.display = "flex";  // using flex to center the arrow
+        } else {
+            btn.style.display = "none";
+        }
+    };
+
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
 
 </body>
 </html>
