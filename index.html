@@ -83,8 +83,6 @@
             text-transform: uppercase;
             margin-left: 10px; /* Increase the gap */
             margin-top: 10px;
-             outline: none;
-  box-shadow: none;
         }
         .btn:hover {
             background: linear-gradient(135deg, #FF8C00, #FFA500);
@@ -93,7 +91,10 @@
             transform: translateY(1px);
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
-
+        .btn:focus {
+             outline: none;
+      box-shadow: none;
+        }
         .loader {
             display: none;
             position: fixed;
@@ -315,10 +316,11 @@ body {
     align-items: center;
     transition: opacity 0.3s ease;
     padding: 0;
-     outline: none;
-  box-shadow: none;
 }
-
+#scrollToTopBtn:focus{
+     outline: none;
+      box-shadow: none;
+}
 #scrollToTopBtn::before {
     content: "";
     display: inline-block;
