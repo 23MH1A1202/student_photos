@@ -9,12 +9,13 @@
     <title>Student Info</title>
     <style>
         body {
-            background-color: white;
+            background-color: rgba(255, 255, 255, 0.59);
             text-align: center;
             margin: 0;
             padding: 0;
             overflow-x: hidden;
             padding-bottom: 40px; 
+            position: relative;
         }
         .container {
             display: flex;
@@ -43,6 +44,7 @@
             margin: 20px;
             gap: 15px; /* Adds space between the textbox and button */
             flex-wrap: wrap; /* Allows wrapping on smaller screens */
+        
          
         }
         input {
@@ -60,9 +62,10 @@
             padding: 10px 15px;
             font-size: 16px;
             border: 2px solid #ccc;
-            border-radius: 8px;
+            border-radius: 50px;
             outline: none;
             transition: border-color 0.3s ease;
+            text-align: center;
         }
 
         .input-container input:focus {
@@ -77,12 +80,14 @@
             color: #fff;
             background: linear-gradient(135deg, #FFA500, #FF8C00);
             border: none;
-            border-radius: 16px;
+            border-radius: 50px;
             cursor: pointer;
             transition: all 0.3s ease-in-out;
             text-transform: uppercase;
             margin-left: 10px; /* Increase the gap */
             margin-top: 10px;
+            outline: none; /* or any custom color */
+            box-shadow: none;
         }
         .btn:hover {
             background: linear-gradient(135deg, #FF8C00, #FFA500);
@@ -91,12 +96,6 @@
             transform: translateY(1px);
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
-       .btn:focus,
-.btn:active,
-.btn:focus-visible {
-  outline: none !important;
-  box-shadow: none !important;
-}
 
         .loader {
             display: none;
@@ -138,7 +137,7 @@
             border: 2px solid orange;
             background: white;
             color: orange;
-            border-radius: 5px;
+            border-radius: 50px;
             transition: all 0.3s;
         }
         .pagination button:hover {
@@ -162,7 +161,7 @@
         }
         }
         .box {
-            border: 3px solid white;
+            border: 3px solid rgb(255, 255, 250);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         .box.animate {
@@ -214,12 +213,11 @@
         .banner-container {
   display: flex;
   justify-content: center;
-  background: #fff;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* This adds the shadow below */
   position: sticky;
   top: 0;
   z-index: 100;
-  border-radius: 50px;          
+  border-radius: 50px;
 }
 
 .banner-image {
@@ -320,13 +318,8 @@ body {
     align-items: center;
     transition: opacity 0.3s ease;
     padding: 0;
-}
-#scrollToTopBtn:focus,
-#scrollToTopBtn:active,
-#scrollToTopBtn:focus-visible {
-  outline: none !important;
-  box-shadow: none !important;
-    -webkit-tap-highlight-color: transparent; /* Removes tap glow on mobile */
+    outline: none; /* or any custom color */
+  box-shadow: none;
 }
 
 #scrollToTopBtn::before {
@@ -341,15 +334,6 @@ body {
 }
 #scrollToTopBtn:hover {
     background: linear-gradient(135deg, #FF8C00, #FFA500);
-}
-
-
-        button:focus,
-button:active,
-button:focus-visible {
-  outline: none !important;
-  box-shadow: none !important;
-    -webkit-tap-highlight-color: transparent;
 }
 
     </style>
