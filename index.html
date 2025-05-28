@@ -48,7 +48,7 @@
          
         }
         input {
-            padding: 10px;
+            padding: 5px;
             font-size: 16px;
             text-transform: uppercase;
           	border-radius: 16px;
@@ -60,12 +60,13 @@
         }
         .input-container input {
             padding: 10px 15px;
-            font-size: 16px;
-            border: 2px solid #ccc;
-            border-radius: 50px;
-            outline: none;
-            transition: border-color 0.3s ease;
-            text-align: center;
+      font-size: 16px;
+      border: 2px solid #ccc;
+      border-radius: 50px;
+      outline: none;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      text-align: center;
+      text-transform: uppercase;
         }
 
         .input-container input:focus {
@@ -335,7 +336,11 @@ body {
 #scrollToTopBtn:hover {
     background: linear-gradient(135deg, #FF8C00, #FFA500);
 }
-
+ 
+button:focus {
+            outline: none;
+            box-shadow: none;
+}
     </style>
 </head>
 <body>
