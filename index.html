@@ -799,30 +799,26 @@ function launchConfetti() {
   let deferredPrompt;
 
   window.addEventListener('beforeinstallprompt', (e) => {
-    // Prevent Chrome's default mini-infobar
+    console.log('Install prompt captured');
     e.preventDefault();
     deferredPrompt = e;
 
-    // Show custom install UI
-    const promptBox = document.getElementById('installPromptContainer');
-    promptBox.style.display = 'flex';
+    // Show install UI
+    document.getElementById('installPromptContainer').style.display = 'flex';
   });
 
   document.getElementById('installBtn').addEventListener('click', async () => {
     const promptBox = document.getElementById('installPromptContainer');
-    promptBox.style.display = 'none'; // Hide box
+    promptBox.style.display = 'none';
     if (deferredPrompt) {
       deferredPrompt.prompt();
-      const choiceResult = await deferredPrompt.userChoice;
-      if (choiceResult.outcome === 'accepted') {
-        console.log('User accepted the install prompt');
-      } else {
-        console.log('User dismissed the install prompt');
-      }
+      const choice = await deferredPrompt.userChoice;
+      console.log('Install choice:', choice);
       deferredPrompt = null;
     }
   });
 </script>
+
 
 </body>
 </html>
