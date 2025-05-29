@@ -812,15 +812,16 @@ function launchConfetti() {
 
 <script>
 let deferredPrompt = null;
+let awaitingRedirect = false;
 
-// Register service worker
+// Register Service Worker
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('service-worker.js')
     .then(reg => console.log('✅ Service Worker registered:', reg))
     .catch(err => console.error('❌ Service Worker error:', err));
 }
 
-// Handle beforeinstallprompt
+// beforeinstallprompt
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
@@ -833,7 +834,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
   }
 });
 
-// Install button click
+// DOM ready
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('installBtn').addEventListener('click', async () => {
     if (deferredPrompt) {
@@ -842,7 +843,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const choiceResult = await deferredPrompt.userChoice;
       console.log('🔔 User choice:', choiceResult.outcome);
 
-      // Only close popup (no redirect)
+      if (choiceResult.outcome === 'accepted') {
+        awaitingRedirect = true; // Mark that we're waiting for install
+        console.log('✅ Install accepted, waiting for appinstalled event...');
+        setTimeout(() => {
+          // Fail-safe timeout if appinstalled doesn't fire
+          if (awaitingRedirect) {
+            console.warn('⚠️ appinstalled not detected. No redirect.');
+          }
+        }, 7000);
+      }
+
+      // Close popup
       document.getElementById('popup-overlay').style.display = 'none';
 
       if (document.getElementById('dontShowAgain').checked) {
@@ -853,7 +865,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Close (X) button
+  // Close button
   document.getElementById('closeBtn').addEventListener('click', () => {
     if (document.getElementById('dontShowAgain').checked) {
       localStorage.setItem('pwaDontShowAgain', 'true');
@@ -862,12 +874,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// ✅ Redirect ONLY after real installation
+// appinstalled handler — redirect only here!
 window.addEventListener('appinstalled', () => {
-  console.log('✅ App successfully installed');
+  console.log('✅ App fully installed');
   localStorage.setItem('pwaInstalled', 'true');
+  awaitingRedirect = false;
 
-  // 🔁 Now redirect to the installed app's page
+  // Now redirect to app
   window.location.href = 'https://23mh1a1202.github.io/student_photos/index.html';
 });
 </script>
