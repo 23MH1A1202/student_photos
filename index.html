@@ -598,17 +598,24 @@ html {
     const end = start + imagesPerPage;
     const imagesToShow = validImages.slice(start, end);
 
-       let fragment = document.createDocumentFragment();
+    let fragment = document.createDocumentFragment();
 let leBannerShown = false;
 
 imagesToShow.forEach(({ roll, imageUrl }) => {
     const isLE = roll.substring(4, 6) === "5A";
 
     if (isLE && !leBannerShown) {
+        const leBannerWrapper = document.createElement("div");
+        leBannerWrapper.style.width = "100%";
+        leBannerWrapper.style.display = "flex";
+        leBannerWrapper.style.justifyContent = "center";
+
         const leBanner = document.createElement("div");
         leBanner.className = "branch-banner";
         leBanner.textContent = "LE's";
-        fragment.appendChild(leBanner);
+
+        leBannerWrapper.appendChild(leBanner);
+        fragment.appendChild(leBannerWrapper);
         leBannerShown = true;
     }
 
@@ -642,7 +649,6 @@ imagesToShow.forEach(({ roll, imageUrl }) => {
 });
 
 container.appendChild(fragment);
-
 
     const totalPages = Math.ceil(validImages.length / imagesPerPage);
 
