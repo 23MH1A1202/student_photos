@@ -816,65 +816,63 @@ let deferredPrompt = null;
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('service-worker.js')
     .then(reg => console.log('✅ Service Worker registered:', reg))
-    .catch(err => console.error('❌ SW Error:', err));
+    .catch(err => console.error('❌ Service Worker error:', err));
 }
 
-// Show popup if allowed
+// Handle beforeinstallprompt
 window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault(); // Prevent browser's mini-infobar
+  e.preventDefault();
   deferredPrompt = e;
 
   const dontShow = localStorage.getItem('pwaDontShowAgain') === 'true';
-  const alreadyInstalled = localStorage.getItem('pwaInstalled') === 'true';
+  const isInstalled = localStorage.getItem('pwaInstalled') === 'true';
 
-  if (!dontShow && !alreadyInstalled) {
-    showPopup();
+  // ✅ Show popup only if not installed and not opted out
+  if (!dontShow && !isInstalled) {
+    document.getElementById('popup-overlay').style.display = 'flex';
   }
 });
 
-function showPopup() {
-  document.getElementById('popup-overlay').style.display = 'flex';
-}
-
-// Close popup & save preference
-function closePopup() {
-  const checkbox = document.getElementById('dontShowAgain');
-  if (checkbox.checked) {
-    localStorage.setItem('pwaDontShowAgain', 'true');
-  }
-  document.getElementById('popup-overlay').style.display = 'none';
-}
-
-// Install handler
+// Handle Install button click
 document.addEventListener('DOMContentLoaded', () => {
-  const installBtn = document.getElementById('installButton');
-  installBtn.addEventListener('click', async () => {
+  document.getElementById('installBtn').addEventListener('click', async () => {
     if (deferredPrompt) {
       deferredPrompt.prompt();
 
-      const result = await deferredPrompt.userChoice;
-      console.log('🔔 User choice:', result.outcome);
+      const choiceResult = await deferredPrompt.userChoice;
+      console.log('🔔 User choice:', choiceResult.outcome);
 
-      // Close popup
-      closePopup();
+      // Only close popup, no redirect yet
+      document.getElementById('popup-overlay').style.display = 'none';
 
-      // Do not redirect here — wait for actual install
+      if (document.getElementById('dontShowAgain').checked) {
+        localStorage.setItem('pwaDontShowAgain', 'true');
+      }
+
       deferredPrompt = null;
     }
   });
+
+  // Handle close (X) button
+  document.getElementById('closeBtn').addEventListener('click', () => {
+    const checkbox = document.getElementById('dontShowAgain');
+    if (checkbox.checked) {
+      localStorage.setItem('pwaDontShowAgain', 'true');
+    }
+    document.getElementById('popup-overlay').style.display = 'none';
+  });
 });
 
-// Only after full install → redirect
+// Redirect ONLY after full install
 window.addEventListener('appinstalled', () => {
-  console.log('✅ PWA Installed!');
+  console.log('✅ App installed');
   localStorage.setItem('pwaInstalled', 'true');
 
-  // Redirect to app
+  // ✅ Now redirect
   window.location.href = 'https://23mh1a1202.github.io/student_photos/index.html';
 });
 </script>
 
-    
 <!-- Overlay and Centered Popup -->
 <!-- Overlay -->
 <div id="popup-overlay" style="
@@ -886,12 +884,10 @@ window.addEventListener('appinstalled', () => {
   height: 100%;
   background: rgba(0,0,0,0.5);
   z-index: 9999;
-  display: flex;
   justify-content: center;
   align-items: center;
 ">
 
-  <!-- Popup -->
   <div id="pwa-popup" style="
     background: white;
     padding: 20px;
@@ -902,7 +898,7 @@ window.addEventListener('appinstalled', () => {
     position: relative;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
   ">
-    <button onclick="closePopup()" style="
+    <button id="closeBtn" style="
       position: absolute;
       top: 5px;
       right: 10px;
@@ -913,7 +909,7 @@ window.addEventListener('appinstalled', () => {
     ">&times;</button>
 
     <p>Install this app for a better experience!</p>
-    <button id="installButton">Install</button><br><br>
+    <button id="installBtn">Install</button><br><br>
     <label>
       <input type="checkbox" id="dontShowAgain"> Don't show again
     </label>
