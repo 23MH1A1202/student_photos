@@ -735,12 +735,11 @@ window.addEventListener('scroll', () => {
 });
 </script>
 <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js')
-      .then(function(reg) {
-        console.log('Service worker registered.', reg);
-      });
-  }
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js')
+    .then(reg => console.log('✅ Service Worker registered.', reg))
+    .catch(err => console.error('❌ Service Worker error:', err));
+}
 </script>
     <script>
   let deferredPrompt;
