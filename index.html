@@ -452,16 +452,6 @@ html {
         <div></div>
         <div></div>
     </div>
-  
-<div id="popup-overlay"></div>
-    
-<div id="apk-popup">
-  <p>Install our Android app for a better experience!</p>
-  <a href="https://raw.githubusercontent.com/23MH1A1202/student_photos/main/student_photos.apk" download>
-    <button>Download & Install</button>
-  </a>
-  <button onclick="closePopup()">Close</button>
-</div>
 
 
     <div class="container" id="photoContainer"></div>
@@ -809,26 +799,6 @@ function launchConfetti() {
     origin: { y: 0.6 }
   });
 }
-</script>
-
-<script>
-  function isMobileDevice() {
-    return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  }
-
-  window.onload = function() {
-    if (isMobileDevice()) {
-      setTimeout(() => {
-        document.getElementById('apk-popup').style.display = 'block';
-        document.getElementById('popup-overlay').style.display = 'block';
-      }, 2000); // show after 2 seconds
-    }
-  };
-
-  function closePopup() {
-    document.getElementById('apk-popup').style.display = 'none';
-    document.getElementById('popup-overlay').style.display = 'none';
-  }
 </script>
 </body>
 </html>
