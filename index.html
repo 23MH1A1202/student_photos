@@ -808,8 +808,9 @@ function launchConfetti() {
   });
 }
 </script>
-
 <script>
+  let deferredPrompt = null;
+
   // Register service worker
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('service-worker.js')
@@ -817,81 +818,70 @@ function launchConfetti() {
       .catch(err => console.error('Service Worker error:', err));
   }
 
-  // Handle beforeinstallprompt
-  let deferredPrompt;
+  // Listen for install prompt
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
 
-    // Only show if "Don't show again" is not checked before
-    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent) && !localStorage.getItem('pwaDontShowAgain')) {
+    // Show popup only if "Don't show again" is NOT checked
+    if (!localStorage.getItem('pwaDontShowAgain')) {
       showInstallPopup();
     }
   });
 
+  // Show popup
   function showInstallPopup() {
-    document.getElementById('pwa-popup').style.display = 'block';
-    document.getElementById('popup-overlay').style.display = 'block';
+    const overlay = document.getElementById('popup-overlay');
+    overlay.style.display = 'flex';
   }
 
-  function installPWA() {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then((choiceResult) => {
-        console.log('User response:', choiceResult.outcome);
+  // Close popup and optionally store preference
+  function closePopup() {
+    if (document.getElementById('dontShowAgain').checked) {
+      localStorage.setItem('pwaDontShowAgain', 'true');
+    }
 
-        // Save "Don't show again" preference
+    document.getElementById('popup-overlay').style.display = 'none';
+  }
+
+  // Handle install button
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('installButton').addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log('User response to prompt:', outcome);
+
         if (document.getElementById('dontShowAgain').checked) {
           localStorage.setItem('pwaDontShowAgain', 'true');
         }
 
-        if (choiceResult.outcome === 'accepted') {
-          console.log('PWA installed');
+        if (outcome === 'accepted') {
+          console.log('User accepted the install prompt');
+
+          // Save install status
           localStorage.setItem('pwaInstalled', 'yes');
-          // Redirect after successful install
+
+          // Redirect to the PWA app URL
           window.location.href = 'https://23mh1a1202.github.io/student_photos/index.html';
         }
 
-        deferredPrompt = null;
-      });
-    }
-    closePopup();
-  }
-
-  function closePopup() {
-    document.getElementById('pwa-popup').style.display = 'none';
-    document.getElementById('popup-overlay').style.display = 'none';
-  }
-
-  // Show "Open App" popup if already installed
-  window.addEventListener('load', () => {
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-
-    if (!isStandalone && localStorage.getItem('pwaInstalled') === 'yes') {
-      setTimeout(() => {
-        document.getElementById('open-app-popup').style.display = 'block';
-        document.getElementById('popup-overlay').style.display = 'block';
-      }, 1500);
-    }
+        deferredPrompt = null; // Clear to prevent re-prompt
+        closePopup();
+      }
+    });
   });
 
-  // Optional: Mark installed manually
+  // Detect app installed manually
   window.addEventListener('appinstalled', () => {
-    console.log('App installed');
+    console.log('PWA installed via appinstalled event');
     localStorage.setItem('pwaInstalled', 'yes');
-  });
-
-  function closeOpenAppPopup() {
-    document.getElementById('open-app-popup').style.display = 'none';
-    document.getElementById('popup-overlay').style.display = 'none';
-  }
-
-  // Add install button listener
-  window.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('installButton').addEventListener('click', installPWA);
   });
 </script>
 
+
+<!-- Fullscreen Overlay with Flexbox Centering -->
 <div id="popup-overlay" style="
   display: none;
   position: fixed;
@@ -904,7 +894,8 @@ function launchConfetti() {
   align-items: center;
 ">
 
-<div id="pwa-popup" style="
+  <!-- Popup Box -->
+  <div id="pwa-popup" style="
     background: white;
     border: 2px solid #444;
     border-radius: 10px;
@@ -913,17 +904,32 @@ function launchConfetti() {
     width: 90%;
     max-width: 300px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: relative;
   ">
-  <p>Install this app for a better experience!</p>
-  <button id="installButton">Install</button>
+
+    <!-- Close Button -->
+    <button onclick="closePopup()" style="
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      background: transparent;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+    ">&times;</button>
+
+    <p>Install this app for a better experience!</p>
+    <button id="installButton">Install</button>
     <div style="margin-top: 10px;">
       <label>
         <input type="checkbox" id="dontShowAgain" />
         Don't show again
       </label>
     </div>
+
   </div>
 </div>
+
 
 </body>
 </html>
