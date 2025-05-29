@@ -444,8 +444,10 @@ html {
         <div></div>
         <div></div>
     </div>
-    <!-- Placeholder skeletons (initially hidden) -->
-<div id="skeletonContainer" style="display: none; flex-wrap: wrap; justify-content: center;"></div>
+ <div id="installPromptContainer" style="display:none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #fff; border: 2px solid orange; padding: 12px 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 9999;">
+  <span style="margin-right: 10px;">Install this app?</span>
+  <button id="installBtn" class="btn">Install</button>
+</div>
 
     <div class="container" id="photoContainer"></div>
     <div class="pagination" id="pagination"></div>
@@ -792,6 +794,34 @@ function launchConfetti() {
     origin: { y: 0.6 }
   });
 }
+</script>
+<script>
+  let deferredPrompt;
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent Chrome's default mini-infobar
+    e.preventDefault();
+    deferredPrompt = e;
+
+    // Show custom install UI
+    const promptBox = document.getElementById('installPromptContainer');
+    promptBox.style.display = 'flex';
+  });
+
+  document.getElementById('installBtn').addEventListener('click', async () => {
+    const promptBox = document.getElementById('installPromptContainer');
+    promptBox.style.display = 'none'; // Hide box
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const choiceResult = await deferredPrompt.userChoice;
+      if (choiceResult.outcome === 'accepted') {
+        console.log('User accepted the install prompt');
+      } else {
+        console.log('User dismissed the install prompt');
+      }
+      deferredPrompt = null;
+    }
+  });
 </script>
 
 </body>
