@@ -546,7 +546,6 @@ html {
 
     if (prefix.length !== 8) {
         loader.style.display = "none";
-        hideSkeletons();
         alert("Please enter a valid roll number or prefix (e.g., 23MH1A12).");
         return;
     }
@@ -562,7 +561,12 @@ html {
             if (prefix.substring(2, 4) === "A9") {
                 url = `https://info.aec.edu.in/AEC/studentPhotos/${roll}.jpg`;
             }
-            return checkImageExists(url).then(result => (result ? { roll, imageUrl: url } : null));
+            return checkImageExists(
+    roll.substring(2, 4) === "A9"
+        ? `https://info.aec.edu.in/AEC/studentPhotos/${roll}.jpg`
+        : `https://info.aec.edu.in/acet/studentPhotos/${roll}.jpg`
+).then(result => result ? { roll, imageUrl: result } : null);
+
         })
     );
 
