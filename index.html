@@ -511,17 +511,29 @@ html {
             return;
         }
 
-        container.innerHTML = `
-            <div class="student-photo fade-in">
-                <div class="box">
-                    <h3>${prefix}</h3>
-                    <img class="photo" src="${imageUrl}" alt="Student Photo">
-                    <div class="student-name" id="name-${prefix}">
-                        <span class="dot-loader"><span></span><span></span><span></span></span>
-                    </div>
-                </div>
+// Prepare an LE banner if needed
+let leBannerHTML = "";
+if (prefix.substring(4, 6) === "5A") {
+    leBannerHTML = `
+        <div style="width: 100%; display: flex; justify-content: center; margin-bottom: 10px;">
+            <div class="branch-banner" style="display: block;">LE's</div>
+        </div>
+    `;
+}
+
+// Render banner + photo
+container.innerHTML = `
+    ${leBannerHTML}
+    <div class="student-photo fade-in">
+        <div class="box">
+            <h3>${prefix}</h3>
+            <img class="photo" src="${imageUrl}" alt="Student Photo">
+            <div class="student-name" id="name-${prefix}">
+                <span class="dot-loader"><span></span><span></span><span></span></span>
             </div>
-        `;
+        </div>
+    </div>
+`;
 
         displayBranch(prefix);
 
