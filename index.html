@@ -598,21 +598,17 @@ html {
     const end = start + imagesPerPage;
     const imagesToShow = validImages.slice(start, end);
 
-            let fragment = document.createDocumentFragment();
+       let fragment = document.createDocumentFragment();
 let leBannerShown = false;
 
 imagesToShow.forEach(({ roll, imageUrl }) => {
-    const isLE = roll.substring(4, 6) === "5A"; // Check 5th and 6th characters (0-based index)
+    const isLE = roll.substring(4, 6) === "5A";
 
     if (isLE && !leBannerShown) {
-        const leLabel = document.createElement("div");
-        leLabel.textContent = "LE's";
-        leLabel.style.fontWeight = "bold";
-        leLabel.style.fontSize = "20px";
-        leLabel.style.color = "red";
-        leLabel.style.margin = "15px auto 5px";
-        leLabel.style.width = "fit-content";
-        fragment.appendChild(leLabel);
+        const leBanner = document.createElement("div");
+        leBanner.className = "branch-banner";
+        leBanner.textContent = "LE's";
+        fragment.appendChild(leBanner);
         leBannerShown = true;
     }
 
