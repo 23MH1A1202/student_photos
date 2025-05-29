@@ -561,11 +561,7 @@ html {
             if (prefix.substring(2, 4) === "A9") {
                 url = `https://info.aec.edu.in/AEC/studentPhotos/${roll}.jpg`;
             }
-            return checkImageExists(
-    roll.substring(2, 4) === "A9"
-        ? `https://info.aec.edu.in/AEC/studentPhotos/${roll}.jpg`
-        : `https://info.aec.edu.in/acet/studentPhotos/${roll}.jpg`
-).then(result => result ? { roll, imageUrl: result } : null);
+          return checkImageExists(url).then(result => (result ? { roll, imageUrl: url } : null));
 
         })
     );
