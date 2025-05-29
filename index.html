@@ -605,17 +605,19 @@ imagesToShow.forEach(({ roll, imageUrl }) => {
     const isLE = roll.substring(4, 6) === "5A";
 
     if (isLE && !leBannerShown) {
-        const leBannerWrapper = document.createElement("div");
-        leBannerWrapper.style.width = "100%";
-        leBannerWrapper.style.display = "flex";
-        leBannerWrapper.style.justifyContent = "center";
-
         const leBanner = document.createElement("div");
         leBanner.className = "branch-banner";
         leBanner.textContent = "LE's";
+        leBanner.style.display = "block"; // 👈 override display:none
+        leBanner.style.marginTop = "10px";
 
-        leBannerWrapper.appendChild(leBanner);
-        fragment.appendChild(leBannerWrapper);
+        const leWrapper = document.createElement("div");
+        leWrapper.style.width = "100%";
+        leWrapper.style.display = "flex";
+        leWrapper.style.justifyContent = "center";
+        leWrapper.appendChild(leBanner);
+
+        fragment.appendChild(leWrapper);
         leBannerShown = true;
     }
 
