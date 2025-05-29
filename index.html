@@ -817,6 +817,29 @@ function launchConfetti() {
     document.getElementById('pwa-popup').style.display = 'none';
     document.getElementById('popup-overlay').style.display = 'none';
   }
+
+    window.addEventListener('load', () => {
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+  if (!isStandalone && localStorage.getItem('pwaInstalled') === 'yes') {
+    setTimeout(() => {
+      document.getElementById('open-app-popup').style.display = 'block';
+      document.getElementById('popup-overlay').style.display = 'block';
+    }, 1500);
+  }
+});
+
+// Optional: Mark installed manually
+window.addEventListener('appinstalled', () => {
+  console.log('App installed');
+  localStorage.setItem('pwaInstalled', 'yes');
+});
+
+function closeOpenAppPopup() {
+  document.getElementById('open-app-popup').style.display = 'none';
+  document.getElementById('popup-overlay').style.display = 'none';
+}
+
 </script>
 
 <div id="popup-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999;"></div>
@@ -825,6 +848,13 @@ function launchConfetti() {
   <p>Install this app for faster access!</p>
   <button onclick="installPWA()">Install</button>
   <button onclick="closePopup()">Close</button>
+</div>
+<!-- Reuse same overlay -->
+<div id="open-app-popup" style="display:none; position:fixed; top:30%; left:50%; transform:translate(-50%, -50%); background:white; border-radius:10px; padding:20px; z-index:1000; box-shadow:0 0 15px rgba(0,0,0,0.2); text-align:center;">
+  <p style="margin-bottom:10px;">You have installed the app.</p>
+  <p style="margin-bottom:10px;">Would you like to open it?</p>
+  <a href="#" onclick="closeOpenAppPopup()" style="margin-right:10px;">Continue in Browser</a>
+  <a href="https://23MH1A1202.github.io/student_photos/" style="font-weight:bold;">Open App</a>
 </div>
 
 </body>
