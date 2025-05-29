@@ -378,6 +378,52 @@ html {
 }
 
     </style>
+
+<!-- ✅ SKELETON LOADER CSS -->
+<style>
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 400% 100%;
+  animation: skeleton-loading 1.2s ease-in-out infinite;
+  border-radius: 10px;
+}
+@keyframes skeleton-loading {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+.skeleton-box {
+  width: 200px;
+  height: 250px;
+  margin: 10px auto;
+  border-radius: 10px;
+}
+</style>
+
+<!-- ✅ SHINY BUTTON EFFECT CSS -->
+<style>
+.btn {
+  position: relative;
+  overflow: hidden;
+}
+.btn::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(to right, transparent 0%, white 50%, transparent 100%);
+  transform: rotate(45deg);
+  animation: shine 2s infinite;
+  pointer-events: none;
+}
+@keyframes shine {
+  0% { transform: translateX(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) rotate(45deg); }
+}
+</style>
+<!-- Confetti JS -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 </head>
 <body>
     <div class="banner-container">
@@ -398,6 +444,9 @@ html {
         <div></div>
         <div></div>
     </div>
+    <!-- Placeholder skeletons (initially hidden) -->
+<div id="skeletonContainer" style="display: none; flex-wrap: wrap; justify-content: center;"></div>
+
     <div class="container" id="photoContainer"></div>
     <div class="pagination" id="pagination"></div>
    <div id="scrollGif" class="bottom-center-gif" style="display: none;">
@@ -423,7 +472,7 @@ html {
             });
         }
 
-        async function generatePhotos() {
+    async function generatePhotos() {
     const prefix = document.getElementById("rollNumberInput").value.trim().toUpperCase();
     const container = document.getElementById("photoContainer");
     const pagination = document.getElementById("pagination");
@@ -432,9 +481,8 @@ html {
     document.getElementById('scrollGif').style.display = 'none';
     container.innerHTML = "";
     pagination.innerHTML = "";
-    branchDisplay.style.display = "none"; // 🔴 Hide branch initially
-    loader.style.display = "flex"; // 🟠 Show loader
-
+    branchDisplay.style.display = "none";
+    loader.style.display = "flex";
     // 📌 Handle exact 10-character roll numbers (single photo)
     if (prefix.length === 10) {
         let imageUrl = `https://info.aec.edu.in/acet/studentPhotos/${prefix}.jpg`;
@@ -443,7 +491,10 @@ html {
         }
 
         const exists = await checkImageExists(imageUrl);
-        loader.style.display = "none"; // 🟢 Hide loader
+
+        // ✅ Hide loader + skeletons
+        loader.style.display = "none";
+        hideSkeletons();
 
         if (!exists) {
             alert("Photo not found.");
@@ -462,8 +513,10 @@ html {
             </div>
         `;
 
-        // ✅ Only show branch after photo is confirmed
         displayBranch(prefix);
+
+        // ✅ Confetti on success
+        launchConfetti();
 
         fetch("https://student-name-api.onrender.com/get_name", {
             method: "POST",
@@ -481,9 +534,9 @@ html {
         return;
     }
 
-    // 📌 Handle 8-character prefixes (multiple photos)
     if (prefix.length !== 8) {
         loader.style.display = "none";
+        hideSkeletons();
         alert("Please enter a valid roll number or prefix (e.g., 23MH1A12).");
         return;
     }
@@ -507,19 +560,22 @@ html {
         .filter(result => result.status === "fulfilled" && result.value !== null)
         .map(result => result.value);
 
-    loader.style.display = "none"; // 🟢 Hide loader after loading
+    loader.style.display = "none";
+    hideSkeletons();
 
     if (validImages.length === 0) {
         container.innerHTML = "<p>No photos found.</p>";
-        branchDisplay.style.display = "none"; // 🔴 Don't show branch
+        branchDisplay.style.display = "none";
         return;
     }
 
-    // ✅ Show branch only if photos exist
     displayBranch(prefix);
-
     currentPage = 0;
     displayPhotos();
+
+    // ✅ Confetti on success
+    launchConfetti();
+
     document.getElementById('scrollGif').style.display = 'block';
 }
 
@@ -711,6 +767,31 @@ window.addEventListener('scroll', () => {
     function scrollToTop() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+</script>
+<script>
+function showSkeletons(count = 4) {
+  const skeletonContainer = document.getElementById('skeletonContainer');
+  skeletonContainer.innerHTML = '';
+  skeletonContainer.style.display = 'flex';
+
+  for (let i = 0; i < count; i++) {
+    const box = document.createElement('div');
+    box.classList.add('skeleton', 'skeleton-box');
+    skeletonContainer.appendChild(box);
+  }
+}
+
+function hideSkeletons() {
+  document.getElementById('skeletonContainer').style.display = 'none';
+}
+
+function launchConfetti() {
+  confetti({
+    particleCount: 150,
+    spread: 70,
+    origin: { y: 0.6 }
+  });
+}
 </script>
 
 </body>
