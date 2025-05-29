@@ -444,6 +444,8 @@ html {
         <div></div>
         <div></div>
     </div>
+    <!-- Placeholder skeletons (initially hidden) -->
+<div id="skeletonContainer" style="display: none; flex-wrap: wrap; justify-content: center;"></div>
 
     <div class="container" id="photoContainer"></div>
     <div class="pagination" id="pagination"></div>
@@ -731,11 +733,12 @@ window.addEventListener('scroll', () => {
 });
 </script>
 <script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('service-worker.js')
-    .then(reg => console.log('✅ Service Worker registered.', reg))
-    .catch(err => console.error('❌ Service Worker error:', err));
-}
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(function(reg) {
+        console.log('Service worker registered.', reg);
+      });
+  }
 </script>
     <script>
   let deferredPrompt;
@@ -790,9 +793,6 @@ function launchConfetti() {
   });
 }
 </script>
-
-
-
 
 </body>
 </html>
