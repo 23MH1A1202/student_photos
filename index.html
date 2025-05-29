@@ -87,8 +87,8 @@
             text-transform: uppercase;
             margin-left: 10px; /* Increase the gap */
             margin-top: 10px;
-            outline: none; /* or any custom color */
-            box-shadow: none;
+            outline: none !important; /* or any custom color */
+            box-shadow: none !important;
         }
         .btn:hover {
             background: linear-gradient(135deg, #FF8C00, #FFA500);
@@ -337,15 +337,32 @@ body {
     background: linear-gradient(135deg, #FF8C00, #FFA500);
 }
  
-button {
-  outline: none;
-  box-shadow: none;
+button:focus {
+            outline: none !important;
+            box-shadow: none !important;
 }
 
-button:focus {
-  outline: none;
-  box-shadow: none;
+button:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
 }
+
+.btn:focus,
+.btn:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+
+button, .btn {
+    -webkit-tap-highlight-color: transparent; /* Removes blue highlight on tap (Android) */
+    outline: none !important;
+    box-shadow: none !important;
+}
+
 
     </style>
 </head>
