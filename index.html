@@ -809,6 +809,7 @@ function launchConfetti() {
 }
 </script>
 
+
 <script>
 let deferredPrompt = null;
 
@@ -827,13 +828,12 @@ window.addEventListener('beforeinstallprompt', (e) => {
   const dontShow = localStorage.getItem('pwaDontShowAgain') === 'true';
   const isInstalled = localStorage.getItem('pwaInstalled') === 'true';
 
-  // ✅ Show popup only if not installed and not opted out
   if (!dontShow && !isInstalled) {
     document.getElementById('popup-overlay').style.display = 'flex';
   }
 });
 
-// Handle Install button click
+// Install button click
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('installBtn').addEventListener('click', async () => {
     if (deferredPrompt) {
@@ -842,7 +842,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const choiceResult = await deferredPrompt.userChoice;
       console.log('🔔 User choice:', choiceResult.outcome);
 
-      // Only close popup, no redirect yet
+      // Only close popup (no redirect)
       document.getElementById('popup-overlay').style.display = 'none';
 
       if (document.getElementById('dontShowAgain').checked) {
@@ -853,22 +853,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Handle close (X) button
+  // Close (X) button
   document.getElementById('closeBtn').addEventListener('click', () => {
-    const checkbox = document.getElementById('dontShowAgain');
-    if (checkbox.checked) {
+    if (document.getElementById('dontShowAgain').checked) {
       localStorage.setItem('pwaDontShowAgain', 'true');
     }
     document.getElementById('popup-overlay').style.display = 'none';
   });
 });
 
-// Redirect ONLY after full install
+// ✅ Redirect ONLY after real installation
 window.addEventListener('appinstalled', () => {
-  console.log('✅ App installed');
+  console.log('✅ App successfully installed');
   localStorage.setItem('pwaInstalled', 'true');
 
-  // ✅ Now redirect
+  // 🔁 Now redirect to the installed app's page
   window.location.href = 'https://23mh1a1202.github.io/student_photos/index.html';
 });
 </script>
