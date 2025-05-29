@@ -1,7 +1,7 @@
 {
   "name": "Student Photos",
   "short_name": "Student Photos",
-  "start_url": ".",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#2196f3",
