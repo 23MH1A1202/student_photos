@@ -598,55 +598,20 @@ html {
     const end = start + imagesPerPage;
     const imagesToShow = validImages.slice(start, end);
 
-let leBannerShown = false;
-let fragment = document.createDocumentFragment();
+    let fragment = document.createDocumentFragment();
+    imagesToShow.forEach(({ roll, imageUrl }) => {
+        const box = document.createElement("div");
+        box.classList.add("box");
+       box.innerHTML = `
+  <h3>${roll}</h3>
+  <img class="photo" src="${imageUrl}" alt="Student Photo">
+<div class="student-name" id="name-${roll}">
+  <span class="dot-loader">
+    <span></span><span></span><span></span>
+  </span>
+</div>
 
-imagesToShow.forEach(({ roll, imageUrl }) => {
-    const isLE = roll[4] === "5" && roll[5] === "A";
-
-    if (isLE && !leBannerShown) {
-        const leLabel = document.createElement("div");
-        leLabel.innerText = "LE's";
-        leLabel.style.fontWeight = "bold";
-        leLabel.style.fontSize = "20px";
-        leLabel.style.color = "red";
-        leLabel.style.margin = "20px 0 5px";
-        fragment.appendChild(leLabel);
-        leBannerShown = true;
-    }
-
-    const box = document.createElement("div");
-    box.classList.add("box");
-    box.innerHTML = `
-        <h3>${roll}</h3>
-        <img class="photo" src="${imageUrl}" alt="Student Photo">
-        <div class="student-name" id="name-${roll}">
-            <span class="dot-loader"><span></span><span></span><span></span></span>
-        </div>
-    `;
-
-    fragment.appendChild(box);
-
-    fetch("https://student-name-api.onrender.com/get_name", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: "roll_number=" + encodeURIComponent(roll)
-    })
-    .then(res => res.json())
-    .then(data => {
-        document.getElementById(`name-${roll}`).innerText = data.name || "Not found";
-    })
-    .catch((error) => {
-        console.error(`Error fetching name for ${roll}:`, error);
-        document.getElementById(`name-${roll}`).innerText = "❌ Error";
-    });
-
-    observer.observe(box);
-});
-
-container.appendChild(fragment);  // ✅ Append everything only once
-
-            
+`;
 fragment.appendChild(box);
 document.getElementById('scrollGif').style.display = 'none';
 fetch("https://student-name-api.onrender.com/get_name", {
