@@ -379,25 +379,33 @@ html {
 
     </style>
 
-<!-- ✅ SKELETON LOADER CSS -->
-<style>
-.skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 400% 100%;
-  animation: skeleton-loading 1.2s ease-in-out infinite;
-  border-radius: 10px;
-}
-@keyframes skeleton-loading {
-  0% { background-position: 100% 0; }
-  100% { background-position: -100% 0; }
-}
-.skeleton-box {
-  width: 200px;
-  height: 250px;
-  margin: 10px auto;
-  border-radius: 10px;
-}
-</style>
+    <style>
+    #apk-popup {
+      display: none;
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      border: 2px solid #444;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      z-index: 1000;
+    }
+    #apk-popup button {
+      margin-top: 10px;
+      padding: 10px 15px;
+    }
+    #popup-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+    }
+  </style>
 
 <!-- ✅ SHINY BUTTON EFFECT CSS -->
 <style>
@@ -444,8 +452,17 @@ html {
         <div></div>
         <div></div>
     </div>
-    <!-- Placeholder skeletons (initially hidden) -->
-<div id="skeletonContainer" style="display: none; flex-wrap: wrap; justify-content: center;"></div>
+  
+<div id="popup-overlay"></div>
+    
+<div id="apk-popup">
+  <p>Install our Android app for a better experience!</p>
+  <a href="https://raw.githubusercontent.com/23MH1A1202/student_photos/main/student_photos.apk" download>
+    <button>Download & Install</button>
+  </a>
+  <button onclick="closePopup()">Close</button>
+</div>
+
 
     <div class="container" id="photoContainer"></div>
     <div class="pagination" id="pagination"></div>
@@ -794,5 +811,24 @@ function launchConfetti() {
 }
 </script>
 
+<script>
+  function isMobileDevice() {
+    return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  }
+
+  window.onload = function() {
+    if (isMobileDevice()) {
+      setTimeout(() => {
+        document.getElementById('apk-popup').style.display = 'block';
+        document.getElementById('popup-overlay').style.display = 'block';
+      }, 2000); // show after 2 seconds
+    }
+  };
+
+  function closePopup() {
+    document.getElementById('apk-popup').style.display = 'none';
+    document.getElementById('popup-overlay').style.display = 'none';
+  }
+</script>
 </body>
 </html>
