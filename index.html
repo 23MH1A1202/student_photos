@@ -818,6 +818,7 @@ function launchConfetti() {
   });
 }
 </script>
+
 <script>
 let deferredPrompt = null;
 
@@ -846,11 +847,10 @@ window.addEventListener('appinstalled', () => {
   console.log('✅ App installed');
   localStorage.setItem('pwaInstalled', 'true');
 
-  // Show "open app" popup after a short delay
   setTimeout(() => {
     document.getElementById('open-in-app-popup').style.display = 'block';
     document.getElementById('popup-overlay').style.display = 'none';
-  }, 1000);
+  }, 12500); // Delay showing open app popup by 12.5 seconds
 });
 
 // DOM ready
@@ -869,7 +869,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
       // Only hide popup; do NOT reload the page
       document.getElementById('popup-overlay').style.display = 'none';
-
       deferredPrompt = null;
     }
   });
@@ -951,7 +950,6 @@ function closeInAppPopup() {
   <button onclick="openPWA()">Open</button>
   <button onclick="closeInAppPopup()" style="margin-left:10px;">&#x2715;</button>
 </div>
-
 
 
 </body>
