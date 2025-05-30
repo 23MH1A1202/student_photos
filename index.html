@@ -818,7 +818,6 @@ function launchConfetti() {
   });
 }
 </script>
-
 <script>
 let deferredPrompt = null;
 
@@ -856,6 +855,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (choiceResult.outcome === 'accepted') {
         localStorage.setItem('awaitingPwaInstall', 'true');
+        window.location.reload(); // Reload the page to clean up state
       }
 
       document.getElementById('popup-overlay').style.display = 'none';
@@ -870,7 +870,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('popup-overlay').style.display = 'none';
   });
 
-  // If waiting for install, hide popup immediately
   if (localStorage.getItem('awaitingPwaInstall') === 'true') {
     document.getElementById('popup-overlay').style.display = 'none';
   }
@@ -886,8 +885,9 @@ window.addEventListener('appinstalled', () => {
   setTimeout(() => {
     document.getElementById('popup-overlay').style.display = 'none';
     document.getElementById('open-in-app-popup').style.display = 'block';
-  }, 2000);
+  }, 5000); // Increased from 2000ms to 5000ms
 });
+
 
 function openPWA() {
   window.open('https://23mh1a1202.github.io/student_photos/index.html', '_blank');
