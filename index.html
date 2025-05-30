@@ -818,7 +818,6 @@ function launchConfetti() {
   });
 }
 </script>
-
 <script>
 let deferredPrompt = null;
 
@@ -829,42 +828,49 @@ if ('serviceWorker' in navigator) {
     .catch(err => console.error('❌ Service Worker error:', err));
 }
 
-// Save flags in localStorage to persist across reloads
-const hasInstalled = localStorage.getItem('pwaInstalled') === 'true';
-const waitingForInstall = localStorage.getItem('awaitingPwaInstall') === 'true';
-
-// beforeinstallprompt event
+// beforeinstallprompt
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
 
   const dontShow = localStorage.getItem('pwaDontShowAgain') === 'true';
-  if (!dontShow && !hasInstalled && !waitingForInstall) {
+  const isInstalled = localStorage.getItem('pwaInstalled') === 'true';
+
+  if (!dontShow && !isInstalled) {
     document.getElementById('popup-overlay').style.display = 'flex';
   }
 });
 
+// appinstalled handler
+window.addEventListener('appinstalled', () => {
+  console.log('✅ App installed');
+  localStorage.setItem('pwaInstalled', 'true');
+
+  // Show "open app" popup after a short delay
+  setTimeout(() => {
+    document.getElementById('open-in-app-popup').style.display = 'block';
+    document.getElementById('popup-overlay').style.display = 'none';
+  }, 1000);
+});
+
 // DOM ready
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('installBtn').addEventListener('click', async () => {
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('installBtn').addEventListener('click', async (e) => {
+    e.preventDefault();
     if (deferredPrompt) {
       deferredPrompt.prompt();
-      const choiceResult = await deferredPrompt.userChoice;
 
-      if (choiceResult.outcome === 'accepted') {
-        localStorage.setItem('awaitingPwaInstall', 'true');
-        console.log('User accepted install. Waiting for appinstalled event.');
-      }
+      const choiceResult = await deferredPrompt.userChoice;
+      console.log('🔔 User choice:', choiceResult.outcome);
 
       if (document.getElementById('dontShowAgain').checked) {
         localStorage.setItem('pwaDontShowAgain', 'true');
       }
 
-      // Hide the popup immediately
+      // Only hide popup; do NOT reload the page
       document.getElementById('popup-overlay').style.display = 'none';
 
-      // Refresh page to allow appinstalled listener to re-register cleanly
-      setTimeout(() => location.reload(), 500);
+      deferredPrompt = null;
     }
   });
 
@@ -876,18 +882,15 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// appinstalled event — happens only after install finishes
-window.addEventListener('appinstalled', () => {
-  console.log('✅ App installed');
-  localStorage.setItem('pwaInstalled', 'true');
-  localStorage.removeItem('awaitingPwaInstall');
+function openPWA() {
+  window.open('https://23mh1a1202.github.io/student_photos/index.html', '_blank');
+  closeInAppPopup();
+}
 
-  // Delay popup after Chrome's notification
-  setTimeout(() => {
-    document.getElementById('popup-overlay').style.display = 'none';
-    document.getElementById('open-in-app-popup').style.display = 'block';
-  }, 5000); // Delay ensures it appears *after* Chrome's notification
-});
+function closeInAppPopup() {
+  document.getElementById('open-in-app-popup').style.display = 'none';
+  document.getElementById('popup-overlay').style.display = 'none';
+}
 </script>
 
 <!-- Overlay and Centered Popup -->
@@ -948,6 +951,8 @@ window.addEventListener('appinstalled', () => {
   <button onclick="openPWA()">Open</button>
   <button onclick="closeInAppPopup()" style="margin-left:10px;">&#x2715;</button>
 </div>
+
+
 
 </body>
 </html>
