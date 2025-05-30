@@ -859,9 +859,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       document.getElementById('popup-overlay').style.display = 'none';
       deferredPrompt = null;
+
+      // Wait a bit to allow appinstalled to trigger
       setTimeout(() => {
         location.reload();
-      }, 500);
+      }, 1000);
     }
   });
 
@@ -886,7 +888,7 @@ window.addEventListener('appinstalled', () => {
   setTimeout(() => {
     document.getElementById('popup-overlay').style.display = 'none';
     document.getElementById('open-in-app-popup').style.display = 'block';
-  }, 1000); // Give extra delay after system install popup
+  }, 1500); // Slight delay to ensure it shows after system popup
 });
 
 function openPWA() {
@@ -958,6 +960,7 @@ function closeInAppPopup() {
   <button onclick="openPWA()">Open</button>
   <button onclick="closeInAppPopup()" style="margin-left:10px;">&#x2715;</button>
 </div>
+
 
 </body>
 </html>
