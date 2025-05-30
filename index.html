@@ -849,20 +849,19 @@ document.addEventListener('DOMContentLoaded', () => {
       const choiceResult = await deferredPrompt.userChoice;
       console.log('🔔 User choice:', choiceResult.outcome);
 
+      if (document.getElementById('dontShowAgain').checked) {
+        localStorage.setItem('pwaDontShowAgain', 'true');
+      }
+
       if (choiceResult.outcome === 'accepted') {
-        if (document.getElementById('dontShowAgain').checked) {
-          localStorage.setItem('pwaDontShowAgain', 'true');
-        }
         localStorage.setItem('awaitingPwaInstall', 'true');
-      } else {
-        if (document.getElementById('dontShowAgain').checked) {
-          localStorage.setItem('pwaDontShowAgain', 'true');
-        }
       }
 
       document.getElementById('popup-overlay').style.display = 'none';
       deferredPrompt = null;
-      location.reload();
+      setTimeout(() => {
+        location.reload();
+      }, 500);
     }
   });
 
@@ -887,7 +886,7 @@ window.addEventListener('appinstalled', () => {
   setTimeout(() => {
     document.getElementById('popup-overlay').style.display = 'none';
     document.getElementById('open-in-app-popup').style.display = 'block';
-  }, 500); // Delay to show after Chrome installs notification
+  }, 1000); // Give extra delay after system install popup
 });
 
 function openPWA() {
@@ -959,5 +958,6 @@ function closeInAppPopup() {
   <button onclick="openPWA()">Open</button>
   <button onclick="closeInAppPopup()" style="margin-left:10px;">&#x2715;</button>
 </div>
+
 </body>
 </html>
