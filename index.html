@@ -447,6 +447,41 @@ html {
 </style>
 <!-- Confetti JS -->
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+<style>
+.modern-marquee {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 40px;
+  background: linear-gradient(90deg,  #ff8c00 , #11288f);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  z-index: 1000;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.marquee-content {
+  white-space: nowrap;
+  animation: scroll-left 15s linear infinite;
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 0 3px rgba(255, 255, 255, 0.4);
+  padding-left: 100%;
+}
+
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+
+</style>
 </head>
 <body>
     <div class="banner-container">
@@ -474,11 +509,6 @@ html {
    <div id="scrollGif" class="bottom-center-gif" style="display: none;">
   <img src="down_image1.gif" alt="Scroll Down">
 </div>
-    <marquee style="position: fixed; bottom: 0; left: 0; width: 100%; background-color: orange; height: 35px; line-height: 35px; z-index: 1000;">
-        <i>Thank you for visiting our page! We hope you find it useful and informative.</i>
-    </marquee>
-    
-
     <script>
         let validImages = [];
         let currentPage = 0;
@@ -950,6 +980,13 @@ function closeInAppPopup() {
   <p>App installed successfully.</p>
   <button onclick="openPWA()">Open</button>
   <button onclick="closeInAppPopup()" style="margin-left:10px;">&#x2715;</button>
+</div>
+
+<div style="height: 60px;"></div>
+<div class="modern-marquee">
+  <div class="marquee-content">
+    <span>Thank you for visiting our page! We hope you find it useful and informative.</span>
+  </div>
 </div>
 
 
