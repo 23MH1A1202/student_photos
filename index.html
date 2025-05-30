@@ -818,7 +818,6 @@ function launchConfetti() {
   });
 }
 </script>
-
 <script>
 let deferredPrompt = null;
 
@@ -851,11 +850,10 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log('🔔 User choice:', choiceResult.outcome);
 
       if (choiceResult.outcome === 'accepted') {
-        // Mark installed manually and reload
-        localStorage.setItem('pwaInstalled', 'yes');
         if (document.getElementById('dontShowAgain').checked) {
           localStorage.setItem('pwaDontShowAgain', 'true');
         }
+        localStorage.setItem('awaitingPwaInstall', 'true');
         location.reload();
       } else {
         if (document.getElementById('dontShowAgain').checked) {
@@ -868,19 +866,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Close button
   document.getElementById('closeBtn').addEventListener('click', () => {
     if (document.getElementById('dontShowAgain').checked) {
       localStorage.setItem('pwaDontShowAgain', 'true');
     }
     document.getElementById('popup-overlay').style.display = 'none';
   });
+
+  if (localStorage.getItem('awaitingPwaInstall') === 'true') {
+    document.getElementById('popup-overlay').style.display = 'none';
+  }
 });
 
-// appinstalled handler — show "Open App" only after full install
+// appinstalled handler
 window.addEventListener('appinstalled', () => {
   console.log('✅ App installed');
-  localStorage.setItem('pwaInstalled', 'yes');
+  localStorage.setItem('pwaInstalled', 'true');
+  localStorage.removeItem('awaitingPwaInstall');
 
   document.getElementById('popup-overlay').style.display = 'none';
   document.getElementById('open-in-app-popup').style.display = 'block';
@@ -896,7 +898,7 @@ function closeInAppPopup() {
   document.getElementById('popup-overlay').style.display = 'none';
 }
 </script>
-<!-- Overlay and Centered Popup -->
+
 <!-- Overlay and Centered Popup -->
 <div id="popup-overlay" style="
   display: none;
@@ -955,6 +957,7 @@ function closeInAppPopup() {
   <button onclick="openPWA()">Open</button>
   <button onclick="closeInAppPopup()" style="margin-left:10px;">&#x2715;</button>
 </div>
+
 
 </body>
 </html>
