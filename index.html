@@ -836,7 +836,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
   const dontShow = localStorage.getItem('pwaDontShowAgain') === 'true';
   const isInstalled = localStorage.getItem('pwaInstalled') === 'true';
 
-  if (!dontShow && !isInstalled) {
+  if (!dontShow && !isInstalled && !localStorage.getItem('awaitingPwaInstall')) {
     document.getElementById('popup-overlay').style.display = 'flex';
   }
 });
@@ -854,7 +854,7 @@ document.addEventListener('DOMContentLoaded', () => {
           localStorage.setItem('pwaDontShowAgain', 'true');
         }
         localStorage.setItem('awaitingPwaInstall', 'true');
-        location.reload();
+        document.getElementById('popup-overlay').style.display = 'none';
       } else {
         if (document.getElementById('dontShowAgain').checked) {
           localStorage.setItem('pwaDontShowAgain', 'true');
@@ -957,7 +957,6 @@ function closeInAppPopup() {
   <button onclick="openPWA()">Open</button>
   <button onclick="closeInAppPopup()" style="margin-left:10px;">&#x2715;</button>
 </div>
-
 
 </body>
 </html>
