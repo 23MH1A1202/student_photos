@@ -598,7 +598,8 @@ container.innerHTML = `
 
     if (prefix.length !== 8) {
         loader.style.display = "none";
-        alert("Please enter a valid roll number or prefix (e.g., 23MH1A12).");
+        container.innerHTML = "<p>Please enter a valid roll number or prefix (e.g., 23MH1A12). </p>";
+        
         return;
     }
 
