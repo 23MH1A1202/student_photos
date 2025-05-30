@@ -818,6 +818,7 @@ function launchConfetti() {
   });
 }
 </script>
+
 <script>
 let deferredPrompt = null;
 
@@ -859,11 +860,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       document.getElementById('popup-overlay').style.display = 'none';
       deferredPrompt = null;
-
-      // Wait a bit to allow appinstalled to trigger
-      setTimeout(() => {
-        location.reload();
-      }, 1000);
     }
   });
 
@@ -874,6 +870,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('popup-overlay').style.display = 'none';
   });
 
+  // If waiting for install, hide popup immediately
   if (localStorage.getItem('awaitingPwaInstall') === 'true') {
     document.getElementById('popup-overlay').style.display = 'none';
   }
@@ -885,10 +882,11 @@ window.addEventListener('appinstalled', () => {
   localStorage.setItem('pwaInstalled', 'true');
   localStorage.removeItem('awaitingPwaInstall');
 
+  // Delay showing the "open app" popup to ensure it comes after Chrome notification
   setTimeout(() => {
     document.getElementById('popup-overlay').style.display = 'none';
     document.getElementById('open-in-app-popup').style.display = 'block';
-  }, 1500); // Slight delay to ensure it shows after system popup
+  }, 2000);
 });
 
 function openPWA() {
@@ -960,7 +958,6 @@ function closeInAppPopup() {
   <button onclick="openPWA()">Open</button>
   <button onclick="closeInAppPopup()" style="margin-left:10px;">&#x2715;</button>
 </div>
-
 
 </body>
 </html>
