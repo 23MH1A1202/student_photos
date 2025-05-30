@@ -854,15 +854,15 @@ document.addEventListener('DOMContentLoaded', () => {
           localStorage.setItem('pwaDontShowAgain', 'true');
         }
         localStorage.setItem('awaitingPwaInstall', 'true');
-        document.getElementById('popup-overlay').style.display = 'none';
       } else {
         if (document.getElementById('dontShowAgain').checked) {
           localStorage.setItem('pwaDontShowAgain', 'true');
         }
-        document.getElementById('popup-overlay').style.display = 'none';
       }
 
+      document.getElementById('popup-overlay').style.display = 'none';
       deferredPrompt = null;
+      location.reload();
     }
   });
 
@@ -884,8 +884,10 @@ window.addEventListener('appinstalled', () => {
   localStorage.setItem('pwaInstalled', 'true');
   localStorage.removeItem('awaitingPwaInstall');
 
-  document.getElementById('popup-overlay').style.display = 'none';
-  document.getElementById('open-in-app-popup').style.display = 'block';
+  setTimeout(() => {
+    document.getElementById('popup-overlay').style.display = 'none';
+    document.getElementById('open-in-app-popup').style.display = 'block';
+  }, 500); // Delay to show after Chrome installs notification
 });
 
 function openPWA() {
@@ -957,6 +959,5 @@ function closeInAppPopup() {
   <button onclick="openPWA()">Open</button>
   <button onclick="closeInAppPopup()" style="margin-left:10px;">&#x2715;</button>
 </div>
-
 </body>
 </html>
