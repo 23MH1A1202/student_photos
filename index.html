@@ -402,6 +402,12 @@ html {
       margin-top: 10px;
       padding: 10px 15px;
     }
+        body {
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+
     #popup-overlay {
       display: none;
       position: fixed;
@@ -876,13 +882,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // appinstalled handler — redirect only here!
 window.addEventListener('appinstalled', () => {
-  console.log('✅ App fully installed');
-  localStorage.setItem('pwaInstalled', 'true');
-  awaitingRedirect = false;
-
-  // Now redirect to app
-  window.location.href = 'https://23mh1a1202.github.io/student_photos/index.html';
+  console.log('App installed');
+  localStorage.setItem('pwaInstalled', 'yes');
+  
+  // Show popup instead of redirect
+  document.getElementById('open-in-app-popup').style.display = 'block';
+  document.getElementById('popup-overlay').style.display = 'block';
 });
+
+function openPWA() {
+  // Try to open in new window, which may launch the PWA
+  window.open('https://23mh1a1202.github.io/student_photos/index.html', '_blank');
+  closeInAppPopup();
+}
+
+function closeInAppPopup() {
+  document.getElementById('open-in-app-popup').style.display = 'none';
+  document.getElementById('popup-overlay').style.display = 'none';
+}
+
 </script>
 
 <!-- Overlay and Centered Popup -->
@@ -926,6 +944,12 @@ window.addEventListener('appinstalled', () => {
       <input type="checkbox" id="dontShowAgain"> Don't show again
     </label>
   </div>
+</div>
+
+    <div id="open-in-app-popup" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; border:2px solid #444; border-radius:10px; padding:20px; z-index:1000; text-align:center;">
+  <p>APP installed successfully.</p>
+  <button onclick="openPWA()">Open</button>
+  <button onclick="closeInAppPopup()" style="margin-left:10px;">&#x2715;</button>
 </div>
 
 
