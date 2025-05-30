@@ -821,7 +821,6 @@ function launchConfetti() {
 
 <script>
 let deferredPrompt = null;
-let awaitingRedirect = false;
 
 // Register Service Worker
 if ('serviceWorker' in navigator) {
@@ -848,20 +847,21 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('installBtn').addEventListener('click', async () => {
     if (deferredPrompt) {
       deferredPrompt.prompt();
-
       const choiceResult = await deferredPrompt.userChoice;
       console.log('🔔 User choice:', choiceResult.outcome);
 
       if (choiceResult.outcome === 'accepted') {
-        awaitingRedirect = true;
-        console.log('✅ Install accepted, waiting for appinstalled event...');
-      }
-
-      // Close install popup
-      document.getElementById('popup-overlay').style.display = 'none';
-
-      if (document.getElementById('dontShowAgain').checked) {
-        localStorage.setItem('pwaDontShowAgain', 'true');
+        // Mark installed manually and reload
+        localStorage.setItem('pwaInstalled', 'yes');
+        if (document.getElementById('dontShowAgain').checked) {
+          localStorage.setItem('pwaDontShowAgain', 'true');
+        }
+        location.reload();
+      } else {
+        if (document.getElementById('dontShowAgain').checked) {
+          localStorage.setItem('pwaDontShowAgain', 'true');
+        }
+        document.getElementById('popup-overlay').style.display = 'none';
       }
 
       deferredPrompt = null;
@@ -877,15 +877,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// appinstalled handler — redirect only here!
+// appinstalled handler — show "Open App" only after full install
 window.addEventListener('appinstalled', () => {
-  console.log('App installed');
+  console.log('✅ App installed');
   localStorage.setItem('pwaInstalled', 'yes');
-  awaitingRedirect = false;
 
-  // Show open in app popup
+  document.getElementById('popup-overlay').style.display = 'none';
   document.getElementById('open-in-app-popup').style.display = 'block';
-  document.getElementById('popup-overlay').style.display = 'flex';
 });
 
 function openPWA() {
@@ -898,7 +896,7 @@ function closeInAppPopup() {
   document.getElementById('popup-overlay').style.display = 'none';
 }
 </script>
-
+<!-- Overlay and Centered Popup -->
 <!-- Overlay and Centered Popup -->
 <div id="popup-overlay" style="
   display: none;
@@ -912,7 +910,6 @@ function closeInAppPopup() {
   justify-content: center;
   align-items: center;
 ">
-
   <div id="pwa-popup" style="
     background: white;
     padding: 20px;
@@ -954,7 +951,7 @@ function closeInAppPopup() {
   z-index: 10000;
   text-align: center;
 ">
-  <p>APP installed successfully.</p>
+  <p>App installed successfully.</p>
   <button onclick="openPWA()">Open</button>
   <button onclick="closeInAppPopup()" style="margin-left:10px;">&#x2715;</button>
 </div>
