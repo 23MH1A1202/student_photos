@@ -818,6 +818,7 @@ function launchConfetti() {
   });
 }
 </script>
+
 <script>
 let deferredPrompt = null;
 
@@ -828,15 +829,17 @@ if ('serviceWorker' in navigator) {
     .catch(err => console.error('❌ Service Worker error:', err));
 }
 
-// beforeinstallprompt
+// Save flags in localStorage to persist across reloads
+const hasInstalled = localStorage.getItem('pwaInstalled') === 'true';
+const waitingForInstall = localStorage.getItem('awaitingPwaInstall') === 'true';
+
+// beforeinstallprompt event
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
 
   const dontShow = localStorage.getItem('pwaDontShowAgain') === 'true';
-  const isInstalled = localStorage.getItem('pwaInstalled') === 'true';
-
-  if (!dontShow && !isInstalled && !localStorage.getItem('awaitingPwaInstall')) {
+  if (!dontShow && !hasInstalled && !waitingForInstall) {
     document.getElementById('popup-overlay').style.display = 'flex';
   }
 });
@@ -847,19 +850,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (deferredPrompt) {
       deferredPrompt.prompt();
       const choiceResult = await deferredPrompt.userChoice;
-      console.log('🔔 User choice:', choiceResult.outcome);
+
+      if (choiceResult.outcome === 'accepted') {
+        localStorage.setItem('awaitingPwaInstall', 'true');
+        console.log('User accepted install. Waiting for appinstalled event.');
+      }
 
       if (document.getElementById('dontShowAgain').checked) {
         localStorage.setItem('pwaDontShowAgain', 'true');
       }
 
-      if (choiceResult.outcome === 'accepted') {
-        localStorage.setItem('awaitingPwaInstall', 'true');
-        window.location.reload(); // Reload the page to clean up state
-      }
-
+      // Hide the popup immediately
       document.getElementById('popup-overlay').style.display = 'none';
-      deferredPrompt = null;
+
+      // Refresh page to allow appinstalled listener to re-register cleanly
+      setTimeout(() => location.reload(), 500);
     }
   });
 
@@ -869,35 +874,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     document.getElementById('popup-overlay').style.display = 'none';
   });
-
-  if (localStorage.getItem('awaitingPwaInstall') === 'true') {
-    document.getElementById('popup-overlay').style.display = 'none';
-  }
 });
 
-// appinstalled handler
+// appinstalled event — happens only after install finishes
 window.addEventListener('appinstalled', () => {
   console.log('✅ App installed');
   localStorage.setItem('pwaInstalled', 'true');
   localStorage.removeItem('awaitingPwaInstall');
 
-  // Delay showing the "open app" popup to ensure it comes after Chrome notification
+  // Delay popup after Chrome's notification
   setTimeout(() => {
     document.getElementById('popup-overlay').style.display = 'none';
     document.getElementById('open-in-app-popup').style.display = 'block';
-  }, 5000); // Increased from 2000ms to 5000ms
+  }, 5000); // Delay ensures it appears *after* Chrome's notification
 });
-
-
-function openPWA() {
-  window.open('https://23mh1a1202.github.io/student_photos/index.html', '_blank');
-  closeInAppPopup();
-}
-
-function closeInAppPopup() {
-  document.getElementById('open-in-app-popup').style.display = 'none';
-  document.getElementById('popup-overlay').style.display = 'none';
-}
 </script>
 
 <!-- Overlay and Centered Popup -->
