@@ -596,6 +596,11 @@ container.innerHTML = `
         return;
     }
 
+    if (prefix.length !== 8 && prefix.length == 0) {
+        loader.style.display = "none";
+        
+        return;
+    }
     if (prefix.length !== 8) {
         loader.style.display = "none";
         container.innerHTML = "<p>Please enter a valid roll number or prefix</p>";
