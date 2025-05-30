@@ -596,9 +596,9 @@ container.innerHTML = `
         return;
     }
 
-    if (prefix.length !== 8 && prefix.length == 0) {
+    if (prefix.length == 0) {
         loader.style.display = "none";
-        
+        location.reload();
         return;
     }
     if (prefix.length !== 8) {
