@@ -549,7 +549,7 @@ html {
     
 
         if (!exists) {
-            alert("Photo not found.");
+         showError("Photo not found.");
             return;
         }
 
@@ -600,7 +600,7 @@ container.innerHTML = `
 
     if (prefix.length !== 8) {
         loader.style.display = "none";
-        alert("Please enter a valid roll number or prefix");
+       showError("Please enter a valid roll number or prefix"); 
         return;
     }
 
@@ -627,7 +627,7 @@ container.innerHTML = `
     loader.style.display = "none";
 
     if (validImages.length === 0) {
-       alert("No photos found");
+      showError("No photos found.");
         branchDisplay.style.display = "none";
         return;
     }
@@ -922,6 +922,20 @@ function closeInAppPopup() {
   document.getElementById('open-in-app-popup').style.display = 'none';
   document.getElementById('popup-overlay').style.display = 'none';
 }
+
+
+function showError(message) {
+    const overlay = document.getElementById("error-overlay");
+    const messageBox = document.getElementById("error-message");
+    messageBox.textContent = message;
+    overlay.style.display = "flex"; // Show modal + faded background
+}
+
+function refreshAfterPopup() {
+    location.reload(); // Refresh the page on OK
+}
+
+
 </script>
 
 <!-- Overlay and Centered Popup -->
@@ -991,6 +1005,41 @@ function closeInAppPopup() {
   </div>
 </div>
 
+
+<!-- Overlay and Centered Popup -->
+<div id="error-overlay" style="
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5); /* faded background */
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+">
+  <div id="error-popup" style="
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 300px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  ">
+    <p id="error-message" style="margin-bottom: 15px;">Error message</p>
+    <button onclick="refreshAfterPopup()" style="
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: orange;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    ">OK</button>
+  </div>
+</div>
 
 </body>
 </html>
