@@ -55,7 +55,6 @@
         input {
             padding: 5px;
             font-size: 16px;
-            text-transform: uppercase;
           	border-radius: 16px;
             border-color: #FF8C00;
         }
@@ -71,7 +70,6 @@
       outline: none;
       transition: border-color 0.3s ease, box-shadow 0.3s ease;
       text-align: center;
-      text-transform: uppercase;
         }
 
         .input-container input:focus {
@@ -89,7 +87,6 @@
             border-radius: 50px;
             cursor: pointer;
             transition: all 0.3s ease-in-out;
-            text-transform: uppercase;
             margin-left: 10px; /* Increase the gap */
             margin-top: 10px;
             outline: none !important; /* or any custom color */
@@ -493,7 +490,18 @@ html {
     <h3>STUDENT PHOTOS</h3>
     <p>Enter Roll Number or Prefix (e.g., 23MH1A12) to generate student photos.</p>
     <div class="input-container">
-        <input type="text" id="rollNumberInput" placeholder="🔍Enter Roll Number" onkeypress="handleKeyPress(event)">
+       <input
+  type="text"
+  id="rollNumberInput"
+  placeholder="🔍Enter Roll Number"
+  onkeypress="handleKeyPress(event)"
+  inputmode="text"
+  autocapitalize="characters"
+  autocomplete="off"
+  autocorrect="off"
+  spellcheck="false"
+/>
+
         <button class="btn" onclick="generatePhotos()">Generate Photos</button>
     </div>
 
@@ -934,6 +942,14 @@ function showError(message) {
 function refreshAfterPopup() {
     location.reload(); // Refresh the page on OK
 }
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const input = document.getElementById("rollNumberInput");
+  input.addEventListener("input", () => {
+    input.value = input.value.toUpperCase();
+  });
+});
 
 
 </script>
