@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -236,7 +237,8 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  border-radius: 50px;
+  border-bottom-left-radius: 50px;
+  border-bottom-right-radius: 50px;
 }
 
 .banner-image {
@@ -495,6 +497,16 @@ html {
   }
 }
 
+.glass {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+
 
 </style>
 </head>
@@ -502,10 +514,12 @@ html {
     <div class="banner-container">
   <img class="banner-image" style="border-radius: 50px;" src="https://erp.adityauniversity.in/getBannerLogo.json?customerErpAcesLinkId=1">
 </div>
-
+<br>
+<center>
+<div class="glass" style="margin-left: 20px; margin-right: 20px; margin-top: auto; max-width: max-content;">
     <h3>STUDENT PHOTOS</h3>
-    <p>Enter Roll Number or Prefix (e.g., 23MH1A12) to generate student photos.</p>
-    <div class="input-container">
+    <p style="margin-left: 10px; margin-right: 10px;">Enter Roll Number or Prefix (e.g., 23MH1A12) to generate student photos.</p>
+   <div class="input-container">
        <input
   type="text"
   id="rollNumberInput"
@@ -519,11 +533,14 @@ html {
 />
 
         <button class="btn" onclick="generatePhotos()">Generate Photos</button>
+        <br>
+        <br>
+        <br>
     </div>
-
+</div>
+</center>
     <div id="branchDisplay" class="branch-banner"></div>
-
-    <div class="loader" id="loader">
+    <div style="margin-top: 30px;" class="loader" id="loader">
         <div></div>
         <div></div>
         <div></div>
@@ -729,6 +746,13 @@ imagesToShow.forEach(({ roll, imageUrl }) => {
 });
 
 container.appendChild(fragment);
+
+setTimeout(() => {
+  const firstBox = container.querySelector(".box");
+  if (firstBox) {
+    firstBox.classList.add("animate");
+  }
+}, 50);
 
     const totalPages = Math.ceil(validImages.length / imagesPerPage);
 
