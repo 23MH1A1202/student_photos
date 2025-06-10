@@ -12,22 +12,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <title>Student Info</title>
-    <!-- SEO Meta Tags -->
-<meta name="description" content="Search and view Aditya student photos instantly by entering a roll number or prefix.">
-
-<!-- Open Graph (OG) Meta Tags for social sharing -->
-<meta property="og:title" content="Aditya Student Photos">
-<meta property="og:description" content="Easily generate and view student images from Aditya Group of Engineering Colleges.">
-<meta property="og:image" content="https://erp.adityauniversity.in/getBannerLogo.json?customerErpAcesLinkId=1">
-<meta property="og:url" content="https://23mh1a1202.github.io/student_photos/index.html">
-<meta property="og:type" content="website">
-
-<!-- Twitter Card -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Aditya Student Photos">
-<meta name="twitter:description" content="Generate student photos from roll numbers.">
-<meta name="twitter:image" content="https://erp.adityauniversity.in/getBannerLogo.json?customerErpAcesLinkId=1">
-
     <style>
         body {
             background-color: rgba(255, 255, 255, 0.59);
@@ -593,9 +577,7 @@ container.innerHTML = `
     <div class="student-photo fade-in">
         <div class="box">
             <h3>${prefix}</h3>
-           <img class="photo" src="${imageUrl}" alt="Student Photo">
-
-
+            <img class="photo" src="${imageUrl}" alt="Student Photo">
             <div class="student-name" id="name-${prefix}">
                 <span class="dot-loader"><span></span><span></span><span></span></span>
             </div>
@@ -706,7 +688,6 @@ imagesToShow.forEach(({ roll, imageUrl }) => {
     box.innerHTML = `
         <h3>${roll}</h3>
         <img class="photo" src="${imageUrl}" alt="Student Photo">
-
         <div class="student-name" id="name-${roll}">
             <span class="dot-loader"><span></span><span></span><span></span></span>
         </div>
