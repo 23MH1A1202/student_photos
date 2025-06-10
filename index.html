@@ -593,7 +593,8 @@ container.innerHTML = `
     <div class="student-photo fade-in">
         <div class="box">
             <h3>${prefix}</h3>
-            <img class="photo" src="${imageUrl}" alt="Student photo of ${roll}" loading="lazy">
+           <img class="photo" src="${imageUrl}" alt="Student Photo">
+
 
             <div class="student-name" id="name-${prefix}">
                 <span class="dot-loader"><span></span><span></span><span></span></span>
@@ -704,7 +705,7 @@ imagesToShow.forEach(({ roll, imageUrl }) => {
     box.classList.add("box");
     box.innerHTML = `
         <h3>${roll}</h3>
-        <img class="photo" src="${imageUrl}" alt="Student photo of ${roll}" loading="lazy">
+        <img class="photo" src="${imageUrl}" alt="Student Photo">
 
         <div class="student-name" id="name-${roll}">
             <span class="dot-loader"><span></span><span></span><span></span></span>
