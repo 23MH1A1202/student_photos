@@ -909,6 +909,20 @@ window.addEventListener('scroll', () => {
     }
 </script>
 <script>
+// Detect scroll position to top
+window.addEventListener("scroll", () => {
+  if (window.scrollY === 0) {
+    const firstBox = document.querySelector(".box");
+    if (firstBox) {
+      firstBox.classList.remove("animate"); // reset animation
+      void firstBox.offsetWidth; // force reflow to restart animation
+      firstBox.classList.add("animate"); // re-apply animation
+    }
+  }
+});
+</script>
+
+<script>
 function launchConfetti() {
   confetti({
     particleCount: 200,
