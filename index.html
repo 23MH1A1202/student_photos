@@ -504,6 +504,64 @@ html {
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+    position: relative;
+  z-index: 2;
+}
+
+.stars-light, .twinkling-light {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* 🌟 Saturated, Dense Star Field */
+.stars-light {
+  background: 
+    radial-gradient(circle, #fff700 1px, transparent 1px),
+    radial-gradient(circle, #ffd700 1px, transparent 1px),
+    radial-gradient(circle, #ffffff 1px, transparent 1px);
+  background-size: 30px 30px, 40px 40px, 60px 60px;
+  background-position: 0 0, 20px 20px, 10px 30px;
+  opacity: 1; /* Fully visible */
+  animation: starsMove 80s linear infinite;
+}
+
+/* ✨ Twinkling overlay - brighter + gold */
+.twinkling-light {
+  background: 
+    radial-gradient(circle, #fff 2px, transparent 3px),
+    radial-gradient(circle, #ffae00 2px, transparent 3px);
+  background-size: 120px 120px, 80px 80px;
+  opacity: 0.5;
+  animation: twinkleShift 100s linear infinite;
+}
+
+@keyframes starsMove {
+  0% { background-position: 0 0, 20px 20px, 10px 30px; }
+  100% { background-position: 1000px 1000px, 1020px 1020px, 1010px 1030px; }
+}
+
+@keyframes twinkleShift {
+  0% { background-position: 0 0, 0 0; }
+  100% { background-position: -800px 800px, -1000px 1000px; }
+}
+
+
+@keyframes starsMove {
+  0% { background-position: 0 0, 20px 20px, 10px 30px; }
+  100% { background-position: 1000px 1000px, 1020px 1020px, 1010px 1030px; }
+}
+
+@keyframes twinkleShift {
+  0% { background-position: 0 0, 0 0; }
+  100% { background-position: -1000px 1000px, -800px 1200px; }
+}
+body {
+  background-color: #f4f4f4;
 }
 
 #loader-overlay {
@@ -517,10 +575,45 @@ html {
   z-index: 9998; /* just behind the loader */
 }
 
+.stars-light, .twinkling-light {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.stars-light {
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='10' cy='10' r='0.5' fill='%23ffcc00' /%3E%3Ccircle cx='40' cy='40' r='0.8' fill='%23ffb300' /%3E%3Ccircle cx='70' cy='70' r='0.6' fill='%23ffa500' /%3E%3C/svg%3E") repeat;
+  opacity: 0.2;
+  animation: moveStars 100s linear infinite;
+}
+
+.twinkling-light {
+  background: radial-gradient(white 1%, transparent 10%), radial-gradient(#fff9e6 1%, transparent 10%);
+  background-size: 100px 100px;
+  opacity: 0.1;
+  animation: moveTwinkle 60s linear infinite;
+}
+
+@keyframes moveStars {
+  from { background-position: 0 0; }
+  to { background-position: -10000px 5000px; }
+}
+
+@keyframes moveTwinkle {
+  from { background-position: 0 0; }
+  to { background-position: 5000px 10000px; }
+}
 
 </style>
 </head>
 <body>
+  <div class="stars-light"></div>
+<div class="twinkling-light"></div>
+
     <div class="banner-container">
   <img class="banner-image" style="border-bottom-left-radius: 50px; border-bottom-right-radius: 50px;" src="https://erp.adityauniversity.in/getBannerLogo.json?customerErpAcesLinkId=1">
 </div>
