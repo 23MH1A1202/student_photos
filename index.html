@@ -506,6 +506,16 @@ html {
   -webkit-backdrop-filter: blur(8px);
 }
 
+#loader-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); /* faded dark background */
+  z-index: 9998; /* just behind the loader */
+}
 
 
 </style>
@@ -540,6 +550,8 @@ html {
 </div>
 </center>
     <div id="branchDisplay" class="branch-banner"></div>
+    <div id="loader-overlay"></div>
+
     <div style="margin-top: 30px;" class="loader" id="loader">
         <div></div>
         <div></div>
@@ -577,6 +589,8 @@ html {
     pagination.innerHTML = "";
     branchDisplay.style.display = "none";
     loader.style.display = "flex";
+document.getElementById("loader-overlay").style.display = "block";
+
     // 📌 Handle exact 10-character roll numbers (single photo)
     if (prefix.length === 10) {
         let imageUrl = `https://info.aec.edu.in/acet/studentPhotos/${prefix}.jpg`;
@@ -587,7 +601,8 @@ html {
         const exists = await checkImageExists(imageUrl);
 
         loader.style.display = "none";
-    
+        document.getElementById("loader-overlay").style.display = "none";
+
 
         if (!exists) {
          showError("Photo not found.");
@@ -641,6 +656,8 @@ container.innerHTML = `
 
     if (prefix.length !== 8) {
         loader.style.display = "none";
+          document.getElementById("loader-overlay").style.display = "none";
+
        showError("Please enter a valid roll number or prefix"); 
         return;
     }
@@ -666,6 +683,8 @@ container.innerHTML = `
         .map(result => result.value);
 
     loader.style.display = "none";
+    document.getElementById("loader-overlay").style.display = "none";
+
 
     if (validImages.length === 0) {
       showError("No photos found.");
