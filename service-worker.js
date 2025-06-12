@@ -1,4 +1,4 @@
-const CACHE_NAME = 'offline-cache-v1';
+const CACHE_NAME = 'offline-cache-v2';
 const OFFLINE_URL = 'student_photos/offline.html';  // <-- path updated
 
 self.addEventListener('install', (event) => {
