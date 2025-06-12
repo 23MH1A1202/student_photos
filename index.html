@@ -749,21 +749,28 @@ if (box) {
         // ✅ Confetti on success
         launchConfetti();
 
-        fetch("https://student-name-api.onrender.com/get_name", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: "roll_number=" + encodeURIComponent(prefix)
-        })
-        .then(res => res.json())
-        .then(data => {
-            document.getElementById(`name-${prefix}`).innerText = data.name || "Not found";
-        })
-        .catch(() => {
-            document.getElementById(`name-${prefix}`).innerText = "❌ Error";
-        });
+       const cachedName = localStorage.getItem(prefix);
+if (cachedName) {
+    document.getElementById(`name-${prefix}`).innerText = cachedName;
+    return; // ✅ show cached name if available
+}
 
-        return;
-    }
+// Otherwise fetch from API and store
+fetch("https://student-name-api.onrender.com/get_name", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: "roll_number=" + encodeURIComponent(prefix)
+})
+.then(res => res.json())
+.then(data => {
+    const name = data.name || "Not found";
+    document.getElementById(`name-${prefix}`).innerText = name;
+    localStorage.setItem(prefix, name); // ✅ store it offline
+})
+.catch(() => {
+    document.getElementById(`name-${prefix}`).innerText = "❌ Error";
+});
+
 
     if (prefix.length !== 8) {
         loader.style.display = "none";
@@ -859,6 +866,10 @@ imagesToShow.forEach(({ roll, imageUrl }) => {
 
     fragment.appendChild(box);
 
+    const cachedName = localStorage.getItem(roll);
+if (cachedName) {
+    document.getElementById(`name-${roll}`).innerText = cachedName;
+} else {
     fetch("https://student-name-api.onrender.com/get_name", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -866,14 +877,19 @@ imagesToShow.forEach(({ roll, imageUrl }) => {
     })
     .then(res => res.json())
     .then(data => {
-        document.getElementById(`name-${roll}`).innerText = data.name || "Not found";
+        const name = data.name || "Not found";
+        document.getElementById(`name-${roll}`).innerText = name;
+        localStorage.setItem(roll, name); // ✅ store for offline use
     })
     .catch((error) => {
         console.error(`Error fetching name for ${roll}:`, error);
         document.getElementById(`name-${roll}`).innerText = "❌ Error";
     });
+}
 
-    observer.observe(box);
+// Continue with animations, e.g.:
+observer.observe(box);
+
 });
 
 container.appendChild(fragment);
