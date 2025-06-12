@@ -47,21 +47,7 @@
             padding: 20px;
             max-width: 100vw;
         }
-        .box {
-            border: 3px solid #000;
-            padding: 10px;
-            background-color: white;
-            width: 200px;
-            text-align: center;
-            border-radius: 10px;
-        }
-        .photo {
-            width: 200px;
-            height: auto;
-            object-fit: cover;
-            border-radius: 10px;
-            border: none;
-        }
+        
         .input-container {
             margin: 20px;
             gap: 15px; /* Adds space between the textbox and button */
@@ -180,16 +166,7 @@
             max-width: 300px;
         }
         }
-        .box {
-            border: 3px solid rgb(255, 255, 250);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .box.animate {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(255, 140, 0, 0.6);
-            z-index: 1;
-        }
-
+      
         .dot-loader {
             display: inline-flex;
             align-items: center;
@@ -503,9 +480,9 @@ html {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     position: relative;
   z-index: 2;
-  background: rgba(255, 255, 255, 0.35);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 
@@ -576,44 +553,70 @@ body {
   z-index: 9998; /* just behind the loader */
 }
 
-.stars-light, .twinkling-light {
+#starCanvas {
   position: fixed;
   top: 0;
   left: 0;
-  height: 100vh;
-  width: 100vw;
-  z-index: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  background: transparent;
+}
+
+.box {
+  position: relative;
+  background: linear-gradient(135deg, #ec9f3a, #0d4cd3);
+  border-radius: 20px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(200, 200, 200, 0.4);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 220px;
+  text-align: center;
+  overflow: visible;
+  z-index: 1;
+  color: white;
+}
+
+.box:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+}
+
+.photo {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.box.animate {
+  transform: scale(1.05);
+}
+
+
+.box.animate::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: -1;
+  background: linear-gradient(135deg, rgba(255,140,0,0.5), rgba(17,40,143,0.5));
+  box-shadow: 0 0 12px rgba(255, 140, 0, 0.4), 0 0 12px rgba(17, 40, 143, 0.4);
+  filter: blur(8px);
+  opacity: 1;
   pointer-events: none;
 }
 
-.stars-light {
-  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='10' cy='10' r='0.5' fill='%23ffcc00' /%3E%3Ccircle cx='40' cy='40' r='0.8' fill='%23ffb300' /%3E%3Ccircle cx='70' cy='70' r='0.6' fill='%23ffa500' /%3E%3C/svg%3E") repeat;
-  opacity: 0.2;
-  animation: moveStars 100s linear infinite;
-}
-
-.twinkling-light {
-  background: radial-gradient(white 1%, transparent 10%), radial-gradient(#fff9e6 1%, transparent 10%);
-  background-size: 100px 100px;
-  opacity: 0.1;
-  animation: moveTwinkle 60s linear infinite;
-}
-
-@keyframes moveStars {
-  from { background-position: 0 0; }
-  to { background-position: -10000px 5000px; }
-}
-
-@keyframes moveTwinkle {
-  from { background-position: 0 0; }
-  to { background-position: 5000px 10000px; }
-}
 
 </style>
 </head>
 <body>
-  <div class="stars-light"></div>
-<div class="twinkling-light"></div>
+  <canvas id="starCanvas"></canvas>
 
     <div class="banner-container">
   <img class="banner-image" style="border-bottom-left-radius: 50px; border-bottom-right-radius: 50px;" src="https://erp.adityauniversity.in/getBannerLogo.json?customerErpAcesLinkId=1">
@@ -707,25 +710,40 @@ document.getElementById("loader-overlay").style.display = "block";
 let leBannerHTML = "";
 if (prefix.substring(4, 6) === "5A") {
     leBannerHTML = `
-        <div style="width: 100%; display: flex; justify-content: center; margin-bottom: 10px;">
-            <div class="branch-banner" style="display: block;">LE's</div>
-        </div>
-    `;
+  <div style="width: 100%; display: flex; justify-content: center; margin: 0;">
+    <div class="branch-banner" style="display: block; margin: 8px 0 4px 0;">LE's</div>
+  </div>
+`;
+
 }
 
 // Render banner + photo
 container.innerHTML = `
     ${leBannerHTML}
-    <div class="student-photo fade-in">
-        <div class="box">
-            <h3>${prefix}</h3>
-            <img class="photo" src="${imageUrl}" alt="Student Photo">
-            <div class="student-name" id="name-${prefix}">
-                <span class="dot-loader"><span></span><span></span><span></span></span>
-            </div>
+    <div class="box fade-in">
+        <h3>${prefix}</h3>
+        <img class="photo" src="${imageUrl}" alt="Student Photo">
+        <div class="student-name" id="name-${prefix}">
+            <span class="dot-loader"><span></span><span></span><span></span></span>
         </div>
     </div>
 `;
+const box = document.querySelector(".box");
+if (box) {
+  box.classList.add("animate"); // ✅ Apply glow + scale
+
+  // ✅ Smooth scroll to center of the screen
+  setTimeout(() => {
+    box.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
+  }, 300); // small delay to ensure rendering completes
+
+  observer.observe(box); // optional: for re-animating on scroll
+}
+
+
 
         displayBranch(prefix);
 
@@ -817,7 +835,8 @@ imagesToShow.forEach(({ roll, imageUrl }) => {
         leBanner.className = "branch-banner";
         leBanner.textContent = "LE's";
         leBanner.style.display = "block"; // 👈 override display:none
-        leBanner.style.marginTop = "10px";
+        leBanner.style.margin = "8px 0 4px 0";
+
 
         const leWrapper = document.createElement("div");
         leWrapper.style.width = "100%";
@@ -1120,6 +1139,123 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 </script>
+<script>
+const canvas = document.getElementById('starCanvas');
+const ctx = canvas.getContext('2d');
+
+let stars = [];
+let shootingStars = [];
+
+function initStars() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  stars = [];
+
+  const starCount = Math.floor(canvas.width * canvas.height / 6000); // fewer stars
+
+  for (let i = 0; i < starCount; i++) {
+    const speed = Math.random() * 0.2 + 0.05;
+    const angle = Math.random() * Math.PI * 2;
+    stars.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      radius: Math.random() * 2.2 + 0.8,
+      alpha: Math.random() * 0.4 + 0.6,
+      dx: Math.cos(angle) * speed,
+      dy: Math.sin(angle) * speed
+    });
+  }
+}
+
+function spawnShootingStar() {
+  // Start near the top-left
+  const startX = Math.random() * canvas.width * 0.4;
+  const startY = Math.random() * canvas.height * 0.3;
+
+  shootingStars.push({
+    x: startX,
+    y: startY,
+    vx: Math.random() * 6 + 5,   // rightward speed
+    vy: Math.random() * 3 + 2,   // downward speed
+    length: Math.random() * 100 + 80,
+    alpha: 1,
+    fadeRate: 0.006
+  });
+}
+
+
+function animateStars() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // ⭐ Normal stars movement
+  for (let star of stars) {
+    star.x += star.dx;
+    star.y += star.dy;
+
+    // Wrap around
+    if (star.x < 0) star.x = canvas.width;
+    if (star.x > canvas.width) star.x = 0;
+    if (star.y < 0) star.y = canvas.height;
+    if (star.y > canvas.height) star.y = 0;
+
+    ctx.beginPath();
+    ctx.arc(star.x, star.y, star.radius, 0, 2 * Math.PI);
+    ctx.fillStyle = `rgba(255, 140, 0, ${star.alpha})`;
+    ctx.shadowBlur = 6;
+    ctx.shadowColor = `rgba(255, 140, 0, ${star.alpha})`;
+    ctx.fill();
+  }
+
+  // 🌠 Shooting stars
+  for (let i = shootingStars.length - 1; i >= 0; i--) {
+    const s = shootingStars[i];
+const trailX = s.x - s.length;
+const trailY = s.y - s.length * 0.5;
+
+const grad = ctx.createLinearGradient(s.x, s.y, trailX, trailY);
+grad.addColorStop(0, `rgba(0, 191, 255, ${s.alpha})`);
+grad.addColorStop(1, `rgba(0, 191, 255, 0)`);
+
+ctx.beginPath();
+ctx.moveTo(s.x, s.y);
+ctx.lineTo(trailX, trailY);
+ctx.strokeStyle = grad;
+ctx.lineWidth = 3;
+ctx.shadowBlur = 25;
+ctx.shadowColor = `rgba(0,191,255,${s.alpha})`;
+ctx.stroke();
+
+    // update position & fade
+    s.x += s.vx;
+    s.y += s.vy;
+    s.alpha -= s.fadeRate;
+
+    if (s.alpha <= 0 || s.x < -200 || s.y > canvas.height + 100) {
+      shootingStars.splice(i, 1);
+    }
+  }
+
+  requestAnimationFrame(animateStars);
+}
+
+window.addEventListener('resize', () => {
+  initStars();
+});
+
+window.addEventListener('load', () => {
+  initStars();
+  animateStars();
+
+  // ⏱️ spawn a shooting star every 3–5s, sometimes 2 at once
+  setInterval(() => {
+    const count = Math.random() > 0.5 ? 2 : 1;
+    for (let i = 0; i < count; i++) {
+      spawnShootingStar();
+    }
+  }, Math.random() * 2000 + 3000);
+});
+</script>
+
 
 <!-- Overlay and Centered Popup -->
 <!-- Updated PWA Install Popup -->
