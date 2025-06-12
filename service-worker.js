@@ -1,6 +1,5 @@
 const CACHE_NAME = 'offline-cache-v1';
 const OFFLINE_URL = 'offline.html';
-
 self.addEventListener('install', (event) => {
   console.log('Service Worker installed.');
   event.waitUntil(
