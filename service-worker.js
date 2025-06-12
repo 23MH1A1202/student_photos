@@ -16,14 +16,24 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    fetch(event.request).catch(() => {
-      return caches.match(event.request).then((cachedResponse) => {
-        return cachedResponse || caches.match(OFFLINE_URL);
-      });
-    })
-  );
+  if (event.request.mode === 'navigate') {
+    // It's a page navigation request (e.g. user typed URL or refreshed)
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        console.log('🔌 Showing offline fallback page');
+        return caches.match('offline.html');
+      })
+    );
+  } else {
+    // For non-navigation requests, use the cache normally
+    event.respondWith(
+      caches.match(event.request).then((response) => {
+        return response || fetch(event.request);
+      })
+    );
+  }
 });
+
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
