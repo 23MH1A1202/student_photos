@@ -820,7 +820,7 @@ fetch("https://student-name-api.onrender.com/get_name", {
     document.getElementById('scrollGif').style.display = 'block';
 }
 
-        function displayPhotos() {
+function displayPhotos() {
     const container = document.getElementById("photoContainer");
     const pagination = document.getElementById("pagination");
     container.innerHTML = "";
@@ -831,79 +831,76 @@ fetch("https://student-name-api.onrender.com/get_name", {
     const imagesToShow = validImages.slice(start, end);
 
     let fragment = document.createDocumentFragment();
-let leBannerShown = false;
+    let leBannerShown = false;
 
-imagesToShow.forEach(({ roll, imageUrl }) => {
-    const isLE = roll.substring(4, 6) === "5A";
+    imagesToShow.forEach(({ roll, imageUrl }) => {
+        const isLE = roll.substring(4, 6) === "5A";
 
-    if (isLE && !leBannerShown) {
-        const leBanner = document.createElement("div");
-        leBanner.className = "branch-banner";
-        leBanner.textContent = "LE's";
-        leBanner.style.display = "block"; // 👈 override display:none
-        leBanner.style.margin = "8px 0 4px 0";
+        if (isLE && !leBannerShown) {
+            const leBanner = document.createElement("div");
+            leBanner.className = "branch-banner";
+            leBanner.textContent = "LE's";
+            leBanner.style.display = "block";
+            leBanner.style.margin = "8px 0 4px 0";
 
+            const leWrapper = document.createElement("div");
+            leWrapper.style.width = "100%";
+            leWrapper.style.display = "flex";
+            leWrapper.style.justifyContent = "center";
+            leWrapper.appendChild(leBanner);
 
-        const leWrapper = document.createElement("div");
-        leWrapper.style.width = "100%";
-        leWrapper.style.display = "flex";
-        leWrapper.style.justifyContent = "center";
-        leWrapper.appendChild(leBanner);
+            fragment.appendChild(leWrapper);
+            leBannerShown = true;
+        }
 
-        fragment.appendChild(leWrapper);
-        leBannerShown = true;
-    }
+        const box = document.createElement("div");
+        box.classList.add("box");
+        box.innerHTML = `
+            <h3>${roll}</h3>
+            <img class="photo" src="${imageUrl}" alt="Student Photo">
+            <div class="student-name" id="name-${roll}">
+                <span class="dot-loader"><span></span><span></span><span></span></span>
+            </div>
+        `;
+        fragment.appendChild(box);
 
-    const box = document.createElement("div");
-    box.classList.add("box");
-    box.innerHTML = `
-        <h3>${roll}</h3>
-        <img class="photo" src="${imageUrl}" alt="Student Photo">
-        <div class="student-name" id="name-${roll}">
-            <span class="dot-loader"><span></span><span></span><span></span></span>
-        </div>
-    `;
+        // ✅ Name fetching with offline caching
+        const cachedName = localStorage.getItem(roll);
+        if (cachedName) {
+            document.getElementById(`name-${roll}`).innerText = cachedName;
+        } else {
+            fetch("https://student-name-api.onrender.com/get_name", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: "roll_number=" + encodeURIComponent(roll)
+            })
+            .then(res => res.json())
+            .then(data => {
+                const name = data.name || "Not found";
+                document.getElementById(`name-${roll}`).innerText = name;
+                localStorage.setItem(roll, name); // ✅ cache name
+            })
+            .catch((error) => {
+                console.error(`Error fetching name for ${roll}:`, error);
+                document.getElementById(`name-${roll}`).innerText = "❌ Error";
+            });
+        }
 
-    fragment.appendChild(box);
-
-    const cachedName = localStorage.getItem(roll);
-if (cachedName) {
-    document.getElementById(`name-${roll}`).innerText = cachedName;
-} else {
-    fetch("https://student-name-api.onrender.com/get_name", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: "roll_number=" + encodeURIComponent(roll)
-    })
-    .then(res => res.json())
-    .then(data => {
-        const name = data.name || "Not found";
-        document.getElementById(`name-${roll}`).innerText = name;
-        localStorage.setItem(roll, name); // ✅ store for offline use
-    })
-    .catch((error) => {
-        console.error(`Error fetching name for ${roll}:`, error);
-        document.getElementById(`name-${roll}`).innerText = "❌ Error";
+        observer.observe(box);
     });
-}
 
-// Continue with animations, e.g.:
-observer.observe(box);
+    container.appendChild(fragment);
 
-});
-
-container.appendChild(fragment);
-
-setTimeout(() => {
-  const firstBox = container.querySelector(".box");
-  if (firstBox) {
-    firstBox.classList.add("animate");
-  }
-}, 50);
+    setTimeout(() => {
+        const firstBox = container.querySelector(".box");
+        if (firstBox) {
+            firstBox.classList.add("animate");
+        }
+    }, 50);
 
     const totalPages = Math.ceil(validImages.length / imagesPerPage);
 
-    // Create Previous button
+    // Previous button
     if (currentPage > 0) {
         const prevBtn = document.createElement("button");
         prevBtn.textContent = "Previous";
@@ -915,7 +912,7 @@ setTimeout(() => {
         pagination.appendChild(prevBtn);
     }
 
-    // Create Next button
+    // Next button
     if (currentPage < totalPages - 1) {
         const nextBtn = document.createElement("button");
         nextBtn.textContent = "Next";
