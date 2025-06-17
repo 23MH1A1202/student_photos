@@ -619,12 +619,12 @@ body {
 <center>
 <div class="glass" style="margin-left: 20px; margin-right: 20px; margin-top: auto; max-width: max-content;">
     <h3>STUDENT PHOTOS</h3>
-    <p style="margin-left: 10px; margin-right: 10px;">Enter Roll Number or Prefix (e.g., 23MH1A12) to generate student photos.</p>
+    <p style="margin-left: 10px; margin-right: 10px;">Enter Name, Roll Number or Prefix (e.g., 23MH1A12) to generate student photo's.</p>
    <div class="input-container">
        <input
   type="text"
   id="rollNumberInput"
-  placeholder="🔍 Enter Roll Number"
+  placeholder="🔍 Enter Roll No. or Names"
   onkeypress="handleKeyPress(event)"
   inputmode="text"
   autocapitalize="characters"
@@ -668,8 +668,8 @@ body {
                 img.onerror = () => resolve(null);
             });
         }
-    async function generatePhotos() {
-    const prefix = document.getElementById("rollNumberInput").value.trim().toUpperCase();
+async function generatePhotos() {
+    const input = document.getElementById("rollNumberInput").value.trim().toUpperCase();
     const container = document.getElementById("photoContainer");
     const pagination = document.getElementById("pagination");
     const branchDisplay = document.getElementById("branchDisplay");
@@ -679,140 +679,182 @@ body {
     pagination.innerHTML = "";
     branchDisplay.style.display = "none";
     loader.style.display = "flex";
-document.getElementById("loader-overlay").style.display = "block";
+    document.getElementById("loader-overlay").style.display = "block";
 
-    // 📌 Handle exact 10-character roll numbers (single photo)
-    if (prefix.length === 10) {
-        let imageUrl = `https://info.aec.edu.in/acet/studentPhotos/${prefix}.jpg`;
-        if (prefix.substring(2, 4) === "A9") {
-            imageUrl = `https://info.aec.edu.in/AEC/studentPhotos/${prefix}.jpg`;
+    // 🟢 Case 1: Exact 10-char roll number
+    if (input.length === 10) {
+        let imageUrl = `https://info.aec.edu.in/acet/studentPhotos/${input}.jpg`;
+        if (input.substring(2, 4) === "A9") {
+            imageUrl = `https://info.aec.edu.in/AEC/studentPhotos/${input}.jpg`;
         }
 
         const exists = await checkImageExists(imageUrl);
+        loader.style.display = "none";
+        document.getElementById("loader-overlay").style.display = "none";
+
+        if (!exists) {
+            showError("Photo not found.");
+            return;
+        }
+
+        let leBannerHTML = "";
+        if (input.substring(4, 6) === "5A") {
+            leBannerHTML = `
+                <div style="width: 100%; display: flex; justify-content: center; margin: 0;">
+                    <div class="branch-banner" style="display: block; margin: 8px 0 4px 0;">LE's</div>
+                </div>
+            `;
+        }
+
+        container.innerHTML = `
+            ${leBannerHTML}
+            <div class="box fade-in">
+                <h3>${input}</h3>
+                <img class="photo" src="${imageUrl}" alt="Student Photo">
+                <div class="student-name" id="name-${input}">
+                    <span class="dot-loader"><span></span><span></span><span></span></span>
+                </div>
+            </div>
+        `;
+
+        const box = document.querySelector(".box");
+        if (box) {
+            box.classList.add("animate");
+            setTimeout(() => {
+                box.scrollIntoView({ behavior: "smooth", block: "center" });
+            }, 300);
+            observer.observe(box);
+        }
+
+        displayBranch(input);
+        launchConfetti();
+
+        const cachedName = localStorage.getItem(input);
+        if (cachedName) {
+            document.getElementById(`name-${input}`).innerText = cachedName;
+            return;
+        } else {
+            fetch("https://student-name-api.onrender.com/get_name", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: "roll_number=" + encodeURIComponent(input)
+            })
+                .then(res => res.json())
+                .then(data => {
+                    const name = data.name || "Not found";
+                    document.getElementById(`name-${input}`).innerText = name;
+                    localStorage.setItem(input, name);
+                })
+                .catch(() => {
+                    document.getElementById(`name-${input}`).innerText = "❌ Error";
+                });
+        }
+
+        return;
+    }
+
+    // 🟡 Case 2: 8-char prefix
+    if (input.length === 8) {
+        let rollNumbers = [];
+        rollNumbers.push(...generateRollNumbers(input));
+        const lePrefix = convertToLE(input);
+        rollNumbers.push(...generateRollNumbers(lePrefix));
+
+        const results = await Promise.allSettled(
+            rollNumbers.map(roll => {
+                let url = `https://info.aec.edu.in/acet/studentPhotos/${roll}.jpg`;
+                if (input.substring(2, 4) === "A9") {
+                    url = `https://info.aec.edu.in/AEC/studentPhotos/${roll}.jpg`;
+                }
+                return checkImageExists(url).then(result => (result ? { roll, imageUrl: url } : null));
+            })
+        );
+
+        validImages = results
+            .filter(result => result.status === "fulfilled" && result.value !== null)
+            .map(result => result.value);
 
         loader.style.display = "none";
         document.getElementById("loader-overlay").style.display = "none";
 
-
-        if (!exists) {
-         showError("Photo not found.");
+        if (validImages.length === 0) {
+            showError("No photos found.");
             return;
         }
 
-// Prepare an LE banner if needed
-let leBannerHTML = "";
-if (prefix.substring(4, 6) === "5A") {
-    leBannerHTML = `
-  <div style="width: 100%; display: flex; justify-content: center; margin: 0;">
-    <div class="branch-banner" style="display: block; margin: 8px 0 4px 0;">LE's</div>
-  </div>
-`;
-
-}
-
-// Render banner + photo
-container.innerHTML = `
-    ${leBannerHTML}
-    <div class="box fade-in">
-        <h3>${prefix}</h3>
-        <img class="photo" src="${imageUrl}" alt="Student Photo">
-        <div class="student-name" id="name-${prefix}">
-            <span class="dot-loader"><span></span><span></span><span></span></span>
-        </div>
-    </div>
-`;
-const box = document.querySelector(".box");
-if (box) {
-  box.classList.add("animate"); // ✅ Apply glow + scale
-
-  // ✅ Smooth scroll to center of the screen
-  setTimeout(() => {
-    box.scrollIntoView({
-      behavior: "smooth",
-      block: "center"
-    });
-  }, 300); // small delay to ensure rendering completes
-
-  observer.observe(box); // optional: for re-animating on scroll
-}
-
-
-
-        displayBranch(prefix);
-
-        // ✅ Confetti on success
+        displayBranch(input);
+        currentPage = 0;
+        displayPhotos();
         launchConfetti();
-const cachedName = localStorage.getItem(prefix);
-        if (cachedName) {
-            document.getElementById(`name-${prefix}`).innerText = cachedName;
-            return;
-        }
-        else{
-       fetch("https://student-name-api.onrender.com/get_name", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: "roll_number=" + encodeURIComponent(prefix)
-        })
-        .then(res => res.json())
-        .then(data => {
-            document.getElementById(`name-${prefix}`).innerText = data.name || "Not found";
-            localStorage.setItem(prefix, name);
-        })
-        .catch(() => {
-            document.getElementById(`name-${prefix}`).innerText = "❌ Error";
-        });
-    }
-        return; // ✅ Important: Stop here if 10-digit roll was processed
-}
-
-    if (prefix.length !== 8) {
-        loader.style.display = "none";
-          document.getElementById("loader-overlay").style.display = "none";
-
-       showError("Please enter a valid roll number or prefix"); 
+        document.getElementById('scrollGif').style.display = 'block';
         return;
     }
 
+    // 🔴 Case 3: Name-based search
+    const response = await fetch("http://localhost:5000/resolve_name_to_roll", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "query=" + encodeURIComponent(input)
+    });
 
-    let rollNumbers = [];
-    rollNumbers.push(...generateRollNumbers(prefix));
-    const lePrefix = convertToLE(prefix);
-    rollNumbers.push(...generateRollNumbers(lePrefix));
-
-    const results = await Promise.allSettled(
-        rollNumbers.map(roll => {
-            let url = `https://info.aec.edu.in/acet/studentPhotos/${roll}.jpg`;
-            if (prefix.substring(2, 4) === "A9") {
-                url = `https://info.aec.edu.in/AEC/studentPhotos/${roll}.jpg`;
-            }
-          return checkImageExists(url).then(result => (result ? { roll, imageUrl: url } : null));
-
-        })
-    );
-
-    validImages = results
-        .filter(result => result.status === "fulfilled" && result.value !== null)
-        .map(result => result.value);
-
+    const data = await response.json();
     loader.style.display = "none";
     document.getElementById("loader-overlay").style.display = "none";
 
-
-    if (validImages.length === 0) {
-      showError("No photos found.");
-        branchDisplay.style.display = "none";
+    if (!Array.isArray(data) || data.length === 0) {
+        showError("No student found for that name.");
         return;
     }
 
-    displayBranch(prefix);
-    currentPage = 0;
-    displayPhotos();
+    // ✅ Group by year → series (MH, P3, A9)
+    const campusNames = { MH: "ACOE", P3: "ACET", A9: "AEC" };
+    const campusOrder = ["MH", "P3", "A9"];
+    let grouped = {};
 
-    // ✅ Confetti on success
+    for (let { roll, name, branch, campus } of data) {
+        const year = roll.substring(0, 2);
+        const series = roll.substring(2, 4); // MH, P3, A9
+
+        if (!grouped[year]) grouped[year] = { MH: [], P3: [], A9: [] };
+
+        let imageUrl = `https://info.aec.edu.in/acet/studentPhotos/${roll}.jpg`;
+        if (series === "A9") {
+            imageUrl = `https://info.aec.edu.in/AEC/studentPhotos/${roll}.jpg`;
+        }
+
+        grouped[year][series].push({ roll, name, branch, campus, imageUrl });
+    }
+
+    let html = "";
+    const sortedYears = Object.keys(grouped).sort((a, b) => b - a);
+
+    for (let year of sortedYears) {
+        html += `<div class="branch-banner" style="margin-top: 30px;">${year} Batch</div><br/>`;
+
+        for (let series of campusOrder) {
+            const students = grouped[year][series];
+            if (students.length === 0) continue;
+
+            html += `<div class="branch-banner" style="margin-top: 12px;">${campusNames[series]}</div>`;
+
+            students.forEach(({ roll, name, branch, campus, imageUrl }) => {
+                html += `
+                    <div class="box fade-in">
+                        <h3>${roll}</h3>
+                        <img class="photo" src="${imageUrl}" alt="Student Photo">
+                        <div class="student-name">${name}</div>
+                        <div style="margin-top: 5px;"><strong>Branch:</strong> ${branch}</div>
+                        <div style="margin-top: 2px;"><strong>Campus:</strong> ${campus}</div>
+                    </div>
+                `;
+            });
+        }
+    }
+
+    container.innerHTML = html;
     launchConfetti();
-
-    document.getElementById('scrollGif').style.display = 'block';
 }
+
 
         function displayPhotos() {
     const container = document.getElementById("photoContainer");
@@ -974,7 +1016,7 @@ const observer = new IntersectionObserver((entries) => {
         const branchMap = {
     "01": "CE", "02": "EEE", "03": "ME", "04": "ECE", "05": "CSE", 
     "12": "IT","14": "ECT", "15": "CSSE", "19": "ECE","26": "Mining",
-    "27": "PT","00": "Pharma","42": "AIML","44": "DS","49": "IoT"
+    "27": "PT","00": "Pharmacy","42": "CSE-AIML","44": "DS","49": "IoT", "61":"AIML"
 };
 
 function displayBranch(rollNumber) {
@@ -1361,7 +1403,7 @@ window.addEventListener('load', () => {
 <div style="height: 60px;"></div>
 <div class="modern-marquee">
   <div class="marquee-content">
-    <span>Thank you for using our Application! We hope you find it useful and informative.</span>
+    <span>Thank you for visiting our page! We hope you find it useful and informative.</span>
   </div>
 </div>
 
