@@ -210,6 +210,7 @@
   z-index: 100;
   border-bottom-left-radius: 50px;
   border-bottom-right-radius: 50px;
+  background-color: white;
 }
 
 .banner-image {
@@ -309,7 +310,7 @@ body {
     justify-content: center;
     align-items: center;
     transition: opacity 0.3s ease;
-    padding: 0;
+    padding: 1;
     outline: none; /* or any custom color */
   box-shadow: none;
 }
@@ -474,8 +475,8 @@ html {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     position: relative;
   z-index: 2;
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
@@ -618,8 +619,8 @@ body {
 <br>
 <center>
 <div class="glass" style="margin-left: 20px; margin-right: 20px; margin-top: auto; max-width: max-content;">
-    <h3>STUDENT PHOTOS</h3>
-    <p style="margin-left: 10px; margin-right: 10px;">Enter Name, Roll Number or Prefix (e.g., 23MH1A12) to generate student photo's.</p>
+    <h3 style="color: #e78c1d;">STUDENT PHOTOS</h3>
+    <p style=" margin-left: 10px; margin-right: 10px;">Enter Name, Roll Number or Prefix (e.g., 23MH1A12) to generate student photo's.</p>
    <div class="input-container">
        <input
   type="text"
@@ -1220,9 +1221,8 @@ function initStars() {
 }
 
 function spawnShootingStar() {
-  // Start near the top-left
-  const startX = Math.random() * canvas.width * 0.4;
-  const startY = Math.random() * canvas.height * 0.3;
+  const startX = Math.random() * canvas.width;
+  const startY = Math.random() * canvas.height;
 
   shootingStars.push({
     x: startX,
@@ -1299,12 +1299,13 @@ window.addEventListener('load', () => {
   animateStars();
 
   // ⏱️ spawn a shooting star every 3–5s, sometimes 2 at once
-  setInterval(() => {
-    const count = Math.random() > 0.5 ? 2 : 1;
-    for (let i = 0; i < count; i++) {
-      spawnShootingStar();
-    }
-  }, Math.random() * 2000 + 3000);
+ setInterval(() => {
+  const count = Math.random() > 0.3 ? 2 : 3; // spawn 2 or 3 stars
+  for (let i = 0; i < count; i++) {
+    spawnShootingStar();
+  }
+}, Math.random() * 800 + 1200); // every 1.2s to 2s
+
 });
 </script>
 
