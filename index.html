@@ -956,10 +956,11 @@ setTimeout(() => {
 
     const totalPages = Math.ceil(validImages.length / imagesPerPage);
 
-    // Create Previous button
+if (totalPages > 1) {
+    // ⟨ Prev
     if (currentPage > 0) {
         const prevBtn = document.createElement("button");
-        prevBtn.textContent = "Previous";
+        prevBtn.textContent = "⟨ Prev";
         prevBtn.onclick = () => {
             currentPage--;
             displayPhotos();
@@ -968,10 +969,27 @@ setTimeout(() => {
         pagination.appendChild(prevBtn);
     }
 
-    // Create Next button
+    // 1 2 3 4 ...
+    for (let i = 0; i < totalPages; i++) {
+        const pageBtn = document.createElement("button");
+        pageBtn.textContent = i + 1;
+        if (i === currentPage) {
+            pageBtn.style.backgroundColor = "orange";
+            pageBtn.style.color = "white";
+            pageBtn.disabled = true;
+        }
+        pageBtn.onclick = () => {
+            currentPage = i;
+            displayPhotos();
+            window.scrollTo(0, 0);
+        };
+        pagination.appendChild(pageBtn);
+    }
+
+    // Next ⟩
     if (currentPage < totalPages - 1) {
         const nextBtn = document.createElement("button");
-        nextBtn.textContent = "Next";
+        nextBtn.textContent = "Next ⟩";
         nextBtn.onclick = () => {
             currentPage++;
             displayPhotos();
@@ -979,6 +997,8 @@ setTimeout(() => {
         };
         pagination.appendChild(nextBtn);
     }
+}
+
 }
 
 // Set up Intersection Observer
