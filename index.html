@@ -607,7 +607,13 @@ body {
   pointer-events: none;
 }
 
-
+#photoContainer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  padding-bottom: 100px;
+}
 </style>
 </head>
 <body>
@@ -682,7 +688,7 @@ async function generatePhotos() {
     loader.style.display = "flex";
     document.getElementById("loader-overlay").style.display = "block";
 
-    // 🟢 Case 1: Exact 10-char roll number
+    // ✅ Roll number (10-digit)
     if (input.length === 10) {
         let imageUrl = `https://info.aec.edu.in/acet/studentPhotos/${input}.jpg`;
         if (input.substring(2, 4) === "A9") {
@@ -754,7 +760,7 @@ async function generatePhotos() {
         return;
     }
 
-    // 🟡 Case 2: 8-char prefix
+    // ✅ Prefix (8-char)
     if (input.length === 8) {
         let rollNumbers = [];
         rollNumbers.push(...generateRollNumbers(input));
@@ -791,7 +797,7 @@ async function generatePhotos() {
         return;
     }
 
-    // 🔴 Case 3: Name-based search
+    // ✅ Name-based search
     const response = await fetch("https://student-name-api.onrender.com/resolve_name_to_roll", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -807,15 +813,14 @@ async function generatePhotos() {
         return;
     }
 
-    // ✅ Group by year → series (MH, P3, A9)
+    // ✅ Group data by year → series
     const campusNames = { MH: "ACOE", P3: "ACET", A9: "AEC" };
     const campusOrder = ["MH", "P3", "A9"];
     let grouped = {};
 
     for (let { roll, name, branch, campus } of data) {
         const year = roll.substring(0, 2);
-        const series = roll.substring(2, 4); // MH, P3, A9
-
+        const series = roll.substring(2, 4);
         if (!grouped[year]) grouped[year] = { MH: [], P3: [], A9: [] };
 
         let imageUrl = `https://info.aec.edu.in/acet/studentPhotos/${roll}.jpg`;
@@ -826,33 +831,44 @@ async function generatePhotos() {
         grouped[year][series].push({ roll, name, branch, campus, imageUrl });
     }
 
-    let html = "";
-    const sortedYears = Object.keys(grouped).sort((a, b) => b - a);
+    // ✅ Clear container, append banners and boxes as real DOM
+    container.innerHTML = "";
 
+    const sortedYears = Object.keys(grouped).sort((a, b) => b - a);
     for (let year of sortedYears) {
-        html += `<div class="branch-banner" style="margin-top: 30px;">${year} Batch</div><br/>`;
+        const yearBanner = document.createElement("div");
+        yearBanner.className = "branch-banner";
+        yearBanner.style.width = "100%";
+        yearBanner.style.marginTop = "30px";
+        yearBanner.innerText = `${year} Batch`;
+        container.appendChild(yearBanner);
 
         for (let series of campusOrder) {
             const students = grouped[year][series];
-            if (students.length === 0) continue;
+            if (!students.length) continue;
 
-            html += `<div class="branch-banner" style="margin-top: 12px;">${campusNames[series]}</div>`;
+            const campusBanner = document.createElement("div");
+            campusBanner.className = "branch-banner";
+            campusBanner.style.width = "100%";
+            campusBanner.style.marginTop = "12px";
+            campusBanner.innerText = campusNames[series];
+            container.appendChild(campusBanner);
 
             students.forEach(({ roll, name, branch, campus, imageUrl }) => {
-                html += `
-                    <div class="box fade-in">
-                        <h3>${roll}</h3>
-                        <img class="photo" src="${imageUrl}" alt="Student Photo">
-                        <div class="student-name">${name}</div>
-                        <div style="margin-top: 5px;"><strong>Branch:</strong> ${branch}</div>
-                        <div style="margin-top: 2px;"><strong>Campus:</strong> ${campus}</div>
-                    </div>
+                const box = document.createElement("div");
+                box.className = "box fade-in";
+                box.innerHTML = `
+                    <h3>${roll}</h3>
+                    <img class="photo" src="${imageUrl}" alt="Student Photo">
+                    <div class="student-name">${name}</div>
+                    <div style="margin-top: 5px;"><strong>Branch:</strong> ${branch}</div>
+                    <div style="margin-top: 2px;"><strong>Campus:</strong> ${campus}</div>
                 `;
+                container.appendChild(box);
             });
         }
     }
 
-    container.innerHTML = html;
     launchConfetti();
 }
 
