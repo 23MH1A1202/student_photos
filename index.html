@@ -613,6 +613,14 @@ body {
   gap: 20px;
   padding-bottom: 20px;
 }
+
+    body::after {
+  content: "";
+  display: block;
+  height: env(safe-area-inset-bottom);
+  background-color: #ffffff; /* match your current background */
+}
+
 </style>
 </head>
 <body>
