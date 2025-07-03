@@ -2,7 +2,6 @@
   "name": "Student Photos",
   "short_name": "Student Photos",
   "start_url": "/student_photos/",
-  "scope": "/student_photos/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
