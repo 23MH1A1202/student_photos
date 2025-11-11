@@ -812,20 +812,41 @@ async function generatePhotos() {
     }
 
     // ✅ Name-based search
-    const response = await fetch("https://student-name-api.onrender.com/resolve_name_to_roll", {
+   function generateNameVariants(name) {
+    let list = [];
+    for (let i = name.length; i >= 3; i--) {
+        list.push(name.slice(0, i));
+    }
+    return list;
+}
+
+let variants = generateNameVariants(input);
+let data = [];
+
+// Try each shortened name until you get results
+for (let v of variants) {
+    const res = await fetch("https://student-name-api.onrender.com/resolve_name_to_roll", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: "query=" + encodeURIComponent(input)
+        body: "query=" + encodeURIComponent(v)
     });
 
-    const data = await response.json();
-    loader.style.display = "none";
-    document.getElementById("loader-overlay").style.display = "none";
+    data = await res.json();
 
-    if (!Array.isArray(data) || data.length === 0) {
-        showError("No student found for that name.");
-        return;
+    if (Array.isArray(data) && data.length > 0) {
+        break; // ✅ Found match
     }
+}
+
+loader.style.display = "none";
+document.getElementById("loader-overlay").style.display = "none";
+
+// Still no result?
+if (!Array.isArray(data) || data.length === 0) {
+    showError("No student found for that name.");
+    return;
+}
+
 
     // ✅ Group data by year → series
     const campusNames = { MH: "ACOE", P3: "ACET", A9: "AEC" };
@@ -1496,3 +1517,4 @@ window.addEventListener('load', () => {
 
 </body>
 </html>
+
