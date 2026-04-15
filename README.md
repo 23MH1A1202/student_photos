@@ -28,55 +28,9 @@ Live site: [https://23mh1a1202.github.io/student_photos/](https://23mh1a1202.git
 | Web App Manifest | PWA metadata (name, icons, display mode) |
 | Service Worker | Offline caching and fallback |
 
-External resources used at runtime:
-- Student photo CDN: `https://info.aec.edu.in/`
-- Student name API: `https://student-name-api.onrender.com/`
-- Confetti library: `canvas-confetti` via jsDelivr CDN
 
 ---
 
-## Getting Started
-
-### Requirements
-
-- A modern web browser (Chrome, Edge, Firefox, Safari).
-- No build tools, Node.js, or package manager is required — this is a plain static site.
-
-### Download / Clone
-
-```bash
-git clone https://github.com/23MH1A1202/student_photos.git
-cd student_photos
-```
-
-Or [download the ZIP](https://github.com/23MH1A1202/student_photos/archive/refs/heads/main.zip) and extract it.
-
-### Run Locally
-
-**Option 1 – Open directly in the browser (simplest)**
-
-Double-click `index.html` or open it with your browser:
-
-```
-file:///path/to/student_photos/index.html
-```
-
-> **Note:** The Service Worker will not register over `file://`. For full PWA functionality, use Option 2.
-
-**Option 2 – Serve with a simple local server (recommended)**
-
-Using Python (comes pre-installed on most systems):
-
-```bash
-# Python 3
-python -m http.server 8080
-```
-
-Then open [http://localhost:8080](http://localhost:8080) in your browser.
-
-Alternatively, with [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) in VS Code: right-click `index.html` → **Open with Live Server**.
-
----
 
 ## Project Structure
 
@@ -106,25 +60,7 @@ student_photos/
 
 ---
 
-## How to Add / Update Student Photos
 
-Student photos are served directly from the college's remote server and are **not stored in this repository**. The app constructs image URLs using the pattern:
-
-```
-https://info.aec.edu.in/acet/studentPhotos/<ROLL_NUMBER>.jpg
-```
-
-For AEC students (roll numbers where characters 3–4 are `A9`):
-
-```
-https://info.aec.edu.in/AEC/studentPhotos/<ROLL_NUMBER>.jpg
-```
-
-**Naming convention:** The image file name must exactly match the student's roll number (uppercase), with a `.jpg` extension.
-
-To make a new batch of photos available, upload them to the college server following the same naming convention. No changes to this repository are required.
-
----
 
 ## Troubleshooting
 
@@ -139,9 +75,5 @@ To make a new batch of photos available, upload them to the college server follo
 
 ---
 
-## License
-
-This project is licensed under the **MIT License**.  
-See the [LICENSE](LICENSE) file for details (if present), or refer to the standard MIT License terms:
-
-> Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files, to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software.
+Developer:- Ambati Lalitha Sagar
+Email:- alalithasagar355@gmail.com
