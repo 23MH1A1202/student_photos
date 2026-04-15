@@ -67,7 +67,7 @@ student_photos/
 | Problem | Possible cause & fix |
 |---|---|
 | **"Photo not found" error** | The roll number may be incorrect, or the photo has not been uploaded to the college server yet. Double-check the roll number and try again. |
-| **Student name shows a loading spinner indefinitely** | The name-lookup API (`student-name-api.onrender.com`) may be sleeping (free-tier cold start). Wait ~30 seconds, then press **Search** again to retry the request. |
+| **Student name shows a loading spinner indefinitely** | The name-lookup API may be sleeping (free-tier cold start). Wait ~30 seconds, then press **Search** again to retry the request. |
 | **App shows the offline page** | You are not connected to the internet. Connect and refresh the page. |
 | **Service Worker not registering** | The page must be served over `http://` or `https://`, not the `file://` protocol. Use a local server (see [Run Locally](#run-locally)). |
 | **Images not loading on localhost** | The college image CDN may block cross-origin requests from `localhost`. Try the live GitHub Pages URL instead. |
