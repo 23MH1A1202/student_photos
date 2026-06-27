@@ -53,8 +53,8 @@ student_photos/
 
 1. Open the app in your browser.
 2. In the search box, enter one of the following:
-   - **Full roll number** (10 characters, e.g. `22MH1A0501`) – displays the single matching photo and the student's name.
-   - **Prefix** (fewer than 10 characters, e.g. `22MH1A05`) – displays all photos whose roll numbers start with that prefix, with pagination.
+   - **Full roll number** (10 characters, e.g. `23MH1A1202`) – displays the single matching photo and the student's name, For testing purpose use my Roll number:- 23MH1A1202
+   - **Prefix** (fewer than 10 characters, e.g. `23MH1A12`) – displays all photos whose roll numbers start with that prefix, with pagination.
 3. Press **Search** (or hit **Enter**).
 4. Click any photo card to view it in full size.
 
