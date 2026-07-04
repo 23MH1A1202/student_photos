@@ -56,6 +56,54 @@ footer a {
 footer a:hover {
     text-decoration: underline;
 }
+        /* ✅ API Status Indicator Styles */
+.status-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    font-size: 13px;
+    color: #555;
+    font-weight: 600;
+}
+.pulse-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #ff4d4d;
+    box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7);
+    animation: pulse-red 1.5s infinite;
+}
+.pulse-dot.ready {
+    background-color: #4CAF50;
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+    animation: pulse-green 1.5s infinite;
+}
+@keyframes pulse-red {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(255, 77, 77, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
+}
+@keyframes pulse-green {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(76, 175, 80, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+}
+.info-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: #11288f;
+    color: white;
+    font-size: 12px;
+    font-style: italic;
+    cursor: pointer;
+}
         .container {
             display: flex;
             flex-wrap: wrap;
@@ -662,7 +710,11 @@ body::after {
 <div class="glass" style="margin-left: 20px; margin-right: 20px; margin-top: auto; max-width: max-content;">
     <h3 style="color: #e78c1d;">STUDENT PHOTOS</h3>
     <p style=" margin-left: 10px; margin-right: 10px;">Enter Name, Roll Number or Prefix (e.g., 25B11IT for AU, 23P31A12 for ACET, 23A91A12 for AEC) to generate complete batch student photo's.</p>
-    
+    <div class="status-container">
+        <div id="api-status-dot" class="pulse-dot"></div>
+        <span id="api-status-text">Server Waking Up...</span>
+        <div class="info-icon" onclick="alert('If you are looking for name-based search or you need the name of the person in the photo with roll number-based search, wait until this dot changes to green.')">i</div>
+    </div>
     <div class="college-selector">
         <button class="college-btn active" onclick="selectCollege('AU', event)">AU</button>
         <button class="college-btn" onclick="selectCollege('AEC', event)">AEC</button>
@@ -1293,9 +1345,33 @@ function refreshAfterPopup() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Convert input to uppercase automatically
   const input = document.getElementById("rollNumberInput");
   input.addEventListener("input", () => {
     input.value = input.value.toUpperCase();
+  });
+
+  // ✅ Send Background Request to Wake Up Render Server
+  const statusDot = document.getElementById('api-status-dot');
+  const statusText = document.getElementById('api-status-text');
+
+  fetch("https://student-name-api.onrender.com/get_name", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: "roll_number=23MH1A1202&college=ACET" // Your hidden wake-up ping
+  })
+  .then(res => res.json())
+  .then(data => {
+      // Once Render wakes up and replies, turn the dot green!
+      if (data) {
+          statusDot.classList.add('ready');
+          statusText.innerText = "Server Ready";
+          statusText.style.color = "#4CAF50";
+      }
+  })
+  .catch(err => {
+      console.log("Wake-up ping delayed/failed:", err);
+      statusText.innerText = "Server Offline";
   });
 });
 
