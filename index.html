@@ -95,10 +95,10 @@ footer a:hover {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
-    background-color: #11288f;
+    background-color: black;
     color: white;
     font-size: 12px;
     font-style: italic;
@@ -710,10 +710,11 @@ body::after {
 <div class="glass" style="margin-left: 20px; margin-right: 20px; margin-top: auto; max-width: max-content;">
     <h3 style="color: #e78c1d;">STUDENT PHOTOS</h3>
     <p style=" margin-left: 10px; margin-right: 10px;">Enter Name, Roll Number or Prefix (e.g., 25B11IT for AU, 23P31A12 for ACET, 23A91A12 for AEC) to generate complete batch student photo's.</p>
+    <!-- ✅ API Status Indicator UI -->
     <div class="status-container">
         <div id="api-status-dot" class="pulse-dot"></div>
-        <span id="api-status-text">Server Waking Up...</span>
-        <div class="info-icon" onclick="alert('If you are looking for name-based search or you need the name of the person in the photo with roll number-based search, wait until this dot changes to green.')">i</div>
+        <span id="api-status-text">Connecting...</span>
+        <div class="info-icon" onclick="showInfoPopup()">i</div>
     </div>
     <div class="college-selector">
         <button class="college-btn active" onclick="selectCollege('AU', event)">AU</button>
@@ -1344,8 +1345,15 @@ function refreshAfterPopup() {
     location.reload(); 
 }
 
+// ✅ Info Popup Controls
+function showInfoPopup() {
+    document.getElementById('info-overlay').style.display = 'flex';
+}
+function closeInfoPopup() {
+    document.getElementById('info-overlay').style.display = 'none';
+}
+
 document.addEventListener("DOMContentLoaded", () => {
-  // Convert input to uppercase automatically
   const input = document.getElementById("rollNumberInput");
   input.addEventListener("input", () => {
     input.value = input.value.toUpperCase();
@@ -1358,20 +1366,20 @@ document.addEventListener("DOMContentLoaded", () => {
   fetch("https://student-name-api.onrender.com/get_name", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: "roll_number=23MH1A1202&college=ACET" // Your hidden wake-up ping
+      body: "roll_number=23MH1A1202&college=ACET" // Hidden wake-up ping
   })
   .then(res => res.json())
   .then(data => {
       // Once Render wakes up and replies, turn the dot green!
       if (data) {
           statusDot.classList.add('ready');
-          statusText.innerText = "Server Ready";
+          statusText.innerText = "Ready";
           statusText.style.color = "#4CAF50";
       }
   })
   .catch(err => {
       console.log("Wake-up ping delayed/failed:", err);
-      statusText.innerText = "Server Offline";
+      statusText.innerText = "Offline";
   });
 });
 
@@ -1624,6 +1632,15 @@ window.addEventListener('load', () => {
     ">OK</button>
   </div>
 </div>
-
+<!-- ✅ Custom Info Popup -->
+    <div id="info-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center;">
+        <div style="background: white; padding: 25px; border-radius: 15px; max-width: 320px; width: 90%; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+            <h3 style="margin-top: 0; color: #11288f;">Search Status</h3>
+            <p style="color: #444; font-size: 15px; margin-bottom: 20px; line-height: 1.5;">
+                If you are doing a <strong>Name-Based Search</strong>, or if you need the student's name to load under their photo, please wait until the status dot turns <strong style="color: #4CAF50;">Green (Ready)</strong>.
+            </p>
+            <button onclick="closeInfoPopup()" style="padding: 10px 24px; border-radius: 50px; background: linear-gradient(135deg, #FFA500, #FF8C00); color: white; border: none; font-weight: bold; cursor: pointer; font-size: 16px; outline: none;">Got it!</button>
+        </div>
+    </div>
 </body>
 </html>
