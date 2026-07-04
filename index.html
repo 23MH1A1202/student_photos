@@ -1023,7 +1023,7 @@ async function generatePhotos() {
                     box.className = "box fade-in";
                     box.innerHTML = `
                         <h3>${roll}</h3>
-                        <img class="photo img-loading" src="${imageUrl}" alt="Student Photo" onload="this.classList.remove('img-loading')" onerror="this.onerror=null; this.src='1000269910.png'; this.classList.remove('img-loading');">
+                        <img class="photo img-loading" src="${imageUrl}" alt="Student Photo" onload="this.classList.remove('img-loading')" onerror="this.onerror=null; this.src='noimage.png'; this.classList.remove('img-loading');">
                         <div class="student-name">${name}</div>
                         <div style="margin-top: 5px;"><strong>Branch:</strong> ${branch}</div>
                         <div style="margin-top: 2px;"><strong>Campus:</strong> ${campus || (campusNames[series] || series)}</div>
