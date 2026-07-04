@@ -32,11 +32,17 @@
             padding-bottom: 40px; 
             position: relative;
             display: flex;
-    flex-direction: column;
+            flex-direction: column;
   
         }
-        footer {
-    padding: 20px;
+        .info-box{
+          border-radius: 20px;
+          border:2px solid rgba(200, 200, 200, 0.4);
+          max-width: 100%;
+          
+        }
+    footer {
+    padding: 8px;
     margin-top: auto;
     background-color: #ffffff;
     border-top: 1px solid #eee;
@@ -44,11 +50,13 @@
     color: #666;
     font-size: 14px;
     max-width: 100%;
+    position: relative;
+    bottom: 0;
 }
 
 
 footer a {
-    color: #11288f;
+    color: #0e1d5e;
     text-decoration: none;
     font-weight: 500;
 }
@@ -709,7 +717,9 @@ body::after {
 <center>
 <div class="glass" style="margin-left: 20px; margin-right: 20px; margin-top: auto; max-width: max-content;">
     <h3 style="color: #e78c1d;">STUDENT PHOTOS</h3>
-    <p style=" margin-left: 10px; margin-right: 10px;">Enter Name, Roll Number or Prefix (e.g., 25B11IT for AU, 23P31A12 for ACET, 23A91A12 for AEC) to generate complete batch student photo's.</p>
+    <div class="info-box">
+    <p>Enter Name, Roll Number or Prefix (e.g., 25B11IT for AU, 23P31A12 for ACET, 23A91A12 for AEC) to generate complete batch student photo's.</p>
+    </div>
     <!-- ✅ API Status Indicator UI -->
     <div class="status-container">
         <div id="api-status-dot" class="pulse-dot"></div>
@@ -870,7 +880,7 @@ async function generatePhotos() {
                     localStorage.setItem(input, name);
                 })
                 .catch(() => {
-                    document.getElementById(`name-${input}`).innerText = "❌ Error";
+                    document.getElementById(`name-${input}`).innerText = "Error";
                 });
         }
 
@@ -1053,7 +1063,7 @@ if (cachedName) {
     })
     .catch((error) => {
         console.error(`Error fetching name for ${roll}:`, error);
-        nameEl.innerText = "❌ Error";
+        nameEl.innerText = "Error";
     });
 }
  
