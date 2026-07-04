@@ -952,79 +952,96 @@ async function generatePhotos() {
     }
 
     // ✅ Name-based search
-    const response = await fetch("https://student-name-api.onrender.com/resolve_name_to_roll", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: "query=" + encodeURIComponent(input) + "&college=" + encodeURIComponent(selectedCollege)
-    });
+    try {
+        const response = await fetch("https://student-name-api.onrender.com/resolve_name_to_roll", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: "query=" + encodeURIComponent(input) + "&college=" + encodeURIComponent(selectedCollege)
+        });
 
-    const data = await response.json();
-    loader.style.display = "none";
-    document.getElementById("loader-overlay").style.display = "none";
-
-    if (!Array.isArray(data) || data.length === 0) {
-        showError("No student found for that name.");
-        return;
-    }
-
-    const campusNames = { MH: "ACOE", P3: "ACET", A9: "AEC", AU: "Aditya University (AU)", B1: "Aditya University (AU)", B11: "Aditya University (AU)" };
-    const campusOrder = ["MH", "P3", "A9", "AU", "B1", "B11"];
-    let grouped = {};
-
-    for (let { roll, name, branch, campus } of data) {
-        const year = roll.substring(0, 2);
-        const series = (selectedCollege === "AU" || campus === "AU" || roll.includes("B11") || roll.includes("M11")) ? "AU" : roll.substring(2, 4);
-        if (!grouped[year]) grouped[year] = { MH: [], P3: [], A9: [], AU: [], B1: [], B11: [] };
-
-        let imageUrl = getPhotoUrl(roll);
-        if (!grouped[year][series]) grouped[year][series] = [];
-        grouped[year][series].push({ roll, name, branch, campus: campusNames[series] || campus, imageUrl });
-    }
-
-    container.innerHTML = "";
-
-    const sortedYears = Object.keys(grouped).sort((a, b) => b - a);
-    for (let year of sortedYears) {
-        // ✅ Year banner only
-        const yearWrapper = document.createElement("div");
-        yearWrapper.style.width = "100%";
-        yearWrapper.style.display = "flex";
-        yearWrapper.style.justifyContent = "center";
-        yearWrapper.style.marginTop = "20px";
-
-        const yearBanner = document.createElement("div");
-        yearBanner.className = "branch-banner";
-        yearBanner.style.margin = "0";
-        yearBanner.style.display = "block";
-        yearBanner.innerText = `${year} Batch`;
+        const data = await response.json();
         
-        yearWrapper.appendChild(yearBanner);
-        container.appendChild(yearWrapper);
+        loader.style.display = "none";
+        document.getElementById("loader-overlay").style.display = "none";
 
-        for (let series of campusOrder) {
-            const students = grouped[year][series];
-            if (!students || !students.length) continue;
-
-            // Notice: The campus banner code block is completely removed here
-
-            students.forEach(({ roll, name, branch, campus, imageUrl }) => {
-                const box = document.createElement("div");
-                box.className = "box fade-in";
-                box.innerHTML = `
-                    <h3>${roll}</h3>
-                    <img class="photo img-loading" src="${imageUrl}" alt="Student Photo" onload="this.classList.remove('img-loading')" onerror="this.onerror=null; this.src='noimage.png'; this.classList.remove('img-loading');">
-                    <div class="student-name">${name}</div>
-                    <div style="margin-top: 5px;"><strong>Branch:</strong> ${branch}</div>
-                    <div style="margin-top: 2px;"><strong>Campus:</strong> ${campus || (campusNames[series] || series)}</div>
-                `;
-                container.appendChild(box);
-            });
+        // Check if the API returned an explicit error message
+        if (data.error) {
+            console.error("API Error:", data.error);
+            if (data.error === "Query too short") {
+                showError("Please enter at least 3 characters for a name search.");
+            } else {
+                 showError("Server error occurred while searching. Please try again later.");
+            }
+            return;
         }
+
+        if (!Array.isArray(data) || data.length === 0) {
+            showError(`No student found for "${input}" in ${selectedCollege}. Try checking another college tab.`);
+            return;
+        }
+
+        const campusNames = { MH: "ACOE", P3: "ACET", A9: "AEC", AU: "Aditya University (AU)", B1: "Aditya University (AU)", B11: "Aditya University (AU)" };
+        const campusOrder = ["MH", "P3", "A9", "AU", "B1", "B11"];
+        let grouped = {};
+
+        for (let { roll, name, branch, campus } of data) {
+            const year = roll.substring(0, 2);
+            const series = (selectedCollege === "AU" || campus === "AU" || roll.includes("B11") || roll.includes("M11")) ? "AU" : roll.substring(2, 4);
+            if (!grouped[year]) grouped[year] = { MH: [], P3: [], A9: [], AU: [], B1: [], B11: [] };
+
+            let imageUrl = getPhotoUrl(roll);
+            if (!grouped[year][series]) grouped[year][series] = [];
+            grouped[year][series].push({ roll, name, branch, campus: campusNames[series] || campus, imageUrl });
+        }
+
+        container.innerHTML = "";
+
+        const sortedYears = Object.keys(grouped).sort((a, b) => b - a);
+        for (let year of sortedYears) {
+            // ✅ Year banner only
+            const yearWrapper = document.createElement("div");
+            yearWrapper.style.width = "100%";
+            yearWrapper.style.display = "flex";
+            yearWrapper.style.justifyContent = "center";
+            yearWrapper.style.marginTop = "20px";
+
+            const yearBanner = document.createElement("div");
+            yearBanner.className = "branch-banner";
+            yearBanner.style.margin = "0";
+            yearBanner.style.display = "block";
+            yearBanner.innerText = `${year} Batch`;
+            
+            yearWrapper.appendChild(yearBanner);
+            container.appendChild(yearWrapper);
+
+            for (let series of campusOrder) {
+                const students = grouped[year][series];
+                if (!students || !students.length) continue;
+
+                students.forEach(({ roll, name, branch, campus, imageUrl }) => {
+                    const box = document.createElement("div");
+                    box.className = "box fade-in";
+                    box.innerHTML = `
+                        <h3>${roll}</h3>
+                        <img class="photo img-loading" src="${imageUrl}" alt="Student Photo" onload="this.classList.remove('img-loading')" onerror="this.onerror=null; this.src='1000269910.png'; this.classList.remove('img-loading');">
+                        <div class="student-name">${name}</div>
+                        <div style="margin-top: 5px;"><strong>Branch:</strong> ${branch}</div>
+                        <div style="margin-top: 2px;"><strong>Campus:</strong> ${campus || (campusNames[series] || series)}</div>
+                    `;
+                    container.appendChild(box);
+                });
+            }
+        }
+
+        launchConfetti();
+        
+    } catch (error) {
+        // This catches network errors (e.g., Render is completely down) or JSON parsing errors
+        console.error("Fetch Error:", error);
+        loader.style.display = "none";
+        document.getElementById("loader-overlay").style.display = "none";
+        showError("Failed to connect to the server. Please wait for the status dot to turn green and try again.");
     }
-
-    launchConfetti();
-}
-
 
         function displayPhotos() {
     const container = document.getElementById("photoContainer");
