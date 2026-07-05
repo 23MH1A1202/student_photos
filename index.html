@@ -800,6 +800,38 @@ body::after {
         const imagesPerPage = 100;
         let selectedCollege = "AU"; 
 
+        // ✅ NEW: Smart Fetch Helper with Auto-Retry & Safe Caching
+        function fetchNameWithRetry(roll, nameEl, retries = 1) {
+            fetch("https://student-name-api.onrender.com/get_name", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: "roll_number=" + encodeURIComponent(roll) + "&college=" + encodeURIComponent(selectedCollege)
+            })
+            .then(res => res.json())
+            .then(data => {
+                const name = data.name;
+                // Check if it's a valid name (not an error or not found)
+                if (name && name !== "Not Found" && name !== "Not found" && name !== "Error") {
+                    nameEl.innerText = name;
+                    localStorage.setItem(roll, name); // Only save valid names to cache!
+                } else if (retries > 0) {
+                    // Auto-Retry in background after 1 second
+                    console.log(`Auto-retrying name fetch for ${roll}...`);
+                    setTimeout(() => fetchNameWithRetry(roll, nameEl, retries - 1), 1000);
+                } else {
+                    nameEl.innerText = "Not found";
+                }
+            })
+            .catch((error) => {
+                console.error(`Error fetching name for ${roll}:`, error);
+                if (retries > 0) {
+                    setTimeout(() => fetchNameWithRetry(roll, nameEl, retries - 1), 1000);
+                } else {
+                    nameEl.innerText = "Error";
+                }
+            });
+        }
+        
         function selectCollege(college, event) {
             selectedCollege = college;
             document.querySelectorAll(".college-btn").forEach(btn => btn.classList.remove("active"));
@@ -898,26 +930,16 @@ async function generatePhotos() {
             displayBranch(input);
             launchConfetti();
 
-            const cachedName = localStorage.getItem(input);
-            if (cachedName) {
-                document.getElementById(`name-${input}`).innerText = cachedName;
-                return;
-            } else {
-                fetch("https://student-name-api.onrender.com/get_name", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                    body: "roll_number=" + encodeURIComponent(input) + "&college=" + encodeURIComponent(selectedCollege)
-                })
-                    .then(res => res.json())
-                    .then(data => {
-                        const name = data.name || "Not found";
-                        document.getElementById(`name-${input}`).innerText = name;
-                        localStorage.setItem(input, name);
-                    })
-                    .catch(() => {
-                        document.getElementById(`name-${input}`).innerText = "Error";
-                    });
-            }
+           const cachedName = localStorage.getItem(input);
+        const nameEl = document.getElementById(`name-${input}`);
+        
+        // Ignore corrupted cache entries
+        if (cachedName && cachedName !== "Not found" && cachedName !== "Not Found" && cachedName !== "Error") {
+            nameEl.innerText = cachedName;
+            return;
+        } else {
+            fetchNameWithRetry(input, nameEl, 1); // 1 retry attempt
+        }
 
             return;
         }
@@ -1107,24 +1129,12 @@ const nameEl = box.querySelector(`#name-${roll}`);
 if (!nameEl) return;
 
 const cachedName = localStorage.getItem(roll);
-if (cachedName) {
+
+// Ignore corrupted cache entries
+if (cachedName && cachedName !== "Not found" && cachedName !== "Not Found" && cachedName !== "Error") {
     nameEl.innerText = cachedName;
 } else {
-    fetch("https://student-name-api.onrender.com/get_name", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: "roll_number=" + encodeURIComponent(roll) + "&college=" + encodeURIComponent(selectedCollege)
-    })
-    .then(res => res.json())
-    .then(data => {
-        const name = data.name || "Not found";
-        nameEl.innerText = name;
-        localStorage.setItem(roll, name);
-    })
-    .catch((error) => {
-        console.error(`Error fetching name for ${roll}:`, error);
-        nameEl.innerText = "Error";
-    });
+    fetchNameWithRetry(roll, nameEl, 1); // 1 retry attempt
 }
  
     observer.observe(box);
@@ -1201,7 +1211,6 @@ const observer = new IntersectionObserver((entries) => {
         }
     });
 }, observerOptions);
-
         function generateRollNumbers(basePrefix) {
             let rollNumbers = [];
             
