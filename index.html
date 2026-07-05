@@ -845,119 +845,135 @@ async function generatePhotos() {
     loader.style.display = "flex";
     document.getElementById("loader-overlay").style.display = "block";
 
-    // ✅ Roll number (10-digit)
-    if (input.length >= 10) {
-        let imageUrl = getPhotoUrl(input);
+    // 🚀 SMARTER ROUTING LOGIC
+    // If the input has NO numbers, OR it contains a space, it MUST be a Name Search.
+    const hasNumbers = /\d/.test(input);
+    const isNameSearch = !hasNumbers || input.includes(" ");
 
-        const exists = await checkImageExists(imageUrl);
-        loader.style.display = "none";
-        document.getElementById("loader-overlay").style.display = "none";
+    if (!isNameSearch) {
+        // ✅ It contains numbers and no spaces, so it is a Roll Number or Prefix
+        
+        // 1. EXACT ROLL NUMBER (10+ characters)
+        if (input.length >= 10) {
+            let imageUrl = getPhotoUrl(input);
 
-        if (!exists) {
-            showError("Photo not found.");
-            return;
-        }
+            const exists = await checkImageExists(imageUrl);
+            loader.style.display = "none";
+            document.getElementById("loader-overlay").style.display = "none";
 
-        let leBannerHTML = "";
-        if (input.substring(4, 6) === "5A") {
-            leBannerHTML = `
-                <div style="width: 100%; display: flex; justify-content: center; margin: 0;">
-                    <div class="branch-banner" style="display: block; margin: 8px 0 4px 0;">LE's</div>
+            if (!exists) {
+                showError("Photo not found.");
+                return;
+            }
+
+            let leBannerHTML = "";
+            if (input.substring(4, 6) === "5A") {
+                leBannerHTML = `
+                    <div style="width: 100%; display: flex; justify-content: center; margin: 0;">
+                        <div class="branch-banner" style="display: block; margin: 8px 0 4px 0;">LE's</div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = `
+                ${leBannerHTML}
+                <div class="box fade-in">
+                    <h3>${input}</h3>
+                    <img class="photo img-loading" src="${imageUrl}" alt="Student Photo" onload="this.classList.remove('img-loading')" onerror="this.onerror=null; this.src='noimage.png'; this.classList.remove('img-loading');">
+                    <div class="student-name" id="name-${input}">
+                        <span class="dot-loader"><span></span><span></span><span></span></span>
+                    </div>
                 </div>
             `;
-        }
 
-        container.innerHTML = `
-            ${leBannerHTML}
-            <div class="box fade-in">
-                <h3>${input}</h3>
-                <img class="photo img-loading" src="${imageUrl}" alt="Student Photo" onload="this.classList.remove('img-loading')" onerror="this.onerror=null; this.src='noimage.png'; this.classList.remove('img-loading');">
-                <div class="student-name" id="name-${input}">
-                    <span class="dot-loader"><span></span><span></span><span></span></span>
-                </div>
-            </div>
-        `;
+            const box = document.querySelector(".box");
+            if (box) {
+                box.classList.add("animate");
+                setTimeout(() => {
+                    box.scrollIntoView({ behavior: "smooth", block: "center" });
+                }, 300);
+                observer.observe(box);
+            }
 
-        const box = document.querySelector(".box");
-        if (box) {
-            box.classList.add("animate");
-            setTimeout(() => {
-                box.scrollIntoView({ behavior: "smooth", block: "center" });
-            }, 300);
-            observer.observe(box);
-        }
+            displayBranch(input);
+            launchConfetti();
 
-        displayBranch(input);
-        launchConfetti();
-
-        const cachedName = localStorage.getItem(input);
-        if (cachedName) {
-            document.getElementById(`name-${input}`).innerText = cachedName;
-            return;
-        } else {
-            fetch("https://student-name-api.onrender.com/get_name", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: "roll_number=" + encodeURIComponent(input) + "&college=" + encodeURIComponent(selectedCollege)
-            })
-                .then(res => res.json())
-                .then(data => {
-                    const name = data.name || "Not found";
-                    document.getElementById(`name-${input}`).innerText = name;
-                    localStorage.setItem(input, name);
+            const cachedName = localStorage.getItem(input);
+            if (cachedName) {
+                document.getElementById(`name-${input}`).innerText = cachedName;
+                return;
+            } else {
+                fetch("https://student-name-api.onrender.com/get_name", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: "roll_number=" + encodeURIComponent(input) + "&college=" + encodeURIComponent(selectedCollege)
                 })
-                .catch(() => {
-                    document.getElementById(`name-${input}`).innerText = "Error";
-                });
+                    .then(res => res.json())
+                    .then(data => {
+                        const name = data.name || "Not found";
+                        document.getElementById(`name-${input}`).innerText = name;
+                        localStorage.setItem(input, name);
+                    })
+                    .catch(() => {
+                        document.getElementById(`name-${input}`).innerText = "Error";
+                    });
+            }
+
+            return;
         }
 
-        return;
-    }
+        // 2. PREFIX SEARCH (7 to 9 characters)
+        if (input.length >= 7 && input.length < 10) {
+            let rollNumbers = [];
+            rollNumbers.push(...generateRollNumbers(input));
+            
+            if (input.length === 8 && !input.includes("B11") && !input.includes("M11") && !input.includes("M12") && !input.includes("B12")) {
+                const lePrefix = convertToLE(input);
+                rollNumbers.push(...generateRollNumbers(lePrefix));
+            }
 
-    // ✅ Prefix Search (Handles traditional 8-char or AU 7-char like 25B11AI)
-    if (input.length >= 7 && input.length < 10) {
-        let rollNumbers = [];
-        rollNumbers.push(...generateRollNumbers(input));
+            const results = await Promise.allSettled(
+                rollNumbers.map(roll => {
+                    let url = getPhotoUrl(roll);
+                    return checkImageExists(url).then(result => (result ? { roll, imageUrl: url } : null));
+                })
+            );
+
+            validImages = results
+                .filter(result => result.status === "fulfilled" && result.value !== null)
+                .map(result => result.value);
+
+            loader.style.display = "none";
+            document.getElementById("loader-overlay").style.display = "none";
+
+            if (validImages.length === 0) {
+                showError("No photos found for this prefix.");
+                return;
+            }
+
+            displayBranch(input);
+            currentPage = 0;
+            displayPhotos();
+            launchConfetti();
+            document.getElementById('scrollGif').style.display = 'block';
+            return;
+        }
         
-        if (input.length === 8 && !input.includes("B11") && !input.includes("M11") && !input.includes("M12") && !input.includes("B12")) {
-            const lePrefix = convertToLE(input);
-            rollNumbers.push(...generateRollNumbers(lePrefix));
-        }
-
-        const results = await Promise.allSettled(
-            rollNumbers.map(roll => {
-                let url = getPhotoUrl(roll);
-                return checkImageExists(url).then(result => (result ? { roll, imageUrl: url } : null));
-            })
-        );
-
-        validImages = results
-            .filter(result => result.status === "fulfilled" && result.value !== null)
-            .map(result => result.value);
-
+        // If it has numbers but is less than 7 characters
         loader.style.display = "none";
         document.getElementById("loader-overlay").style.display = "none";
-
-        if (validImages.length === 0) {
-            showError("No photos found.");
-            return;
-        }
-
-        displayBranch(input);
-        currentPage = 0;
-        displayPhotos();
-        launchConfetti();
-        document.getElementById('scrollGif').style.display = 'block';
+        showError("Invalid roll number or prefix length. Needs at least 7 characters.");
         return;
     }
 
-    // ✅ Name-based search
+    // ✅ 3. NAME-BASED SEARCH
     try {
         const response = await fetch("https://student-name-api.onrender.com/resolve_name_to_roll", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: "query=" + encodeURIComponent(input) + "&college=" + encodeURIComponent(selectedCollege)
         });
+        
 
         const data = await response.json();
         
