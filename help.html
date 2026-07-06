@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help & Guide | Aditya Student Photos</title>
+    <style>
+        body { 
+            font-family: 'Arial', sans-serif; 
+            padding: 20px; 
+            line-height: 1.6; 
+            background-color: rgba(255, 255, 255, 0.59);
+            color: #333;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .card { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            margin-bottom: 20px;
+            border: 1px solid rgba(200, 200, 200, 0.4);
+        }
+
+        h1, h2, h3 { 
+            color: #11288f; 
+            margin-top: 0;
+        }
+        
+        h1 { text-align: center; color: #FF8C00; }
+        
+        .highlight {
+            color: #FF8C00;
+            font-weight: bold;
+        }
+
+        .roll-breakdown {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+            font-family: monospace;
+            font-size: 18px;
+            justify-content: center;
+        }
+
+        .roll-part {
+            background: #f4f4f4;
+            padding: 10px 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #ddd;
+        }
+        
+        .roll-part span {
+            display: block;
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            font-family: sans-serif;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            color: #11288f;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #FFA500, #FF8C00);
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(255, 140, 0, 0.3);
+        }
+
+        .back-btn:hover {
+            background: linear-gradient(135deg, #FF8C00, #FFA500);
+        }
+
+        .grid-tables {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .table-wrapper {
+            flex: 1;
+            min-width: 300px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <a href="index.html" class="back-btn">Back to App</a>
+
+        <div class="card">
+            <h1>📖 How to Use the App</h1>
+            <p>Welcome to Aditya Student Photos! This tool makes it easy to find student photos using their roll numbers or names.</p>
+            <ol>
+                <li><strong>Select your College:</strong> Choose between AU (Aditya University), AEC, or ACET using the buttons at the top.</li>
+                <li><strong>Enter your search:</strong>
+                    <ul>
+                        <li>Type a <strong>full 10-digit roll number</strong> to see exactly one student.</li>
+                        <li>Type a <strong>Name</strong> (like "Sagar") to find students with that name.</li>
+                        <li>Type a <strong>Prefix</strong> to see an entire batch (All photos of a specific branch and year) photos at once.</li>
+                    </ul>
+                </li>
+                <li><strong>Click Generate Photos:</strong> The app will automatically find the photos, student names, and their branches.</li>
+            </ol>
+        </div>
+
+        <div class="card">
+            <h2>🧩 What is a "Prefix"?</h2>
+            <p>A prefix is just the <strong>starting part</strong> of a roll number. </p>
+            <p>Instead of typing >60 different roll numbers to see your entire class or branch, you only need to type the first 7 or 8 characters that your whole class shares.</p>
+            
+            <p><strong>For AEC / ACET Students:</strong></p>
+            <ul>
+                <li>If you are in ACET IT (2023 batch), your full roll number might be <code>23MH1A1202</code>.</li>
+                <li>The prefix for your entire class is <span class="highlight">23MH1A12</span>.</li>
+                <li>If you type just <code>23MH1A12</code> and click search, the app will magically generate photos for every student from <code>01</code> to <code>the End</code> in your branch!</li>
+            </ul>
+
+            <p><strong>For Aditya University (AU) Students:</strong></p>
+            <ul>
+                <li>If you are in AU CSE (2024 batch), your full roll number might be <code>24B11CS001</code>.</li>
+                <li>The prefix for your entire class is <span class="highlight">24B11CS</span>.</li>
+                <li>If you type just <code>24B11CS</code> and click search, the app will magically generate photos for every student from <code>001</code> to <code>the End</code> in your branch!</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>🔍 Understanding Roll Numbers</h2>
+            <p>Roll numbers look confusing, but they are just a secret code that tells us exactly when you joined, what campus you are in, and what you are studying.</p>
+
+            <h3>1. Traditional Format (AEC & ACET)</h3>
+            <p>Example: <strong>23MH1A1202</strong></p>
+            <div class="roll-breakdown">
+                <div class="roll-part">23 <span>Joining Year (2023)</span></div>
+                <div class="roll-part">MH <span>Campus (ACET)</span></div>
+                <div class="roll-part">1A <span>Course (B.Tech Regular)</span></div>
+                <div class="roll-part">12 <span>Branch (IT)</span></div>
+                <div class="roll-part">02 <span>Student Number</span></div>
+            </div>
+            <p><em>Note: Lateral Entry students will have "5A" instead of "1A" (e.g., 24MH5A1201).</em></p>
+
+            <h3>2. Aditya University Format (AU)</h3>
+            <p>Example: <strong>24B11CS001</strong></p>
+            <div class="roll-breakdown">
+                <div class="roll-part">24 <span>Joining Year (2024)</span></div>
+                <div class="roll-part">B11 <span>Program (B.Tech)</span></div>
+                <div class="roll-part">CS <span>Branch (CSE)</span></div>
+                <div class="roll-part">001 <span>Student Number</span></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🏫 Branch Codes Dictionary</h2>
+            <p>Use these tables to figure out the code for your specific department.</p>
+
+            <div class="grid-tables">
+                <div class="table-wrapper">
+                    <h3>AEC / ACET Codes (Numbers)</h3>
+                    <table>
+                        <tr><th>Code</th><th>Branch Name</th></tr>
+                        <tr><td>01</td><td>Civil Engineering (CE)</td></tr>
+                        <tr><td>02</td><td>Electrical (EEE)</td></tr>
+                        <tr><td>03</td><td>Mechanical (ME)</td></tr>
+                        <tr><td>04</td><td>Electronics (ECE)</td></tr>
+                        <tr><td>05</td><td>Computer Science (CSE)</td></tr>
+                        <tr><td>12</td><td>Information Technology (IT)</td></tr>
+                        <tr><td>42</td><td>CSE - AIML</td></tr>
+                        <tr><td>44</td><td>Data Science (DS)</td></tr>
+                        <tr><td>49</td><td>Internet of Things (IoT)</td></tr>
+                        <tr><td>61</td><td>Artificial Intelligence (AIML)</td></tr>
+                        <tr><td>26</td><td>Mining</td></tr>
+                        <tr><td>27</td><td>Petroleum (PT)</td></tr>
+                        <tr><td>00</td><td>Pharmacy</td></tr>
+                    </table>
+                </div>
+
+                <div class="table-wrapper">
+                    <h3>Aditya University Codes (Letters)</h3>
+                    <table>
+                        <tr><th>Code</th><th>Branch Name</th></tr>
+                        <tr><td>CS</td><td>Computer Science (CSE)</td></tr>
+                        <tr><td>AI</td><td>Artificial Intelligence (AIML)</td></tr>
+                        <tr><td>AD</td><td>AI & Data Science (AIDS)</td></tr>
+                        <tr><td>IT</td><td>Information Technology (IT)</td></tr>
+                        <tr><td>EC</td><td>Electronics (ECE)</td></tr>
+                        <tr><td>EE</td><td>Electrical (EEE)</td></tr>
+                        <tr><td>ME</td><td>Mechanical (ME)</td></tr>
+                        <tr><td>CE</td><td>Civil Engineering (CE)</td></tr>
+                        <tr><td>CT</td><td>Computer Science & Tech (CST)</td></tr>
+                        <tr><td>CW</td><td>Cyber Security</td></tr>
+                        <tr><td>MC</td><td>Master of Computer Apps (MCA)</td></tr>
+                        <tr><td>MB</td><td>Master of Business Admin (MBA)</td></tr>
+                        <tr><td>BB</td><td>Bachelor of Business Admin (BBA)</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 40px;">
+            <a href="index.html" class="back-btn">Go Try It Out!</a>
+        </div>
+    </div>
+
+</body>
+</html>
