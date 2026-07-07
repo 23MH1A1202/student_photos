@@ -841,15 +841,15 @@ body::after {
         }
 
         function getPhotoUrl(roll) {
+            const cacheBuster = "?v=2"; // Bypasses previously cached 404 errors
             if (selectedCollege === "AU") {
-                return `https://info.aec.edu.in/aus/StudentPhotos_Original/${roll}.jpg`;
+                return `https://info.aec.edu.in/aus/StudentPhotos_Original/${roll}.jpg${cacheBuster}`;
             } else if (selectedCollege === "AEC" || roll.substring(2, 4) === "A9") {
-                return `https://info.aec.edu.in/AEC/studentPhotos/${roll}.jpg`;
+                return `https://info.aec.edu.in/AEC/studentPhotos/${roll}.jpg${cacheBuster}`;
             } else {
-                return `https://info.aec.edu.in/acet/studentPhotos/${roll}.jpg`;
+                return `https://info.aec.edu.in/acet/studentPhotos/${roll}.jpg${cacheBuster}`;
             }
         }
-
         function checkImageExists(url) {
             return new Promise((resolve) => {
                 let img = new Image();
@@ -955,9 +955,9 @@ async function generatePhotos() {
                         rollNumbers.push(...generateRollNumbers(lePrefix));
                     }
 
-                    // ✅ SMART CHUNKING FIX: Prevents browser connection timeouts
+                    // ✅ SMART CHUNKING FIX: Optimized for max 50 empty rolls
                     validImages = [];
-                    const chunkSize = 100;
+                    const chunkSize = 50; // Reduced to 50 photos per batch
                     let consecutiveEmptyChunks = 0;
 
                     for (let i = 0; i < rollNumbers.length; i += chunkSize) {
@@ -977,12 +977,12 @@ async function generatePhotos() {
 
                         if (foundInChunk.length === 0) {
                             consecutiveEmptyChunks++;
-                            // If 3 consecutive chunks (300 rolls) are empty, we've reached the end of the class list. Break early!
-                            if (consecutiveEmptyChunks >= 3) {
+                            // STOP CHECKING: If one entire chunk of 50 is empty, the batch is done.
+                            if (consecutiveEmptyChunks >= 1) {
                                 break;
                             }
                         } else {
-                            consecutiveEmptyChunks = 0; // Reset counter if a student is found
+                            consecutiveEmptyChunks = 0; 
                         }
                     }
 
@@ -1232,27 +1232,34 @@ const observer = new IntersectionObserver((entries) => {
         }
     });
 }, observerOptions);
-        function generateRollNumbers(basePrefix) {
+        function generateRollNumbers(basePrefix) {
             let rollNumbers = [];
             
-            if (selectedCollege === "AU" || basePrefix.includes("B11") || basePrefix.includes("M11") || basePrefix.includes("M12") || basePrefix.includes("B12")) {
-                for (let i = 1; i <= 99; i++) {
-                    rollNumbers.push(basePrefix + "0" + (i < 10 ? "0" : "") + i);
+            // Check for AU prefixes (including B21 from your screenshots)
+            if (selectedCollege === "AU" || basePrefix.includes("B11") || basePrefix.includes("B21") || basePrefix.includes("M11") || basePrefix.includes("M12") || basePrefix.includes("B12")) {
+                
+                // 1. Generate 001 to 999 for AU
+                for (let i = 1; i <= 999; i++) {
+                    rollNumbers.push(basePrefix + i.toString().padStart(3, '0'));
                 }
+                
+                // 2. Generate A01 to Z99 for AU (Lateral Entry / Overflow)
                 for (let letter = 65; letter <= 90; letter++) {
                     for (let i = 1; i <= 99; i++) {
-                        rollNumbers.push(basePrefix + String.fromCharCode(letter) + (i < 10 ? "0" : "") + i);
+                        rollNumbers.push(basePrefix + String.fromCharCode(letter) + i.toString().padStart(2, '0'));
                     }
                 }
+                
             } else {
+                // Traditional AEC / ACET format
+                // 1. Generate 01 to 99
                 for (let i = 1; i <= 99; i++) {
-                    let roll = basePrefix + (i < 10 ? "0" : "") + i;
-                    rollNumbers.push(roll);
+                    rollNumbers.push(basePrefix + i.toString().padStart(2, '0'));
                 }
+                // 2. Generate A0 to Z9
                 for (let letter = 65; letter <= 90; letter++) {
                     for (let number = 0; number <= 9; number++) {
-                        let roll = basePrefix + String.fromCharCode(letter) + number;
-                        rollNumbers.push(roll);
+                        rollNumbers.push(basePrefix + String.fromCharCode(letter) + number);
                     }
                 }
             }
