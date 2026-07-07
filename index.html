@@ -944,42 +944,63 @@ async function generatePhotos() {
             return;
         }
 
+      
         // 2. PREFIX SEARCH (7 to 9 characters)
-        if (input.length >= 7 && input.length < 10) {
-            let rollNumbers = [];
-            rollNumbers.push(...generateRollNumbers(input));
-            
-            if (input.length === 8 && !input.includes("B11") && !input.includes("M11") && !input.includes("M12") && !input.includes("B12")) {
-                const lePrefix = convertToLE(input);
-                rollNumbers.push(...generateRollNumbers(lePrefix));
-            }
+                if (input.length >= 7 && input.length < 10) {
+                    let rollNumbers = [];
+                    rollNumbers.push(...generateRollNumbers(input));
+                    
+                    if (input.length === 8 && !input.includes("B11") && !input.includes("M11") && !input.includes("M12") && !input.includes("B12")) {
+                        const lePrefix = convertToLE(input);
+                        rollNumbers.push(...generateRollNumbers(lePrefix));
+                    }
 
-            const results = await Promise.allSettled(
-                rollNumbers.map(roll => {
-                    let url = getPhotoUrl(roll);
-                    return checkImageExists(url).then(result => (result ? { roll, imageUrl: url } : null));
-                })
-            );
+                    // ✅ SMART CHUNKING FIX: Prevents browser connection timeouts
+                    validImages = [];
+                    const chunkSize = 100;
+                    let consecutiveEmptyChunks = 0;
 
-            validImages = results
-                .filter(result => result.status === "fulfilled" && result.value !== null)
-                .map(result => result.value);
+                    for (let i = 0; i < rollNumbers.length; i += chunkSize) {
+                        const chunk = rollNumbers.slice(i, i + chunkSize);
+                        const results = await Promise.allSettled(
+                            chunk.map(roll => {
+                                let url = getPhotoUrl(roll);
+                                return checkImageExists(url).then(result => (result ? { roll, imageUrl: url } : null));
+                            })
+                        );
 
-            loader.style.display = "none";
-            document.getElementById("loader-overlay").style.display = "none";
+                        const foundInChunk = results
+                            .filter(result => result.status === "fulfilled" && result.value !== null)
+                            .map(result => result.value);
 
-            if (validImages.length === 0) {
-                showError("No photos found for this prefix.");
-                return;
-            }
+                        validImages.push(...foundInChunk);
 
-            displayBranch(input);
-            currentPage = 0;
-            displayPhotos();
-            launchConfetti();
-            document.getElementById('scrollGif').style.display = 'block';
-            return;
-        }
+                        if (foundInChunk.length === 0) {
+                            consecutiveEmptyChunks++;
+                            // If 3 consecutive chunks (300 rolls) are empty, we've reached the end of the class list. Break early!
+                            if (consecutiveEmptyChunks >= 3) {
+                                break;
+                            }
+                        } else {
+                            consecutiveEmptyChunks = 0; // Reset counter if a student is found
+                        }
+                    }
+
+                    loader.style.display = "none";
+                    document.getElementById("loader-overlay").style.display = "none";
+
+                    if (validImages.length === 0) {
+                        showError("No photos found for this prefix.");
+                        return;
+                    }
+
+                    displayBranch(input);
+                    currentPage = 0;
+                    displayPhotos();
+                    launchConfetti();
+                    document.getElementById('scrollGif').style.display = 'block';
+                    return;
+                }
         
         // If it has numbers but is less than 7 characters
         loader.style.display = "none";
