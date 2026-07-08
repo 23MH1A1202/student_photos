@@ -773,6 +773,7 @@ body::after {
 />
 
         <button class="btn" onclick="generatePhotos()">Generate Photos</button>
+        <button class="btn" onclick="clearTemporaryCache()" style="margin-top: 10px;">Clear Cache</button>
         <br>
         <br>
         <br>
@@ -799,36 +800,89 @@ body::after {
         let currentPage = 0;
         const imagesPerPage = 100;
         let selectedCollege = "AU"; 
+        let activePrefixSearchId = 0;
+        let activeNameFetches = 0;
+        const nameFetchQueue = [];
+        const pendingNameRequests = new Map();
+        const MAX_NAME_FETCH_CONCURRENCY = 6;
+        const INITIAL_RENDER_THRESHOLD = 50;
 
-        // ✅ NEW: Smart Fetch Helper with Auto-Retry & Safe Caching
-        function fetchNameWithRetry(roll, nameEl, retries = 1) {
-            fetch("https://student-name-api.onrender.com/get_name", {
+        function isValidCachedName(name) {
+            return name && name !== "Not found" && name !== "Not Found" && name !== "Error";
+        }
+
+        function isStudentRollCacheKey(key) {
+            return /^\d{2}[A-Z0-9]{8,10}$/.test(key);
+        }
+
+        function requestNameFromApi(roll) {
+            return fetch("https://student-name-api.onrender.com/get_name", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: "roll_number=" + encodeURIComponent(roll) + "&college=" + encodeURIComponent(selectedCollege)
             })
-            .then(res => res.json())
-            .then(data => {
-                const name = data.name;
-                // Check if it's a valid name (not an error or not found)
-                if (name && name !== "Not Found" && name !== "Not found" && name !== "Error") {
-                    nameEl.innerText = name;
-                    localStorage.setItem(roll, name); // Only save valid names to cache!
-                } else if (retries > 0) {
-                    // Auto-Retry in background after 1 second
-                    console.log(`Auto-retrying name fetch for ${roll}...`);
-                    setTimeout(() => fetchNameWithRetry(roll, nameEl, retries - 1), 1000);
-                } else {
-                    nameEl.innerText = "Not found";
+            .then(res => res.json());
+        }
+
+        async function resolveNameWithRetry(roll, retries = 1) {
+            let hadNetworkError = false;
+            for (let attempt = 0; attempt <= retries; attempt++) {
+                try {
+                    const data = await requestNameFromApi(roll);
+                    const name = data?.name;
+                    if (isValidCachedName(name)) {
+                        localStorage.setItem(roll, name);
+                        return name;
+                    }
+                } catch (error) {
+                    hadNetworkError = true;
+                    console.error(`Error fetching name for ${roll}:`, error);
                 }
-            })
-            .catch((error) => {
-                console.error(`Error fetching name for ${roll}:`, error);
-                if (retries > 0) {
-                    setTimeout(() => fetchNameWithRetry(roll, nameEl, retries - 1), 1000);
-                } else {
-                    nameEl.innerText = "Error";
+                if (attempt < retries) {
+                    await new Promise(resolve => setTimeout(resolve, 600));
                 }
+            }
+            return hadNetworkError ? "Error" : "Not found";
+        }
+
+        function pumpNameQueue() {
+            while (activeNameFetches < MAX_NAME_FETCH_CONCURRENCY && nameFetchQueue.length > 0) {
+                const nextTask = nameFetchQueue.shift();
+                activeNameFetches++;
+                resolveNameWithRetry(nextTask.roll, nextTask.retries)
+                    .then(nextTask.resolve)
+                    .finally(() => {
+                        activeNameFetches--;
+                        pumpNameQueue();
+                    });
+            }
+        }
+
+        function queueNameLookup(roll, retries = 1) {
+            if (pendingNameRequests.has(roll)) {
+                return pendingNameRequests.get(roll);
+            }
+
+            const queued = new Promise((resolve) => {
+                nameFetchQueue.push({ roll, retries, resolve });
+                pumpNameQueue();
+            });
+
+            pendingNameRequests.set(roll, queued);
+            queued.finally(() => pendingNameRequests.delete(roll));
+            return queued;
+        }
+
+        function fetchNameWithRetry(roll, nameEl, retries = 1) {
+            const cachedName = localStorage.getItem(roll);
+            if (isValidCachedName(cachedName)) {
+                nameEl.innerText = cachedName;
+                return;
+            }
+
+            queueNameLookup(roll, retries).then((resolvedName) => {
+                if (!nameEl || !nameEl.isConnected) return;
+                nameEl.innerText = resolvedName;
             });
         }
         
@@ -861,6 +915,7 @@ body::after {
 async function generatePhotos() {
     const inputField = document.getElementById("rollNumberInput");
     const input = inputField.value.trim().toUpperCase();
+    const searchId = ++activePrefixSearchId;
     
     if (input === "") {
         showError("Please enter a name, roll number, or prefix.");
@@ -933,12 +988,11 @@ async function generatePhotos() {
            const cachedName = localStorage.getItem(input);
         const nameEl = document.getElementById(`name-${input}`);
         
-        // Ignore corrupted cache entries
-        if (cachedName && cachedName !== "Not found" && cachedName !== "Not Found" && cachedName !== "Error") {
+        if (isValidCachedName(cachedName)) {
             nameEl.innerText = cachedName;
             return;
         } else {
-            fetchNameWithRetry(input, nameEl, 1); // 1 retry attempt
+            fetchNameWithRetry(input, nameEl, 1);
         }
 
             return;
@@ -955,12 +1009,17 @@ async function generatePhotos() {
                         rollNumbers.push(...generateRollNumbers(lePrefix));
                     }
 
-                    // ✅ SMART CHUNKING FIX: Optimized for max 50 empty rolls
                     validImages = [];
-                    const chunkSize = 50; // Reduced to 50 photos per batch
+                    currentPage = 0;
+                    const chunkSize = selectedCollege === "AU" ? 40 : 50;
+                    const maxEmptyChunks = selectedCollege === "AU" ? 2 : 1;
                     let consecutiveEmptyChunks = 0;
+                    let renderedInitialBatch = false;
+                    let confettiLaunched = false;
 
                     for (let i = 0; i < rollNumbers.length; i += chunkSize) {
+                        if (searchId !== activePrefixSearchId) return;
+
                         const chunk = rollNumbers.slice(i, i + chunkSize);
                         const results = await Promise.allSettled(
                             chunk.map(roll => {
@@ -973,19 +1032,38 @@ async function generatePhotos() {
                             .filter(result => result.status === "fulfilled" && result.value !== null)
                             .map(result => result.value);
 
-                        validImages.push(...foundInChunk);
+                        if (foundInChunk.length > 0) {
+                            validImages.push(...foundInChunk);
+                        }
 
                         if (foundInChunk.length === 0) {
                             consecutiveEmptyChunks++;
-                            // STOP CHECKING: If one entire chunk of 50 is empty, the batch is done.
-                            if (consecutiveEmptyChunks >= 1) {
+                            if (consecutiveEmptyChunks >= maxEmptyChunks) {
                                 break;
                             }
                         } else {
                             consecutiveEmptyChunks = 0; 
                         }
+
+                        if (!renderedInitialBatch && validImages.length >= INITIAL_RENDER_THRESHOLD) {
+                            loader.style.display = "none";
+                            document.getElementById("loader-overlay").style.display = "none";
+                            displayBranch(input);
+                            displayPhotos();
+                            document.getElementById('scrollGif').style.display = 'block';
+                            renderedInitialBatch = true;
+                            if (!confettiLaunched) {
+                                launchConfetti();
+                                confettiLaunched = true;
+                            }
+                        } else if (renderedInitialBatch && validImages.length > imagesPerPage) {
+                            renderPagination();
+                        }
+
+                        await new Promise(resolve => setTimeout(resolve, 0));
                     }
 
+                    if (searchId !== activePrefixSearchId) return;
                     loader.style.display = "none";
                     document.getElementById("loader-overlay").style.display = "none";
 
@@ -994,11 +1072,16 @@ async function generatePhotos() {
                         return;
                     }
 
-                    displayBranch(input);
-                    currentPage = 0;
-                    displayPhotos();
-                    launchConfetti();
-                    document.getElementById('scrollGif').style.display = 'block';
+                    if (!renderedInitialBatch) {
+                        displayBranch(input);
+                        displayPhotos();
+                        document.getElementById('scrollGif').style.display = 'block';
+                    } else {
+                        renderPagination();
+                    }
+                    if (!confettiLaunched) {
+                        launchConfetti();
+                    }
                     return;
                 }
         
@@ -1104,9 +1187,7 @@ async function generatePhotos() {
 }
         function displayPhotos() {
     const container = document.getElementById("photoContainer");
-    const pagination = document.getElementById("pagination");
     container.innerHTML = "";
-    pagination.innerHTML = "";
 
     const start = currentPage * imagesPerPage;
     const end = start + imagesPerPage;
@@ -1151,11 +1232,10 @@ if (!nameEl) return;
 
 const cachedName = localStorage.getItem(roll);
 
-// Ignore corrupted cache entries
-if (cachedName && cachedName !== "Not found" && cachedName !== "Not Found" && cachedName !== "Error") {
+if (isValidCachedName(cachedName)) {
     nameEl.innerText = cachedName;
 } else {
-    fetchNameWithRetry(roll, nameEl, 1); // 1 retry attempt
+    fetchNameWithRetry(roll, nameEl, 1);
 }
  
     observer.observe(box);
@@ -1169,52 +1249,73 @@ setTimeout(() => {
     firstBox.classList.add("animate");
   }
 }, 50);
+    renderPagination();
+}
 
+function renderPagination() {
+    const pagination = document.getElementById("pagination");
+    pagination.innerHTML = "";
     const totalPages = Math.ceil(validImages.length / imagesPerPage);
 
-if (totalPages > 1) {
-    // ⟨ Prev
-    if (currentPage > 0) {
-        const prevBtn = document.createElement("button");
-        prevBtn.textContent = "⟨ Prev";
-        prevBtn.onclick = () => {
-            currentPage--;
-            displayPhotos();
-            window.scrollTo(0, 0);
-        };
-        pagination.appendChild(prevBtn);
-    }
-
-    // 1 2 3 4 ...
-    for (let i = 0; i < totalPages; i++) {
-        const pageBtn = document.createElement("button");
-        pageBtn.textContent = i + 1;
-        if (i === currentPage) {
-            pageBtn.style.backgroundColor = "orange";
-            pageBtn.style.color = "white";
-            pageBtn.disabled = true;
+    if (totalPages > 1) {
+        if (currentPage > 0) {
+            const prevBtn = document.createElement("button");
+            prevBtn.textContent = "⟨ Prev";
+            prevBtn.onclick = () => {
+                currentPage--;
+                displayPhotos();
+                window.scrollTo(0, 0);
+            };
+            pagination.appendChild(prevBtn);
         }
-        pageBtn.onclick = () => {
-            currentPage = i;
-            displayPhotos();
-            window.scrollTo(0, 0);
-        };
-        pagination.appendChild(pageBtn);
-    }
 
-    // Next ⟩
-    if (currentPage < totalPages - 1) {
-        const nextBtn = document.createElement("button");
-        nextBtn.textContent = "Next ⟩";
-        nextBtn.onclick = () => {
-            currentPage++;
-            displayPhotos();
-            window.scrollTo(0, 0);
-        };
-        pagination.appendChild(nextBtn);
+        for (let i = 0; i < totalPages; i++) {
+            const pageBtn = document.createElement("button");
+            pageBtn.textContent = i + 1;
+            if (i === currentPage) {
+                pageBtn.style.backgroundColor = "orange";
+                pageBtn.style.color = "white";
+                pageBtn.disabled = true;
+            }
+            pageBtn.onclick = () => {
+                currentPage = i;
+                displayPhotos();
+                window.scrollTo(0, 0);
+            };
+            pagination.appendChild(pageBtn);
+        }
+
+        if (currentPage < totalPages - 1) {
+            const nextBtn = document.createElement("button");
+            nextBtn.textContent = "Next ⟩";
+            nextBtn.onclick = () => {
+                currentPage++;
+                displayPhotos();
+                window.scrollTo(0, 0);
+            };
+            pagination.appendChild(nextBtn);
+        }
     }
 }
 
+async function clearTemporaryCache() {
+    let clearedNames = 0;
+    const localStorageKeys = Object.keys(localStorage);
+    localStorageKeys.forEach((key) => {
+        if (isStudentRollCacheKey(key)) {
+            localStorage.removeItem(key);
+            clearedNames++;
+        }
+    });
+
+    let clearedImageCaches = 0;
+    if ("caches" in window) {
+        const cacheKeys = await caches.keys();
+        clearedImageCaches = cacheKeys.length;
+        await Promise.all(cacheKeys.map(cacheName => caches.delete(cacheName)));
+    }
+
+    alert(`Cache cleared: ${clearedNames} name entries and ${clearedImageCaches} image cache groups removed.`);
 }
 
 const observerOptions = {
