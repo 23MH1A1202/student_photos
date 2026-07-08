@@ -805,7 +805,7 @@ body::after {
         const nameFetchQueue = [];
         const pendingNameRequests = new Map();
         const MAX_NAME_FETCH_CONCURRENCY = 6;
-        const INITIAL_RENDER_THRESHOLD = 50;
+        const INITIAL_RENDER_THRESHOLD = 100;
 
         function isValidCachedName(name) {
             return name && name !== "Not found" && name !== "Not Found" && name !== "Error";
