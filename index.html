@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <link rel="manifest" href="manifest.json"> 
     <meta name="theme-color" content="#ffffff"> 
-    
+
     <title>Aditya Student Photos | Ambati Lalitha Sagar</title>
     <meta name="description" content="Search and view Aditya student photos instantly by entering a roll number or prefix. Designed and developed by B.Tech IT student Ambati Lalitha Sagar.">
     <meta name="keywords" content="Aditya Student Photos, Ambati Lalitha Sagar, Lalitha Sagar Ambati, ACET student photos, AEC student photos, 23MH1A1202, roll number photo search, sagar student photos, Lalitha Sagar, Aditya Student photos, Aditya college student photos">
@@ -18,10 +18,6 @@
     <meta property="og:url" content="https://23mh1a1202.github.io/student_photos/">
     <meta property="og:type" content="website">
 
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Aditya Student Photos | Ambati Lalitha Sagar">
-    <meta name="twitter:description" content="Generate student photos from roll numbers. Built by Ambati Lalitha Sagar.">
-    <meta name="twitter:image" content="https://23mh1a1202.github.io/student_photos/banner.png">
     <style>
         body {
             background-color: rgba(255, 255, 255, 0.59);
@@ -33,774 +29,188 @@
             position: relative;
             display: flex;
             flex-direction: column;
-  
+            min-height: 100vh;
         }
-        /* Add this to your existing <style> block */
-.img-loading {
-    background-color: #f0f0f0;
-    position: relative;
-    overflow: hidden;
-}
-
-.img-loading::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-    animation: shimmer 1.5s infinite;
-}
-
-@keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-}
-
-/* Ensure the fallback image displays nicely */
-.photo {
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-    border-radius: 16px;
-    margin-bottom: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    background-color: white; /* Add white background for the transparent PNG */
-    min-height: 150px; /* Give it a minimum height while loading */
-}
+        .img-loading {
+            background-color: #f0f0f0;
+            position: relative;
+            overflow: hidden;
+        }
+        .img-loading::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        .photo {
+            width: 100%; height: auto; object-fit: cover; border-radius: 16px; margin-bottom: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); background-color: white; min-height: 150px; 
+        }
+        footer {
+            padding: 8px; margin-top: auto; background-color: #ffffff; border-top: 1px solid #eee;
+            text-align: center; color: #666; font-size: 14px; max-width: 100%; position: relative; bottom: 0;
+        }
+        footer a { color: #0e1d5e; text-decoration: none; font-weight: 500; }
+        footer a:hover { text-decoration: underline; }
         
-    footer {
-    padding: 8px;
-    margin-top: auto;
-    background-color: #ffffff;
-    border-top: 1px solid #eee;
-    text-align: center;
-    color: #666;
-    font-size: 14px;
-    max-width: 100%;
-    position: relative;
-    bottom: 0;
-}
-
-
-footer a {
-    color: #0e1d5e;
-    text-decoration: none;
-    font-weight: 500;
-}
-
-footer a:hover {
-    text-decoration: underline;
-}
         /* ✅ API Status Indicator Styles */
-.status-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 5px;
-    margin-bottom: 15px;
-    font-size: 13px;
-    color: #555;
-    font-weight: 600;
-}
-.pulse-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background-color: #ff4d4d;
-    box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7);
-    animation: pulse-red 1.5s infinite;
-}
-.pulse-dot.ready {
-    background-color: #4CAF50;
-    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
-    animation: pulse-green 1.5s infinite;
-}
-@keyframes pulse-red {
-    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7); }
-    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(255, 77, 77, 0); }
-    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
-}
-@keyframes pulse-green {
-    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
-    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(76, 175, 80, 0); }
-    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
-}
-.info-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background-color: black;
-    color: white;
-    font-size: 12px;
-    font-style: italic;
-    cursor: pointer;
-}
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-            padding: 20px;
-            max-width: 100vw;
-            flex: 1;
+        .status-container {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            margin-top: 5px; margin-bottom: 15px; font-size: 13px; color: #555; font-weight: 600;
         }
-        
-        .input-container {
-            margin: 20px;
-            gap: 15px;
-            flex-wrap: wrap;
+        .pulse-dot {
+            width: 12px; height: 12px; border-radius: 50%; background-color: #ff4d4d;
+            box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7); animation: pulse-red 1.5s infinite;
         }
-        input {
-            padding: 5px;
-            font-size: 16px;
-          	border-radius: 16px;
-            border-color: #FF8C00;
+        .pulse-dot.ready {
+            background-color: #4CAF50; box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); animation: pulse-green 1.5s infinite;
         }
-        input:focus {
-            outline: none;
-            box-shadow: none;
+        @keyframes pulse-red { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(255, 77, 77, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); } }
+        @keyframes pulse-green { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(76, 175, 80, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); } }
+        .info-icon {
+            display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px;
+            border-radius: 50%; background-color: black; color: white; font-size: 12px; font-style: italic; cursor: pointer;
         }
+        .container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px; max-width: 100vw; flex: 1; }
+        .input-container { margin: 20px; gap: 15px; flex-wrap: wrap; }
+        input { padding: 5px; font-size: 16px; border-radius: 16px; border-color: #FF8C00; }
+        input:focus { outline: none; box-shadow: none; }
         .input-container input {
-            padding: 10px 15px;
-      font-size: 16px;
-      border: 2px solid #ccc;
-      border-radius: 50px;
-      outline: none;
-      transition: border-color 0.3s ease, box-shadow 0.3s ease;
-      text-align: center;
+            padding: 10px 15px; font-size: 16px; border: 2px solid #ccc; border-radius: 50px; outline: none; transition: border-color 0.3s ease, box-shadow 0.3s ease; text-align: center;
         }
-
-        .input-container input:focus {
-            border-color: orange;
-            box-shadow: 0 0 5px rgba(255,165,0,0.4);
-        }
-
+        .input-container input:focus { border-color: orange; box-shadow: 0 0 5px rgba(255,165,0,0.4); }
         .btn {
-            padding: 12px 24px;
-            font-size: 16px;
-            font-weight: 600;
-            color: #fff;
-            background: linear-gradient(135deg, #FFA500, #FF8C00);
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease-in-out;
-            margin-left: 10px;
-            margin-top: 10px;
-            outline: none !important;
-            box-shadow: none !important;
+            padding: 12px 24px; font-size: 16px; font-weight: 600; color: #fff; background: linear-gradient(135deg, #FFA500, #FF8C00); border: none; border-radius: 50px; cursor: pointer; transition: all 0.3s ease-in-out; margin-left: 10px; margin-top: 10px; outline: none !important; box-shadow: none !important;
         }
-        .btn:hover {
-            background: linear-gradient(135deg, #FF8C00, #FFA500);
-        }
-        .btn:active {
-            transform: translateY(1px);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-
-        .college-selector {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin: 15px 10px 5px 10px;
-            flex-wrap: wrap;
-        }
+        .btn:hover { background: linear-gradient(135deg, #FF8C00, #FFA500); }
+        .btn:active { transform: translateY(1px); box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); }
+        .college-selector { display: flex; justify-content: center; gap: 8px; margin: 15px 10px 5px 10px; flex-wrap: wrap; }
         .college-btn {
-            padding: 8px 18px;
-            font-size: 14px;
-            font-weight: bold;
-            border-radius: 25px;
-            border: 2px solid #FFA500;
-            background: white;
-            color: #FFA500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            outline: none !important;
-            box-shadow: none !important;
+            padding: 8px 18px; font-size: 14px; font-weight: bold; border-radius: 25px; border: 2px solid #FFA500; background: white; color: #FFA500; cursor: pointer; transition: all 0.2s ease; outline: none !important; box-shadow: none !important;
         }
         .college-btn:hover { background: rgba(255, 165, 0, 0.1); }
-        .college-btn.active {
-            background: linear-gradient(135deg, #FFA500, #FF8C00);
-            color: white;
-            border-color: #FF8C00;
-            box-shadow: 0 4px 10px rgba(255, 140, 0, 0.3) !important;
+        .college-btn.active { background: linear-gradient(135deg, #FFA500, #FF8C00); color: white; border-color: #FF8C00; box-shadow: 0 4px 10px rgba(255, 140, 0, 0.3) !important; }
+        .loader { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; justify-content: center; align-items: center; gap: 20px; }
+        .loader div { width: 16px; height: 16px; background-color: orange; border-radius: 50%; animation: bounce 1.5s infinite ease-in-out; }
+        .loader div:nth-child(1) { animation-delay: 0s; } .loader div:nth-child(2) { animation-delay: 0.2s; } .loader div:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); opacity: 0.3; } 40% { transform: scale(1); opacity: 1; } }
+        .pagination { margin-top: 20px; }
+        .pagination button { padding: 10px 20px; font-size: 16px; margin: 5px; cursor: pointer; border: 2px solid orange; background: white; color: orange; border-radius: 50px; transition: all 0.3s; }
+        .pagination button:hover { background: orange; color: white; }
+        * { user-select: none; }
+        @media (max-width: 600px) { .input-container { flex-direction: column; align-items: center; } .input-container input, .input-container .btn { width: 90%; max-width: 300px; } }
+        .dot-loader { display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
+        .dot-loader span { width: 8px; height: 8px; background-color: orange; border-radius: 50%; animation: dot-flash 1.2s infinite ease-in-out; }
+        .dot-loader span:nth-child(1) { animation-delay: 0s; } .dot-loader span:nth-child(2) { animation-delay: 0.2s; } .dot-loader span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes dot-flash { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1.2); } }
+        .branch-banner {
+            font-size: 20px; font-weight: 600; font-family: 'Arial', sans-serif; color: #fff; background: linear-gradient(135deg, #FF8C00, #11288f); padding: 12px 24px; border-radius: 16px; border: none; display: none; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); letter-spacing: 1px; margin: 15px auto; width: fit-content;
         }
-
-        .loader {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
+        .banner-container { display: flex; justify-content: center; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); position: sticky; top: 0; z-index: 100; border-bottom-left-radius: 50px; border-bottom-right-radius: 50px; background-color: white; }
+        .banner-image { height: 120px; width: 100%; max-width: 850px; }
+        .fade-in { animation: fadeIn 0.6s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .student-photo { transform: scale(1.05); box-shadow: 0 0 20px rgba(255, 140, 0, 0.6); z-index: 1; border-radius: 10px; }
+        .bottom-center-gif { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 1000; }
+        .bottom-center-gif img { height: 50px; animation: bounce 2s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        ::-webkit-scrollbar { width: 16px; height: 14px; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #ffa500, #ff4500); border-radius: 100px; border: 4px solid white; box-shadow: inset 0 0 6px rgba(0,0,0,0.3); min-height: 60px; }
+        ::-webkit-scrollbar-thumb:hover { background: linear-gradient(135deg, #ff9c00, #e63900); }
+        ::-webkit-scrollbar-track { background: #eee; border-radius: 10px; }
+        * { scrollbar-width: thick; scrollbar-color: orange #eee; }
+        body { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        #scrollToTopBtn {
+            position: fixed; bottom: 120px; right: 7px; z-index: 999; width: 50px; height: 50px; background: linear-gradient(135deg, #FFA500, #FF8C00); border: none; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.3); display: none; justify-content: center; align-items: center; transition: opacity 0.3s ease; padding: 1; outline: none; box-shadow: none;
         }
-
-        .loader div {
-            width: 16px;
-            height: 16px;
-            background-color: orange;
-            border-radius: 50%;
-            animation: bounce 1.5s infinite ease-in-out;
-        }
-        .loader div:nth-child(1) { animation-delay: 0s; }
-        .loader div:nth-child(2) { animation-delay: 0.2s; }
-        .loader div:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
-            40% { transform: scale(1); opacity: 1; }
-        }
-        .pagination {
-            margin-top: 20px; 
-        }
-        .pagination button {
-            padding: 10px 20px;
-            font-size: 16px;
-            margin: 5px;
-            cursor: pointer;
-            border: 2px solid orange;
-            background: white;
-            color: orange;
-            border-radius: 50px;
-            transition: all 0.3s;
-        }
-        .pagination button:hover {
-            background: orange;
-            color: white;
-        }
-      * {
-        user-select: none;
-        }
-        @media (max-width: 600px) {
-        .input-container {
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .input-container input,
-        .input-container .btn {
-            width: 90%;
-            max-width: 300px;
-        }
-        }
-      
-        .dot-loader {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-
-        .dot-loader span {
-            width: 8px;
-            height: 8px;
-            background-color: orange;
-            border-radius: 50%;
-            animation: dot-flash 1.2s infinite ease-in-out;
-        }
-
-        .dot-loader span:nth-child(1) { animation-delay: 0s; }
-        .dot-loader span:nth-child(2) { animation-delay: 0.2s; }
-        .dot-loader span:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes dot-flash {
-            0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
-            40% { opacity: 1; transform: scale(1.2); }
-        }
-      .branch-banner {
-    font-size: 20px;
-    font-weight: 600;
-    font-family: 'Arial', sans-serif;
-    color: #fff;
-    background: linear-gradient(135deg, #FF8C00, #11288f);
-    padding: 12px 24px;
-    border-radius: 16px;
-    border: none;
-    display: none; 
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    letter-spacing: 1px;
-    margin: 15px auto; 
-    width: fit-content;
-}
-
-        
-        .banner-container {
-  display: flex;
-  justify-content: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); 
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  border-bottom-left-radius: 50px;
-  border-bottom-right-radius: 50px;
-  background-color: white;
-}
-
-.banner-image {
-  height: 120px;
-  width: 100%;
-  max-width: 850px;
-}
-.fade-in {
-  animation: fadeIn 0.6s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.student-photo {
-    transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(255, 140, 0, 0.6);
-            z-index: 1;
-             border-radius: 10px;
-}
-.bottom-center-gif {
-  position: fixed;
-  bottom: 40px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-}
-
-.bottom-center-gif img {
-  height: 50px;
-  animation: bounce 2s infinite;
-}
-
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-/* Scrollbar Base */
-::-webkit-scrollbar {
-    width: 12px;
-    height: 10px;
-}
-
-/* BIG KNOB STYLE SCROLLBAR */
-::-webkit-scrollbar {
-    width: 16px;    
-    height: 14px;   
-}
-
-::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #ffa500, #ff4500);
-    border-radius: 100px;
-    border: 4px solid white; 
-    box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-    min-height: 60px; 
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #ff9c00, #e63900);
-}
-
-::-webkit-scrollbar-track {
-    background: #eee;
-    border-radius: 10px;
-}
-
-/* Firefox */
-* {
-    scrollbar-width: thick;
-    scrollbar-color: orange #eee;
-}
-
-body {
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch; 
-}
-
-#scrollToTopBtn {
-    position: fixed;
-    bottom: 120px;
-    right: 7px;
-    z-index: 999;
-    width: 50px;
-    height: 50px;
-    background: linear-gradient(135deg, #FFA500, #FF8C00);
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    transition: opacity 0.3s ease;
-    padding: 1;
-    outline: none;
-  box-shadow: none;
-}
-
-#scrollToTopBtn::before {
-    content: "";
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-left: 3px solid white;
-    border-bottom: 3px solid white;
-    transform: rotate(135deg);
-    margin-top: 4px;
-}
-#scrollToTopBtn:hover {
-    background: linear-gradient(135deg, #FF8C00, #FFA500);
-}
- 
-button:focus {
-            outline: none !important;
-            box-shadow: none !important;
-}
-
-button:focus-visible {
-    outline: none !important;
-    box-shadow: none !important;
-}
-
-.btn:focus,
-.btn:focus-visible {
-    outline: none !important;
-    box-shadow: none !important;
-}
-
-* {
-    -webkit-tap-highlight-color: transparent;
-}
-
-button, .btn {
-    -webkit-tap-highlight-color: transparent;
-    outline: none !important;
-    box-shadow: none !important;
-}
-
-button, .btn, .pagination button, #scrollToTopBtn {
-    outline: none !important;
-    box-shadow: none !important;
-    -webkit-tap-highlight-color: transparent !important;
-    -webkit-focus-ring-color: transparent !important;
-}
-
-html {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-
+        #scrollToTopBtn::before { content: ""; display: inline-block; width: 10px; height: 10px; border-left: 3px solid white; border-bottom: 3px solid white; transform: rotate(135deg); margin-top: 4px; }
+        #scrollToTopBtn:hover { background: linear-gradient(135deg, #FF8C00, #FFA500); }
+        button:focus, button:focus-visible, .btn:focus, .btn:focus-visible { outline: none !important; box-shadow: none !important; }
+        * { -webkit-tap-highlight-color: transparent; }
+        button, .btn, .pagination button, #scrollToTopBtn { outline: none !important; box-shadow: none !important; -webkit-tap-highlight-color: transparent !important; -webkit-focus-ring-color: transparent !important; }
+        html { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+        #popup-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 9999; justify-content: center; align-items: center; }
+        #pwa-popup, #open-in-app-popup { background: white; padding: 20px; border-radius: 10px; max-width: 300px; width: 90%; text-align: center; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        #closeBtn { position: absolute; top: 5px; right: 10px; background: transparent; border: none; font-size: 20px; cursor: pointer; }
+        .btn { position: relative; overflow: hidden; }
+        .btn::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(to right, transparent 0%, white 50%, transparent 100%); transform: rotate(45deg); animation: shine 2s infinite; pointer-events: none; }
+        @keyframes shine { 0% { transform: translateX(-100%) rotate(45deg); } 100% { transform: translateX(100%) rotate(45deg); } }
+        .modern-marquee { border-top-left-radius: 15px; border-top-right-radius: 15px; position: fixed; bottom: 0; width: 100%; height: 40px; background: linear-gradient(90deg,  #ff8c00,#11288f); overflow: hidden; display: flex; align-items: center; z-index: 1000; box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2); }
+        .marquee-content { white-space: nowrap; animation: scroll-left 15s linear infinite; font-size: 16px; font-weight: bold; color: #fff; text-shadow: 0 0 3px rgba(255, 255, 255, 0.4); padding-left: 100%; }
+        @keyframes scroll-left { 0% { transform: translateX(0%); } 100% { transform: translateX(-100%); } }
+        .glass { border-radius: 20px; padding: 16px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); position: relative; z-index: 2; background: rgba(255, 255, 255, 0.3); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.3); }
+        .stars-light, .twinkling-light { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; }
+        .stars-light { background: radial-gradient(circle, #fff700 1px, transparent 1px), radial-gradient(circle, #ffd700 1px, transparent 1px), radial-gradient(circle, #ffffff 1px, transparent 1px); background-size: 30px 30px, 40px 40px, 60px 60px; background-position: 0 0, 20px 20px, 10px 30px; opacity: 1; animation: starsMove 80s linear infinite; }
+        .twinkling-light { background: radial-gradient(circle, #fff 2px, transparent 3px), radial-gradient(circle, #ffae00 2px, transparent 3px); background-size: 120px 120px, 80px 80px; opacity: 0.5; animation: twinkleShift 100s linear infinite; }
+        @keyframes starsMove { 0% { background-position: 0 0, 20px 20px, 10px 30px; } 100% { background-position: 1000px 1000px, 1020px 1020px, 1010px 1030px; } }
+        @keyframes twinkleShift { 0% { background-position: 0 0, 0 0; } 100% { background-position: -1000px 1000px, -800px 1200px; } }
+        #loader-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0, 0, 0, 0.5); z-index: 9998; }
+        #starCanvas { position: fixed; top: 0; left: 0; z-index: -1; width: 100%; height: 100%; display: block; pointer-events: none; background: transparent; }
+        .box { position: relative; background: linear-gradient(135deg, #edb56b, #618ff3); border-radius: 20px; padding: 16px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); border: 1px solid rgba(200, 200, 200, 0.4); transition: transform 0.3s ease, box-shadow 0.3s ease; width: 220px; text-align: center; overflow: visible; z-index: 1; color: white; }
+        .box:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3); }
+        .box.animate { transform: scale(1.05); }
+        .box.animate::before { content: ''; position: absolute; inset: 0; border-radius: inherit; z-index: -1; background: linear-gradient(135deg, rgba(255,140,0,0.5), rgba(17,40,143,0.5)); box-shadow: 0 0 12px rgba(255, 140, 0, 0.4), 0 0 12px rgba(17, 40, 143, 0.4); filter: blur(8px); opacity: 1; pointer-events: none; }
+        #photoContainer { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding-bottom: 20px; }
     </style>
- <style>
-    body {
-      margin: 0;
-      padding: 0;
-      position: relative;
-    }
-    #popup-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 9999;
-      justify-content: center;
-      align-items: center;
-    }
-    #pwa-popup, #open-in-app-popup {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 300px;
-      width: 90%;
-      text-align: center;
-      position: relative;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    }
-    #closeBtn {
-      position: absolute;
-      top: 5px;
-      right: 10px;
-      background: transparent;
-      border: none;
-      font-size: 20px;
-      cursor: pointer;
-    }
-  </style>
-
-<style>
-.btn {
-  position: relative;
-  overflow: hidden;
-}
-.btn::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(to right, transparent 0%, white 50%, transparent 100%);
-  transform: rotate(45deg);
-  animation: shine 2s infinite;
-  pointer-events: none;
-}
-@keyframes shine {
-  0% { transform: translateX(-100%) rotate(45deg); }
-  100% { transform: translateX(100%) rotate(45deg); }
-}
-</style>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-<style>
-.modern-marquee {
-  border-top-left-radius: 15px;
-  border-top-right-radius: 15px;
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  height: 40px;
-  background: linear-gradient(90deg,  #ff8c00,#11288f);
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  z-index: 1000;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
-}
-
-.marquee-content {
-  white-space: nowrap;
-  animation: scroll-left 15s linear infinite;
-  font-size: 16px;
-  font-weight: bold;
-  color: #fff;
-  text-shadow: 0 0 3px rgba(255, 255, 255, 0.4);
-  padding-left: 100%;
-}
-
-@keyframes scroll-left {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-100%); }
-}
-
-.glass {
-  border-radius: 20px;
-  padding: 16px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  position: relative;
-  z-index: 2;
-  background: rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.stars-light, .twinkling-light {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.stars-light {
-  background: 
-    radial-gradient(circle, #fff700 1px, transparent 1px),
-    radial-gradient(circle, #ffd700 1px, transparent 1px),
-    radial-gradient(circle, #ffffff 1px, transparent 1px);
-  background-size: 30px 30px, 40px 40px, 60px 60px;
-  background-position: 0 0, 20px 20px, 10px 30px;
-  opacity: 1; 
-  animation: starsMove 80s linear infinite;
-}
-
-.twinkling-light {
-  background: 
-    radial-gradient(circle, #fff 2px, transparent 3px),
-    radial-gradient(circle, #ffae00 2px, transparent 3px);
-  background-size: 120px 120px, 80px 80px;
-  opacity: 0.5;
-  animation: twinkleShift 100s linear infinite;
-}
-
-@keyframes starsMove {
-  0% { background-position: 0 0, 20px 20px, 10px 30px; }
-  100% { background-position: 1000px 1000px, 1020px 1020px, 1010px 1030px; }
-}
-
-@keyframes twinkleShift {
-  0% { background-position: 0 0, 0 0; }
-  100% { background-position: -1000px 1000px, -800px 1200px; }
-}
-body {
-  background-color: #f4f4f4;
-}
-
-#loader-overlay {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 9998;
-}
-
-#starCanvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: -1;
-  width: 100%;
-  height: 100%;
-  display: block;
-  pointer-events: none;
-  background: transparent;
-}
-
-.box {
-  position: relative;
-  background: linear-gradient(135deg, #edb56b, #618ff3);
-  border-radius: 20px;
-  padding: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(200, 200, 200, 0.4);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  width: 220px;
-  text-align: center;
-  overflow: visible;
-  z-index: 1;
-  color: white;
-}
-
-.box:hover {
-  transform: translateY(-5px) scale(1.02);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
-}
-
-.photo {
-  width: 100%;
-  height: auto;
-  object-fit: cover;
-  border-radius: 16px;
-  margin-bottom: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.box.animate {
-  transform: scale(1.05);
-}
-
-.box.animate::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  z-index: -1;
-  background: linear-gradient(135deg, rgba(255,140,0,0.5), rgba(17,40,143,0.5));
-  box-shadow: 0 0 12px rgba(255, 140, 0, 0.4), 0 0 12px rgba(17, 40, 143, 0.4);
-  filter: blur(8px);
-  opacity: 1;
-  pointer-events: none;
-}
-
-#photoContainer {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 20px;
-  padding-bottom: 20px;
-}
-
-body::after {
-  content: "";
-  height: env(safe-area-inset-bottom);
-  display: block;
-  background-color: #ffffff;
-}
-
-</style>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 </head>
 <body>
-  <canvas id="starCanvas"></canvas>
+    <canvas id="starCanvas"></canvas>
+    <div class="banner-container"><img class="banner-image" style="border-bottom-left-radius: 50px; border-bottom-right-radius: 50px;" src="banner.png"></div>
+    <br>
+    <center>
+    <div class="glass" style="margin-left: 20px; margin-right: 20px; margin-top: auto; max-width: max-content;">
+        <h3 style="color: #e78c1d;">STUDENT PHOTOS</h3>
+        <p style="margin-left: 10px; margin-right: 10px;">Enter Name, Roll Number or Prefix (e.g., 25B11IT for AU, 23P31A12 for ACET, 23A91A12 for AEC) to generate complete batch student photo's.</p>
+        
+        <div class="status-container">
+            <div id="api-status-dot" class="pulse-dot"></div>
+            <span id="api-status-text">Connecting...</span>
+            <div class="info-icon" onclick="showInfoPopup()">i</div>
+        </div>
 
-    <div class="banner-container">
-  <img class="banner-image" style="border-bottom-left-radius: 50px; border-bottom-right-radius: 50px;" src="banner.png">
-</div>
-<br>
-<center>
-<div class="glass" style="margin-left: 20px; margin-right: 20px; margin-top: auto; max-width: max-content;">
-    <h3 style="color: #e78c1d;">STUDENT PHOTOS</h3>
-    <p>Enter Name, Roll Number or Prefix (e.g., 25B11IT for AU, 23P31A12 for ACET, 23A91A12 for AEC) to generate complete batch student photo's.</p>
-    <!-- ✅ API Status Indicator UI -->
-    <div class="status-container">
-        <div id="api-status-dot" class="pulse-dot"></div>
-        <span id="api-status-text">Connecting...</span>
-        <div class="info-icon" onclick="showInfoPopup()">i</div>
-    </div>
-    <div class="college-selector">
-        <button class="college-btn active" onclick="selectCollege('AU', event)">AU</button>
-        <button class="college-btn" onclick="selectCollege('AEC', event)">AEC</button>
-        <button class="college-btn" onclick="selectCollege('ACET', event)">ACET</button>
-    </div>
+        <div class="college-selector">
+            <button class="college-btn active" onclick="selectCollege('AU', event)">AU</button>
+            <button class="college-btn" onclick="selectCollege('AEC', event)">AEC</button>
+            <button class="college-btn" onclick="selectCollege('ACET', event)">ACET</button>
+        </div>
 
-   <div class="input-container">
-       <input
-  type="text"
-  id="rollNumberInput"
-  placeholder="🔍 Enter Roll No. or Name"
-  onkeypress="handleKeyPress(event)"
-  inputmode="text"
-  autocapitalize="characters"
-  autocomplete="off"
-  autocorrect="off"
-  spellcheck="false"
-/>
-
-        <button class="btn" onclick="generatePhotos()">Generate Photos</button>
-        <br>
-        <br>
-        <br>
+        <div class="input-container">
+            <input type="text" id="rollNumberInput" placeholder="🔍 Enter Roll No. or Name" onkeypress="handleKeyPress(event)" inputmode="text" autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" />
+            <button class="btn" onclick="generatePhotos()">Generate Photos</button>
+            <button class="btn" style="background: linear-gradient(135deg, #d32f2f, #f44336); padding: 12px 18px;" onclick="clearCache()" title="Clear Stored Data">🗑️ Clear Cache</button>
+        </div>
     </div>
-</div>
-</center>
+    </center>
+
     <div id="branchDisplay" class="branch-banner"></div>
     <div id="loader-overlay"></div>
-
-    <div style="margin-top: 30px;" class="loader" id="loader">
-        <div></div>
-        <div></div>
-        <div></div>
-    </div>
-
+    <div style="margin-top: 30px;" class="loader" id="loader"><div></div><div></div><div></div></div>
 
     <div class="container" id="photoContainer"></div>
     <div class="pagination" id="pagination"></div>
-   <div id="scrollGif" class="bottom-center-gif" style="display: none;">
-  <img src="down_image1.gif" alt="Scroll Down">
-</div>
+    
+    <div id="scrollGif" class="bottom-center-gif" style="display: none;">
+        <img src="down_image1.gif" alt="Scroll Down">
+    </div>
+
     <script>
         let validImages = [];
         let currentPage = 0;
         const imagesPerPage = 100;
         let selectedCollege = "AU"; 
 
-        // ✅ NEW: Smart Fetch Helper with Auto-Retry & Safe Caching
+        function clearCache() {
+            if(confirm("Are you sure you want to clear all stored names and cached photos?")) {
+                localStorage.clear();
+                alert("Cache cleared successfully!");
+                location.reload();
+            }
+        }
+
+        // ✅ Smart Fetch Helper with Auto-Retry
         function fetchNameWithRetry(roll, nameEl, retries = 1) {
             fetch("https://student-name-api.onrender.com/get_name", {
                 method: "POST",
@@ -810,20 +220,16 @@ body::after {
             .then(res => res.json())
             .then(data => {
                 const name = data.name;
-                // Check if it's a valid name (not an error or not found)
                 if (name && name !== "Not Found" && name !== "Not found" && name !== "Error") {
                     nameEl.innerText = name;
-                    localStorage.setItem(roll, name); // Only save valid names to cache!
+                    localStorage.setItem(roll, name); 
                 } else if (retries > 0) {
-                    // Auto-Retry in background after 1 second
-                    console.log(`Auto-retrying name fetch for ${roll}...`);
                     setTimeout(() => fetchNameWithRetry(roll, nameEl, retries - 1), 1000);
                 } else {
                     nameEl.innerText = "Not found";
                 }
             })
             .catch((error) => {
-                console.error(`Error fetching name for ${roll}:`, error);
                 if (retries > 0) {
                     setTimeout(() => fetchNameWithRetry(roll, nameEl, retries - 1), 1000);
                 } else {
@@ -831,25 +237,20 @@ body::after {
                 }
             });
         }
-        
+
         function selectCollege(college, event) {
             selectedCollege = college;
             document.querySelectorAll(".college-btn").forEach(btn => btn.classList.remove("active"));
-            if (event && event.target) {
-                event.target.classList.add("active");
-            }
+            if (event && event.target) event.target.classList.add("active");
         }
 
         function getPhotoUrl(roll) {
-            const cacheBuster = "?v=2"; // Bypasses previously cached 404 errors
-            if (selectedCollege === "AU") {
-                return `https://info.aec.edu.in/aus/StudentPhotos_Original/${roll}.jpg${cacheBuster}`;
-            } else if (selectedCollege === "AEC" || roll.substring(2, 4) === "A9") {
-                return `https://info.aec.edu.in/AEC/studentPhotos/${roll}.jpg${cacheBuster}`;
-            } else {
-                return `https://info.aec.edu.in/acet/studentPhotos/${roll}.jpg${cacheBuster}`;
-            }
+            const cacheBuster = "?v=2"; 
+            if (selectedCollege === "AU") { return `https://info.aec.edu.in/aus/StudentPhotos_Original/${roll}.jpg${cacheBuster}`; } 
+            else if (selectedCollege === "AEC" || roll.substring(2, 4) === "A9") { return `https://info.aec.edu.in/AEC/studentPhotos/${roll}.jpg${cacheBuster}`; } 
+            else { return `https://info.aec.edu.in/acet/studentPhotos/${roll}.jpg${cacheBuster}`; }
         }
+
         function checkImageExists(url) {
             return new Promise((resolve) => {
                 let img = new Image();
@@ -858,109 +259,92 @@ body::after {
                 img.onerror = () => resolve(null);
             });
         }
-async function generatePhotos() {
-    const inputField = document.getElementById("rollNumberInput");
-    const input = inputField.value.trim().toUpperCase();
-    
-    if (input === "") {
-        showError("Please enter a name, roll number, or prefix.");
-        return;
-    }
-    const container = document.getElementById("photoContainer");
-    const pagination = document.getElementById("pagination");
-    const branchDisplay = document.getElementById("branchDisplay");
 
-    document.getElementById('scrollGif').style.display = 'none';
-    container.innerHTML = "";
-    pagination.innerHTML = "";
-    branchDisplay.style.display = "none";
-    loader.style.display = "flex";
-    document.getElementById("loader-overlay").style.display = "block";
+        async function generatePhotos() {
+            const inputField = document.getElementById("rollNumberInput");
+            const input = inputField.value.trim().toUpperCase();
 
-    // 🚀 SMARTER ROUTING LOGIC
-    // If the input has NO numbers, OR it contains a space, it MUST be a Name Search.
-    const hasNumbers = /\d/.test(input);
-    const isNameSearch = !hasNumbers || input.includes(" ");
+            if (input === "") { showError("Please enter a name, roll number, or prefix."); return; }
+            
+            const container = document.getElementById("photoContainer");
+            const pagination = document.getElementById("pagination");
+            const branchDisplay = document.getElementById("branchDisplay");
 
-    if (!isNameSearch) {
-        // ✅ It contains numbers and no spaces, so it is a Roll Number or Prefix
-        
-        // 1. EXACT ROLL NUMBER (10+ characters)
-        if (input.length >= 10) {
-            let imageUrl = getPhotoUrl(input);
+            document.getElementById('scrollGif').style.display = 'none';
+            container.innerHTML = "";
+            pagination.innerHTML = "";
+            branchDisplay.style.display = "none";
+            loader.style.display = "flex";
+            document.getElementById("loader-overlay").style.display = "block";
 
-            const exists = await checkImageExists(imageUrl);
-            loader.style.display = "none";
-            document.getElementById("loader-overlay").style.display = "none";
+            const hasNumbers = /\d/.test(input);
+            const isNameSearch = !hasNumbers || input.includes(" ");
 
-            if (!exists) {
-                showError("Photo not found.");
-                return;
-            }
+            if (!isNameSearch) {
+                // 1. EXACT ROLL NUMBER
+                if (input.length >= 10) {
+                    let imageUrl = getPhotoUrl(input);
+                    const exists = await checkImageExists(imageUrl);
+                    
+                    loader.style.display = "none";
+                    document.getElementById("loader-overlay").style.display = "none";
 
-            let leBannerHTML = "";
-            if (input.substring(4, 6) === "5A") {
-                leBannerHTML = `
-                    <div style="width: 100%; display: flex; justify-content: center; margin: 0;">
-                        <div class="branch-banner" style="display: block; margin: 8px 0 4px 0;">LE's</div>
-                    </div>
-                `;
-            }
+                    if (!exists) { showError("Photo not found."); return; }
 
-            container.innerHTML = `
-                ${leBannerHTML}
-                <div class="box fade-in">
-                    <h3>${input}</h3>
-                    <img class="photo img-loading" src="${imageUrl}" alt="Student Photo" onload="this.classList.remove('img-loading')" onerror="this.onerror=null; this.src='noimage.png'; this.classList.remove('img-loading');">
-                    <div class="student-name" id="name-${input}">
-                        <span class="dot-loader"><span></span><span></span><span></span></span>
-                    </div>
-                </div>
-            `;
+                    let leBannerHTML = "";
+                    if (input.substring(4, 6) === "5A") {
+                        leBannerHTML = `<div style="width: 100%; display: flex; justify-content: center; margin: 0;"><div class="branch-banner" style="display: block; margin: 8px 0 4px 0;">LE's</div></div>`;
+                    }
 
-            const box = document.querySelector(".box");
-            if (box) {
-                box.classList.add("animate");
-                setTimeout(() => {
-                    box.scrollIntoView({ behavior: "smooth", block: "center" });
-                }, 300);
-                observer.observe(box);
-            }
+                    container.innerHTML = `
+                        ${leBannerHTML}
+                        <div class="box fade-in">
+                            <h3>${input}</h3>
+                            <img class="photo img-loading" src="${imageUrl}" alt="Student Photo" onload="this.classList.remove('img-loading')" onerror="this.onerror=null; this.src='noimage.png'; this.classList.remove('img-loading');">
+                            <div class="student-name" id="name-${input}">
+                                <span class="dot-loader"><span></span><span></span><span></span></span>
+                            </div>
+                        </div>
+                    `;
 
-            displayBranch(input);
-            launchConfetti();
+                    const box = document.querySelector(".box");
+                    if (box) {
+                        box.classList.add("animate");
+                        setTimeout(() => box.scrollIntoView({ behavior: "smooth", block: "center" }), 300);
+                        observer.observe(box);
+                    }
 
-           const cachedName = localStorage.getItem(input);
-        const nameEl = document.getElementById(`name-${input}`);
-        
-        // Ignore corrupted cache entries
-        if (cachedName && cachedName !== "Not found" && cachedName !== "Not Found" && cachedName !== "Error") {
-            nameEl.innerText = cachedName;
-            return;
-        } else {
-            fetchNameWithRetry(input, nameEl, 1); // 1 retry attempt
-        }
+                    displayBranch(input);
+                    launchConfetti();
 
-            return;
-        }
+                    const cachedName = localStorage.getItem(input);
+                    const nameEl = document.getElementById(`name-${input}`);
+                    if (cachedName && cachedName !== "Not found" && cachedName !== "Not Found" && cachedName !== "Error") {
+                        nameEl.innerText = cachedName;
+                    } else {
+                        fetchNameWithRetry(input, nameEl, 1); 
+                    }
+                    return;
+                }
 
-      
-        // 2. PREFIX SEARCH (7 to 9 characters)
+                // 2. PREFIX SEARCH (Lazy Loading / Background Chunking)
                 if (input.length >= 7 && input.length < 10) {
                     let rollNumbers = [];
                     rollNumbers.push(...generateRollNumbers(input));
-                    
+
                     if (input.length === 8 && !input.includes("B11") && !input.includes("M11") && !input.includes("M12") && !input.includes("B12")) {
                         const lePrefix = convertToLE(input);
                         rollNumbers.push(...generateRollNumbers(lePrefix));
                     }
 
-                    // ✅ SMART CHUNKING FIX: Optimized for max 50 empty rolls
                     validImages = [];
-                    const chunkSize = 50; // Reduced to 50 photos per batch
+                    currentPage = 0;
+                    const chunkSize = 50; 
                     let consecutiveEmptyChunks = 0;
+                    let i = 0;
 
-                    for (let i = 0; i < rollNumbers.length; i += chunkSize) {
+                    // Fetch FIRST valid chunk to show UI instantly
+                    while (i < rollNumbers.length) {
                         const chunk = rollNumbers.slice(i, i + chunkSize);
                         const results = await Promise.allSettled(
                             chunk.map(roll => {
@@ -974,15 +358,16 @@ async function generatePhotos() {
                             .map(result => result.value);
 
                         validImages.push(...foundInChunk);
+                        i += chunkSize;
 
-                        if (foundInChunk.length === 0) {
-                            consecutiveEmptyChunks++;
-                            // STOP CHECKING: If one entire chunk of 50 is empty, the batch is done.
-                            if (consecutiveEmptyChunks >= 1) {
-                                break;
-                            }
+                        if (foundInChunk.length > 0) {
+                            consecutiveEmptyChunks = 0;
+                            break; // We found the first batch, render the UI immediately!
                         } else {
-                            consecutiveEmptyChunks = 0; 
+                            consecutiveEmptyChunks++;
+                            if (consecutiveEmptyChunks >= 2) {
+                                break; // Abort if no photos in first 100 rolls
+                            }
                         }
                     }
 
@@ -995,272 +380,209 @@ async function generatePhotos() {
                     }
 
                     displayBranch(input);
-                    currentPage = 0;
                     displayPhotos();
                     launchConfetti();
                     document.getElementById('scrollGif').style.display = 'block';
+
+                    // 🚀 BACKGROUND FETCH: Dynamically generate remaining photos silently
+                    if (i < rollNumbers.length) {
+                        fetchRemainingBackground(rollNumbers, i, chunkSize, consecutiveEmptyChunks);
+                    }
                     return;
                 }
-        
-        // If it has numbers but is less than 7 characters
-        loader.style.display = "none";
-        document.getElementById("loader-overlay").style.display = "none";
-        showError("Invalid roll number or prefix length. Needs at least 7 characters.");
-        return;
-    }
 
-    // ✅ 3. NAME-BASED SEARCH
-    try {
-        const response = await fetch("https://student-name-api.onrender.com/resolve_name_to_roll", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: "query=" + encodeURIComponent(input) + "&college=" + encodeURIComponent(selectedCollege)
-        });
-        
-
-        const data = await response.json();
-        
-        loader.style.display = "none";
-        document.getElementById("loader-overlay").style.display = "none";
-
-        // Check if the API returned an explicit error message
-        if (data.error) {
-            console.error("API Error:", data.error);
-            if (data.error === "Query too short") {
-                showError("Please enter at least 3 characters for a name search.");
-            } else {
-                 showError("Server error occurred while searching. Please try again later.");
+                loader.style.display = "none";
+                document.getElementById("loader-overlay").style.display = "none";
+                showError("Invalid roll number or prefix length. Needs at least 7 characters.");
+                return;
             }
-            return;
-        }
 
-        if (!Array.isArray(data) || data.length === 0) {
-            showError(`No student found for "${input}" in ${selectedCollege}. Try checking another college tab.`);
-            return;
-        }
-
-        const campusNames = { MH: "ACOE", P3: "ACET", A9: "AEC", AU: "Aditya University (AU)", B1: "Aditya University (AU)", B11: "Aditya University (AU)" };
-        const campusOrder = ["MH", "P3", "A9", "AU", "B1", "B11"];
-        let grouped = {};
-
-        for (let { roll, name, branch, campus } of data) {
-            const year = roll.substring(0, 2);
-            const series = (selectedCollege === "AU" || campus === "AU" || roll.includes("B11") || roll.includes("M11")) ? "AU" : roll.substring(2, 4);
-            if (!grouped[year]) grouped[year] = { MH: [], P3: [], A9: [], AU: [], B1: [], B11: [] };
-
-            let imageUrl = getPhotoUrl(roll);
-            if (!grouped[year][series]) grouped[year][series] = [];
-            grouped[year][series].push({ roll, name, branch, campus: campusNames[series] || campus, imageUrl });
-        }
-
-        container.innerHTML = "";
-
-        const sortedYears = Object.keys(grouped).sort((a, b) => b - a);
-        for (let year of sortedYears) {
-            // ✅ Year banner only
-            const yearWrapper = document.createElement("div");
-            yearWrapper.style.width = "100%";
-            yearWrapper.style.display = "flex";
-            yearWrapper.style.justifyContent = "center";
-            yearWrapper.style.marginTop = "20px";
-
-            const yearBanner = document.createElement("div");
-            yearBanner.className = "branch-banner";
-            yearBanner.style.margin = "0";
-            yearBanner.style.display = "block";
-            yearBanner.innerText = `${year} Batch`;
-            
-            yearWrapper.appendChild(yearBanner);
-            container.appendChild(yearWrapper);
-
-            for (let series of campusOrder) {
-                const students = grouped[year][series];
-                if (!students || !students.length) continue;
-
-                students.forEach(({ roll, name, branch, campus, imageUrl }) => {
-                    const box = document.createElement("div");
-                    box.className = "box fade-in";
-                    box.innerHTML = `
-                        <h3>${roll}</h3>
-                        <img class="photo img-loading" src="${imageUrl}" alt="Student Photo" onload="this.classList.remove('img-loading')" onerror="this.onerror=null; this.src='noimage.png'; this.classList.remove('img-loading');">
-                        <div class="student-name">${name}</div>
-                        <div style="margin-top: 5px;"><strong>Branch:</strong> ${branch}</div>
-                        <div style="margin-top: 2px;"><strong>Campus:</strong> ${campus || (campusNames[series] || series)}</div>
-                    `;
-                    container.appendChild(box);
+            // 3. NAME-BASED SEARCH
+            try {
+                const response = await fetch("https://student-name-api.onrender.com/resolve_name_to_roll", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: "query=" + encodeURIComponent(input) + "&college=" + encodeURIComponent(selectedCollege)
                 });
+                const data = await response.json();
+
+                loader.style.display = "none";
+                document.getElementById("loader-overlay").style.display = "none";
+
+                if (data.error) {
+                    if (data.error === "Query too short") showError("Please enter at least 3 characters for a name search.");
+                    else showError("Server error occurred while searching. Please try again later.");
+                    return;
+                }
+                if (!Array.isArray(data) || data.length === 0) {
+                    showError(`No student found for "${input}" in ${selectedCollege}. Try checking another college tab.`);
+                    return;
+                }
+
+                const campusNames = { MH: "ACOE", P3: "ACET", A9: "AEC", AU: "Aditya University (AU)", B1: "Aditya University (AU)", B11: "Aditya University (AU)" };
+                const campusOrder = ["MH", "P3", "A9", "AU", "B1", "B11"];
+                let grouped = {};
+
+                for (let { roll, name, branch, campus } of data) {
+                    const year = roll.substring(0, 2);
+                    const series = (selectedCollege === "AU" || campus === "AU" || roll.includes("B11") || roll.includes("M11")) ? "AU" : roll.substring(2, 4);
+                    if (!grouped[year]) grouped[year] = { MH: [], P3: [], A9: [], AU: [], B1: [], B11: [] };
+
+                    let imageUrl = getPhotoUrl(roll);
+                    if (!grouped[year][series]) grouped[year][series] = [];
+                    grouped[year][series].push({ roll, name, branch, campus: campusNames[series] || campus, imageUrl });
+                }
+
+                container.innerHTML = "";
+                const sortedYears = Object.keys(grouped).sort((a, b) => b - a);
+                for (let year of sortedYears) {
+                    const yearWrapper = document.createElement("div");
+                    yearWrapper.style.width = "100%"; yearWrapper.style.display = "flex"; yearWrapper.style.justifyContent = "center"; yearWrapper.style.marginTop = "20px";
+                    const yearBanner = document.createElement("div");
+                    yearBanner.className = "branch-banner"; yearBanner.style.margin = "0"; yearBanner.style.display = "block"; yearBanner.innerText = `${year} Batch`;
+                    yearWrapper.appendChild(yearBanner); container.appendChild(yearWrapper);
+
+                    for (let series of campusOrder) {
+                        const students = grouped[year][series];
+                        if (!students || !students.length) continue;
+                        students.forEach(({ roll, name, branch, campus, imageUrl }) => {
+                            const box = document.createElement("div");
+                            box.className = "box fade-in";
+                            box.innerHTML = `
+                                <h3>${roll}</h3>
+                                <img class="photo img-loading" src="${imageUrl}" alt="Student Photo" onload="this.classList.remove('img-loading')" onerror="this.onerror=null; this.src='noimage.png'; this.classList.remove('img-loading');">
+                                <div class="student-name">${name}</div>
+                                <div style="margin-top: 5px;"><strong>Branch:</strong> ${branch}</div>
+                                <div style="margin-top: 2px;"><strong>Campus:</strong> ${campus || (campusNames[series] || series)}</div>
+                            `;
+                            container.appendChild(box);
+                        });
+                    }
+                }
+                launchConfetti();
+            } catch (error) {
+                loader.style.display = "none"; document.getElementById("loader-overlay").style.display = "none";
+                showError("Failed to connect to the server. Please wait for the status dot to turn green and try again.");
             }
         }
 
-        launchConfetti();
-        
-    } catch (error) {
-        // This catches network errors (e.g., Render is completely down) or JSON parsing errors
-        console.error("Fetch Error:", error);
-        loader.style.display = "none";
-        document.getElementById("loader-overlay").style.display = "none";
-        showError("Failed to connect to the server. Please wait for the status dot to turn green and try again.");
-    }
-}
+        // 🚀 Background Worker to silently fetch rest of AU photos without blocking UI
+        async function fetchRemainingBackground(rollNumbers, startIndex, chunkSize, emptyChunks) {
+            let consecutiveEmptyChunks = emptyChunks;
+
+            for (let i = startIndex; i < rollNumbers.length; i += chunkSize) {
+                const chunk = rollNumbers.slice(i, i + chunkSize);
+                const results = await Promise.allSettled(
+                    chunk.map(roll => {
+                        let url = getPhotoUrl(roll);
+                        return checkImageExists(url).then(result => (result ? { roll, imageUrl: url } : null));
+                    })
+                );
+
+                const foundInChunk = results
+                    .filter(result => result.status === "fulfilled" && result.value !== null)
+                    .map(result => result.value);
+
+                if (foundInChunk.length > 0) {
+                    validImages.push(...foundInChunk);
+                    consecutiveEmptyChunks = 0;
+                    updatePaginationUI(); // Silently append new pages to the bottom
+                } else {
+                    consecutiveEmptyChunks++;
+                    if (consecutiveEmptyChunks >= 2) break; // Stop background check if 100 consecutive rolls are empty
+                }
+            }
+        }
+
         function displayPhotos() {
-    const container = document.getElementById("photoContainer");
-    const pagination = document.getElementById("pagination");
-    container.innerHTML = "";
-    pagination.innerHTML = "";
+            const container = document.getElementById("photoContainer");
+            container.innerHTML = "";
+            const start = currentPage * imagesPerPage;
+            const end = start + imagesPerPage;
+            const imagesToShow = validImages.slice(start, end);
 
-    const start = currentPage * imagesPerPage;
-    const end = start + imagesPerPage;
-    const imagesToShow = validImages.slice(start, end);
+            let fragment = document.createDocumentFragment();
+            let leBannerShown = false;
 
-    let fragment = document.createDocumentFragment();
-let leBannerShown = false;
+            imagesToShow.forEach(({ roll, imageUrl }, index) => {
+                const isLE = roll.substring(4, 6) === "5A";
+                if (isLE && !leBannerShown) {
+                    const leBanner = document.createElement("div"); leBanner.className = "branch-banner"; leBanner.textContent = "LE's"; leBanner.style.display = "block"; leBanner.style.margin = "8px 0 4px 0";
+                    const leWrapper = document.createElement("div"); leWrapper.style.width = "100%"; leWrapper.style.display = "flex"; leWrapper.style.justifyContent = "center"; leWrapper.appendChild(leBanner);
+                    fragment.appendChild(leWrapper); leBannerShown = true;
+                }
 
-imagesToShow.forEach(({ roll, imageUrl }) => {
-    const isLE = roll.substring(4, 6) === "5A";
+                const box = document.createElement("div");
+                box.classList.add("box");
+                box.innerHTML = `
+                    <h3>${roll}</h3>
+                    <img class="photo img-loading" src="${imageUrl}" alt="Student Photo" onload="this.classList.remove('img-loading')" onerror="this.onerror=null; this.src='noimage.png'; this.classList.remove('img-loading');">
+                    <div class="student-name" id="name-${roll}">
+                        <span class="dot-loader"><span></span><span></span><span></span></span>
+                    </div>
+                `;
+                fragment.appendChild(box);
 
-    if (isLE && !leBannerShown) {
-        const leBanner = document.createElement("div");
-        leBanner.className = "branch-banner";
-        leBanner.textContent = "LE's";
-        leBanner.style.display = "block"; 
-        leBanner.style.margin = "8px 0 4px 0";
+                const nameEl = box.querySelector(`#name-${roll}`);
+                if (nameEl) {
+                    const cachedName = localStorage.getItem(roll);
+                    if (cachedName && cachedName !== "Not found" && cachedName !== "Not Found" && cachedName !== "Error") {
+                        nameEl.innerText = cachedName;
+                    } else {
+                        // ✅ Stagger API calls to prevent Render backend from crashing on bulk loading
+                        setTimeout(() => { fetchNameWithRetry(roll, nameEl, 1); }, index * 40);
+                    }
+                }
+                observer.observe(box);
+            });
 
-        const leWrapper = document.createElement("div");
-        leWrapper.style.width = "100%";
-        leWrapper.style.display = "flex";
-        leWrapper.style.justifyContent = "center";
-        leWrapper.appendChild(leBanner);
-
-        fragment.appendChild(leWrapper);
-        leBannerShown = true;
-    }
-
-    const box = document.createElement("div");
-    box.classList.add("box");
-   box.innerHTML = `
-    <h3>${roll}</h3>
-    <img class="photo img-loading" src="${imageUrl}" alt="Student Photo" onload="this.classList.remove('img-loading')" onerror="this.onerror=null; this.src='noimage.png'; this.classList.remove('img-loading');">
-    <div class="student-name" id="name-${roll}">
-        <span class="dot-loader"><span></span><span></span><span></span></span>
-    </div>
-`;
-fragment.appendChild(box);
-
-const nameEl = box.querySelector(`#name-${roll}`);
-if (!nameEl) return;
-
-const cachedName = localStorage.getItem(roll);
-
-// Ignore corrupted cache entries
-if (cachedName && cachedName !== "Not found" && cachedName !== "Not Found" && cachedName !== "Error") {
-    nameEl.innerText = cachedName;
-} else {
-    fetchNameWithRetry(roll, nameEl, 1); // 1 retry attempt
-}
- 
-    observer.observe(box);
-});
-
-container.appendChild(fragment);
-
-setTimeout(() => {
-  const firstBox = container.querySelector(".box");
-  if (firstBox) {
-    firstBox.classList.add("animate");
-  }
-}, 50);
-
-    const totalPages = Math.ceil(validImages.length / imagesPerPage);
-
-if (totalPages > 1) {
-    // ⟨ Prev
-    if (currentPage > 0) {
-        const prevBtn = document.createElement("button");
-        prevBtn.textContent = "⟨ Prev";
-        prevBtn.onclick = () => {
-            currentPage--;
-            displayPhotos();
-            window.scrollTo(0, 0);
-        };
-        pagination.appendChild(prevBtn);
-    }
-
-    // 1 2 3 4 ...
-    for (let i = 0; i < totalPages; i++) {
-        const pageBtn = document.createElement("button");
-        pageBtn.textContent = i + 1;
-        if (i === currentPage) {
-            pageBtn.style.backgroundColor = "orange";
-            pageBtn.style.color = "white";
-            pageBtn.disabled = true;
+            container.appendChild(fragment);
+            setTimeout(() => { const firstBox = container.querySelector(".box"); if (firstBox) firstBox.classList.add("animate"); }, 50);
+            updatePaginationUI();
         }
-        pageBtn.onclick = () => {
-            currentPage = i;
-            displayPhotos();
-            window.scrollTo(0, 0);
-        };
-        pagination.appendChild(pageBtn);
-    }
 
-    // Next ⟩
-    if (currentPage < totalPages - 1) {
-        const nextBtn = document.createElement("button");
-        nextBtn.textContent = "Next ⟩";
-        nextBtn.onclick = () => {
-            currentPage++;
-            displayPhotos();
-            window.scrollTo(0, 0);
-        };
-        pagination.appendChild(nextBtn);
-    }
-}
+        // ✅ Decoupled Pagination logic for dynamic background updates
+        function updatePaginationUI() {
+            const pagination = document.getElementById("pagination");
+            pagination.innerHTML = "";
+            const totalPages = Math.ceil(validImages.length / imagesPerPage);
 
-}
-
-const observerOptions = {
-    root: null,
-    rootMargin: "-40% 0px -40% 0px", 
-    threshold: 0.1
-};
-
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.classList.add('animate');
-        } else {
-            entry.target.classList.remove('animate');
+            if (totalPages > 1) {
+                if (currentPage > 0) {
+                    const prevBtn = document.createElement("button"); prevBtn.textContent = "⟨ Prev";
+                    prevBtn.onclick = () => { currentPage--; displayPhotos(); window.scrollTo(0, 0); };
+                    pagination.appendChild(prevBtn);
+                }
+                for (let i = 0; i < totalPages; i++) {
+                    const pageBtn = document.createElement("button"); pageBtn.textContent = i + 1;
+                    if (i === currentPage) { pageBtn.style.backgroundColor = "orange"; pageBtn.style.color = "white"; pageBtn.disabled = true; }
+                    pageBtn.onclick = () => { currentPage = i; displayPhotos(); window.scrollTo(0, 0); };
+                    pagination.appendChild(pageBtn);
+                }
+                if (currentPage < totalPages - 1) {
+                    const nextBtn = document.createElement("button"); nextBtn.textContent = "Next ⟩";
+                    nextBtn.onclick = () => { currentPage++; displayPhotos(); window.scrollTo(0, 0); };
+                    pagination.appendChild(nextBtn);
+                }
+            }
         }
-    });
-}, observerOptions);
-        function generateRollNumbers(basePrefix) {
+
+        const observerOptions = { root: null, rootMargin: "-40% 0px -40% 0px", threshold: 0.1 };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('animate'); } else { entry.target.classList.remove('animate'); } });
+        }, observerOptions);
+
+        function generateRollNumbers(basePrefix) {
             let rollNumbers = [];
-            
-            // Check for AU prefixes (including B21 from your screenshots)
             if (selectedCollege === "AU" || basePrefix.includes("B11") || basePrefix.includes("B21") || basePrefix.includes("M11") || basePrefix.includes("M12") || basePrefix.includes("B12")) {
-                
-                // 1. Generate 001 to 999 for AU
-                for (let i = 1; i <= 999; i++) {
-                    rollNumbers.push(basePrefix + i.toString().padStart(3, '0'));
-                }
-                
-                // 2. Generate A01 to Z99 for AU (Lateral Entry / Overflow)
+                for (let i = 1; i <= 999; i++) { rollNumbers.push(basePrefix + i.toString().padStart(3, '0')); }
                 for (let letter = 65; letter <= 90; letter++) {
-                    for (let i = 1; i <= 99; i++) {
-                        rollNumbers.push(basePrefix + String.fromCharCode(letter) + i.toString().padStart(2, '0'));
-                    }
+                    for (let i = 1; i <= 99; i++) { rollNumbers.push(basePrefix + String.fromCharCode(letter) + i.toString().padStart(2, '0')); }
                 }
-                
             } else {
-                // Traditional AEC / ACET format
-                // 1. Generate 01 to 99
-                for (let i = 1; i <= 99; i++) {
-                    rollNumbers.push(basePrefix + i.toString().padStart(2, '0'));
-                }
-                // 2. Generate A0 to Z9
+                for (let i = 1; i <= 99; i++) { rollNumbers.push(basePrefix + i.toString().padStart(2, '0')); }
                 for (let letter = 65; letter <= 90; letter++) {
-                    for (let number = 0; number <= 9; number++) {
-                        rollNumbers.push(basePrefix + String.fromCharCode(letter) + number);
-                    }
+                    for (let number = 0; number <= 9; number++) { rollNumbers.push(basePrefix + String.fromCharCode(letter) + number); }
                 }
             }
             return rollNumbers;
@@ -1272,478 +594,156 @@ const observer = new IntersectionObserver((entries) => {
             return year.toString() + branchCode + "5" + prefix.substring(5);
         }
 
-        function handleKeyPress(event) {
-            if (event.key === "Enter") {
-                event.target.blur();
-                generatePhotos();
-            }
+        function handleKeyPress(event) { if (event.key === "Enter") { event.target.blur(); generatePhotos(); } }
+    </script>
+    <script>
+        const branchMap = { "01": "CE", "02": "EEE", "03": "ME", "04": "ECE", "05": "CSE", "12": "IT","14": "ECT", "15": "CSSE", "19": "ECE","26": "Mining", "27": "PT","00": "Pharmacy","42": "CSE-AIML","44": "DS","49": "IoT", "61":"AIML" };
+        const auBranchMap = { "AI": "AIML", "AD": "AIDS", "CS": "CSE", "EC": "ECE", "EE": "EEE", "ME": "ME", "CE": "CE", "IT": "IT", "CT": "CST", "CW": "Cyber Security", "IO": "IoT", "MI": "Mining", "PT": "Petroleum", "AG": "Agriculture", "MC": "MCA", "MB": "MBA", "BB": "BBA" };
+
+        function displayBranch(rollNumber) {
+            if (rollNumber.length >= 7) { 
+                const displayDiv = document.getElementById("branchDisplay");
+                let isAU = selectedCollege === "AU" || rollNumber.includes("B11") || rollNumber.includes("M11") || rollNumber.includes("M12") || rollNumber.includes("B12");
+                let branch = isAU ? (auBranchMap[rollNumber.slice(5, 7)] || rollNumber.slice(5, 7)) : branchMap[rollNumber.slice(6, 8)];
+
+                if (branch) { displayDiv.textContent = isAU ? `AU Branch: ${branch}` : `${branch}`; displayDiv.style.display = "block"; } 
+                else { displayDiv.style.display = "none"; }
+            } else { document.getElementById("branchDisplay").style.display = "none"; }
         }
     </script>
     <script>
-        const branchMap = {
-    "01": "CE", "02": "EEE", "03": "ME", "04": "ECE", "05": "CSE", 
-    "12": "IT","14": "ECT", "15": "CSSE", "19": "ECE","26": "Mining",
-    "27": "PT","00": "Pharmacy","42": "CSE-AIML","44": "DS","49": "IoT", "61":"AIML"
-};
+        window.addEventListener('scroll', () => { const gif = document.getElementById('scrollGif'); if (window.scrollY > 50) { gif.style.display = 'none'; } });
+        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./service-worker.js').then(function(registration) { console.log('Service Worker registered with scope:', registration.scope); }).catch(function(error) { console.error('Service Worker registration failed:', error); }); }
+    </script>
 
-    const auBranchMap = {
-        "AI": "AIML", "AD": "AIDS", "CS": "CSE", "EC": "ECE", "EE": "EEE", 
-        "ME": "ME", "CE": "CE", "IT": "IT", "CT": "CST", "CW": "Cyber Security", 
-        "IO": "IoT", "MI": "Mining", "PT": "Petroleum", "AG": "Agriculture",
-        "MC": "MCA", "MB": "MBA", "BB": "BBA"
-    };
+    <button onclick="scrollToTop()" id="scrollToTopBtn" title="Go to top"></button>
 
-function displayBranch(rollNumber) {
-    if (rollNumber.length >= 7) { 
-        const displayDiv = document.getElementById("branchDisplay");
+    <script>
+        window.onscroll = function() {
+            const btn = document.getElementById("scrollToTopBtn");
+            if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) { btn.style.display = "flex"; } else { btn.style.display = "none"; }
+        };
+        function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        window.addEventListener("scroll", () => {
+          if (window.scrollY === 0) { const firstBox = document.querySelector(".box"); if (firstBox) { firstBox.classList.remove("animate"); void firstBox.offsetWidth; firstBox.classList.add("animate"); } }
+        });
+        function launchConfetti() { confetti({ particleCount: 200, spread: 70, origin: { y: 0.6 } }); }
+    </script>
+
+    <script>
+        let deferredPrompt = null;
+        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('service-worker.js').then(reg => console.log('✅ Service Worker registered:', reg)).catch(err => console.error('❌ Service Worker error:', err)); }
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault(); deferredPrompt = e;
+          const dontShow = localStorage.getItem('pwaDontShowAgain') === 'true';
+          const isInstalled = localStorage.getItem('pwaInstalled') === 'true';
+          if (!dontShow && !isInstalled) { document.getElementById('popup-overlay').style.display = 'flex'; }
+        });
+        window.addEventListener('appinstalled', () => {
+          console.log('✅ App installed'); localStorage.setItem('pwaInstalled', 'true');
+          setTimeout(() => { document.getElementById('open-in-app-popup').style.display = 'block'; document.getElementById('popup-overlay').style.display = 'none'; }, 12500);
+        });
+        window.addEventListener('DOMContentLoaded', () => {
+          document.getElementById('installBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            if (deferredPrompt) { deferredPrompt.prompt(); const choiceResult = await deferredPrompt.userChoice; console.log('🔔 User choice:', choiceResult.outcome); if (document.getElementById('dontShowAgain').checked) { localStorage.setItem('pwaDontShowAgain', 'true'); } document.getElementById('popup-overlay').style.display = 'none'; deferredPrompt = null; }
+          });
+          document.getElementById('closeBtn').addEventListener('click', () => { if (document.getElementById('dontShowAgain').checked) { localStorage.setItem('pwaDontShowAgain', 'true'); } document.getElementById('popup-overlay').style.display = 'none'; });
+        });
+        function openPWA() { window.open('https://23mh1a1202.github.io/student_photos/index.html', '_blank'); closeInAppPopup(); }
+        function closeInAppPopup() { document.getElementById('open-in-app-popup').style.display = 'none'; document.getElementById('popup-overlay').style.display = 'none'; }
+        function showError(message) { const overlay = document.getElementById("error-overlay"); const messageBox = document.getElementById("error-message"); messageBox.textContent = message; overlay.style.display = "flex"; }
+        function refreshAfterPopup() { location.reload(); }
+        function showInfoPopup() { document.getElementById('info-overlay').style.display = 'flex'; }
+        function closeInfoPopup() { document.getElementById('info-overlay').style.display = 'none'; }
         
-        let isAU = selectedCollege === "AU" || rollNumber.includes("B11") || rollNumber.includes("M11") || rollNumber.includes("M12") || rollNumber.includes("B12");
-        
-        let branch = isAU ? (auBranchMap[rollNumber.slice(5, 7)] || rollNumber.slice(5, 7)) : branchMap[rollNumber.slice(6, 8)];
+        document.addEventListener("DOMContentLoaded", () => {
+          const input = document.getElementById("rollNumberInput");
+          input.addEventListener("input", () => { input.value = input.value.toUpperCase(); });
 
-        if (branch) {
-            displayDiv.textContent = isAU ? `AU Branch: ${branch}` : `${branch}`;
-            displayDiv.style.display = "block";
-        } else {
-            displayDiv.style.display = "none";
-        }
-    } else {
-        document.getElementById("branchDisplay").style.display = "none";
-    }
-}
-
+          // ✅ Send Background Request to Wake Up Render Server
+          const statusDot = document.getElementById('api-status-dot');
+          const statusText = document.getElementById('api-status-text');
+          fetch("https://student-name-api.onrender.com/get_name", {
+              method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: "roll_number=23MH1A1202&college=ACET" 
+          })
+          .then(res => res.json())
+          .then(data => { if (data) { statusDot.classList.add('ready'); statusText.innerText = "Ready"; statusText.style.color = "#4CAF50"; } })
+          .catch(err => { console.log("Wake-up ping delayed/failed:", err); statusText.innerText = "Offline"; });
+        });
     </script>
     <script>
-window.addEventListener('scroll', () => {
-    const gif = document.getElementById('scrollGif');
-    if (window.scrollY > 50) {
-        gif.style.display = 'none';
-    }
-});
-</script>
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./service-worker.js')
-
-      .then(function(registration) {
-        console.log('Service Worker registered with scope:', registration.scope);
-      })
-      .catch(function(error) {
-        console.error('Service Worker registration failed:', error);
-      });
-  }
-</script>
-
-<button onclick="scrollToTop()" id="scrollToTopBtn" title="Go to top"></button>
-
-<script>
-    window.onscroll = function() {
-        const btn = document.getElementById("scrollToTopBtn");
-        if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
-            btn.style.display = "flex"; 
-        } else {
-            btn.style.display = "none";
+        const canvas = document.getElementById('starCanvas');
+        const ctx = canvas.getContext('2d');
+        let stars = []; let shootingStars = [];
+        function initStars() {
+          canvas.width = window.innerWidth; canvas.height = window.innerHeight; stars = [];
+          const starCount = Math.floor(canvas.width * canvas.height / 6000); 
+          for (let i = 0; i < starCount; i++) {
+            const speed = Math.random() * 0.2 + 0.05; const angle = Math.random() * Math.PI * 2;
+            stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, radius: Math.random() * 2.2 + 0.8, alpha: Math.random() * 0.4 + 0.6, dx: Math.cos(angle) * speed, dy: Math.sin(angle) * speed });
+          }
         }
-    };
+        function spawnShootingStar() {
+          shootingStars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, vx: Math.random() * 6 + 5, vy: Math.random() * 3 + 2, length: Math.random() * 100 + 80, alpha: 1, fadeRate: 0.006 });
+        }
+        function animateStars() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          for (let star of stars) {
+            star.x += star.dx; star.y += star.dy;
+            if (star.x < 0) star.x = canvas.width; if (star.x > canvas.width) star.x = 0; if (star.y < 0) star.y = canvas.height; if (star.y > canvas.height) star.y = 0;
+            ctx.beginPath(); ctx.arc(star.x, star.y, star.radius, 0, 2 * Math.PI); ctx.fillStyle = `rgba(255, 140, 0, ${star.alpha})`; ctx.shadowBlur = 6; ctx.shadowColor = `rgba(255, 140, 0, ${star.alpha})`; ctx.fill();
+          }
+          for (let i = shootingStars.length - 1; i >= 0; i--) {
+            const s = shootingStars[i]; const trailX = s.x - s.length; const trailY = s.y - s.length * 0.5;
+            const grad = ctx.createLinearGradient(s.x, s.y, trailX, trailY); grad.addColorStop(0, `rgba(0, 191, 255, ${s.alpha})`); grad.addColorStop(1, `rgba(0, 191, 255, 0)`);
+            ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(trailX, trailY); ctx.strokeStyle = grad; ctx.lineWidth = 3; ctx.shadowBlur = 25; ctx.shadowColor = `rgba(0,191,255,${s.alpha})`; ctx.stroke();
+            s.x += s.vx; s.y += s.vy; s.alpha -= s.fadeRate;
+            if (s.alpha <= 0 || s.x < -200 || s.y > canvas.height + 100) { shootingStars.splice(i, 1); }
+          }
+          requestAnimationFrame(animateStars);
+        }
+        window.addEventListener('resize', () => { initStars(); });
+        window.addEventListener('load', () => { initStars(); animateStars(); setInterval(() => { const count = Math.random() > 0.3 ? 2 : 3; for (let i = 0; i < count; i++) { spawnShootingStar(); } }, Math.random() * 800 + 1200); });
+    </script>
 
-    function scrollToTop() {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-</script>
-<script>
-window.addEventListener("scroll", () => {
-  if (window.scrollY === 0) {
-    const firstBox = document.querySelector(".box");
-    if (firstBox) {
-      firstBox.classList.remove("animate"); 
-      void firstBox.offsetWidth; 
-      firstBox.classList.add("animate"); 
-    }
-  }
-});
-</script>
+    <div id="popup-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+      <div id="pwa-popup" style="background: white; padding: 20px; border-radius: 10px; max-width: 300px; width: 90%; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3); position: relative;">
+        <button id="closeBtn" style="position: absolute; top: 5px; right: 10px; background: transparent; border: none; font-size: 20px; cursor: pointer;">&times;</button>
+        <p style="margin-bottom: 15px;">Install this app for a better experience!</p>
+        <button id="installBtn" style="padding: 10px 20px; border-radius: 8px; background: orange; color: white; border: none; font-weight: bold; cursor: pointer;">Install</button><br><br>
+        <label style="font-size: 14px;"><input type="checkbox" id="dontShowAgain"> Don't show again</label>
+      </div>
+    </div>
 
-<script>
-function launchConfetti() {
-  confetti({
-    particleCount: 200,
-    spread: 70,
-    origin: { y: 0.6 }
-  });
-}
-</script>
+    <div id="open-in-app-popup" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border: 2px solid #444; border-radius: 10px; padding: 20px; z-index: 10001; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+      <p>App installed successfully.</p>
+      <button onclick="openPWA()" style="padding: 10px 20px; border-radius: 8px; background: orange; color: white; border: none; font-weight: bold; cursor: pointer;">Open</button>
+      <button onclick="closeInAppPopup()" style="margin-left: 10px; padding: 10px 20px; border-radius: 8px; background: grey; color: white; border: none; font-weight: bold; cursor: pointer;">&#x2715;</button>
+    </div>
 
-<script>
-let deferredPrompt = null;
+    <footer>
+        <p><strong>Developed by:</strong> Ambati Lalitha Sagar</p>
+        <p>B.Tech IT (23MH1A1202) ACET</p>
+        <p>
+           <a href="mailto:alalithasagar355@gmail.com">Email me</a> | 
+            Portfolio: <a href="https://alsagar.tech/" target="_blank">alsagar.tech</a>
+        </p> 
+        <p style="margin-top: 10px;">
+            <a href="help.html" style="color: orange; font-weight: bold;">How to Use & Roll No. Guide</a>
+        </p> 
+        <p>
+            <a href="terms.html" style="color: #11288f; font-weight: bold;">Terms of Use & Disclaimer</a>
+        </p>
+    </footer>
 
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('service-worker.js')
-    .then(reg => console.log('✅ Service Worker registered:', reg))
-    .catch(err => console.error('❌ Service Worker error:', err));
-}
+    <div id="error-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+      <div id="error-popup" style="background: white; padding: 20px; border-radius: 10px; max-width: 300px; width: 90%; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+        <p id="error-message" style="margin-bottom: 15px;">Error message</p>
+        <button onclick="refreshAfterPopup()" style="padding: 10px 20px; border-radius: 8px; background: orange; color: white; border: none; font-weight: bold; cursor: pointer;">OK</button>
+      </div>
+    </div>
 
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-
-  const dontShow = localStorage.getItem('pwaDontShowAgain') === 'true';
-  const isInstalled = localStorage.getItem('pwaInstalled') === 'true';
-
-  if (!dontShow && !isInstalled) {
-    document.getElementById('popup-overlay').style.display = 'flex';
-  }
-});
-
-window.addEventListener('appinstalled', () => {
-  console.log('✅ App installed');
-  localStorage.setItem('pwaInstalled', 'true');
-
-  setTimeout(() => {
-    document.getElementById('open-in-app-popup').style.display = 'block';
-    document.getElementById('popup-overlay').style.display = 'none';
-  }, 12500);
-});
-
-window.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('installBtn').addEventListener('click', async (e) => {
-    e.preventDefault();
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-
-      const choiceResult = await deferredPrompt.userChoice;
-      console.log('🔔 User choice:', choiceResult.outcome);
-
-      if (document.getElementById('dontShowAgain').checked) {
-        localStorage.setItem('pwaDontShowAgain', 'true');
-      }
-
-      document.getElementById('popup-overlay').style.display = 'none';
-      deferredPrompt = null;
-    }
-  });
-
-  document.getElementById('closeBtn').addEventListener('click', () => {
-    if (document.getElementById('dontShowAgain').checked) {
-      localStorage.setItem('pwaDontShowAgain', 'true');
-    }
-    document.getElementById('popup-overlay').style.display = 'none';
-  });
-});
-
-function openPWA() {
-  window.open('https://23mh1a1202.github.io/student_photos/index.html', '_blank');
-  closeInAppPopup();
-}
-
-function closeInAppPopup() {
-  document.getElementById('open-in-app-popup').style.display = 'none';
-  document.getElementById('popup-overlay').style.display = 'none';
-}
-
-
-function showError(message) {
-    const overlay = document.getElementById("error-overlay");
-    const messageBox = document.getElementById("error-message");
-    messageBox.textContent = message;
-    overlay.style.display = "flex"; 
-}
-
-function refreshAfterPopup() {
-    location.reload(); 
-}
-
-// ✅ Info Popup Controls
-function showInfoPopup() {
-    document.getElementById('info-overlay').style.display = 'flex';
-}
-function closeInfoPopup() {
-    document.getElementById('info-overlay').style.display = 'none';
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  const input = document.getElementById("rollNumberInput");
-  input.addEventListener("input", () => {
-    input.value = input.value.toUpperCase();
-  });
-
-  // ✅ Send Background Request to Wake Up Render Server
-  const statusDot = document.getElementById('api-status-dot');
-  const statusText = document.getElementById('api-status-text');
-
-  fetch("https://student-name-api.onrender.com/get_name", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: "roll_number=23MH1A1202&college=ACET" // Hidden wake-up ping
-  })
-  .then(res => res.json())
-  .then(data => {
-      // Once Render wakes up and replies, turn the dot green!
-      if (data) {
-          statusDot.classList.add('ready');
-          statusText.innerText = "Ready";
-          statusText.style.color = "#4CAF50";
-      }
-  })
-  .catch(err => {
-      console.log("Wake-up ping delayed/failed:", err);
-      statusText.innerText = "Offline";
-  });
-});
-
-</script>
-<script>
-const canvas = document.getElementById('starCanvas');
-const ctx = canvas.getContext('2d');
-
-let stars = [];
-let shootingStars = [];
-
-function initStars() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  stars = [];
-
-  const starCount = Math.floor(canvas.width * canvas.height / 6000); 
-
-  for (let i = 0; i < starCount; i++) {
-    const speed = Math.random() * 0.2 + 0.05;
-    const angle = Math.random() * Math.PI * 2;
-    stars.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      radius: Math.random() * 2.2 + 0.8,
-      alpha: Math.random() * 0.4 + 0.6,
-      dx: Math.cos(angle) * speed,
-      dy: Math.sin(angle) * speed
-    });
-  }
-}
-
-function spawnShootingStar() {
-  const startX = Math.random() * canvas.width;
-  const startY = Math.random() * canvas.height;
-
-  shootingStars.push({
-    x: startX,
-    y: startY,
-    vx: Math.random() * 6 + 5,   
-    vy: Math.random() * 3 + 2,   
-    length: Math.random() * 100 + 80,
-    alpha: 1,
-    fadeRate: 0.006
-  });
-}
-
-
-function animateStars() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  for (let star of stars) {
-    star.x += star.dx;
-    star.y += star.dy;
-
-    if (star.x < 0) star.x = canvas.width;
-    if (star.x > canvas.width) star.x = 0;
-    if (star.y < 0) star.y = canvas.height;
-    if (star.y > canvas.height) star.y = 0;
-
-    ctx.beginPath();
-    ctx.arc(star.x, star.y, star.radius, 0, 2 * Math.PI);
-    ctx.fillStyle = `rgba(255, 140, 0, ${star.alpha})`;
-    ctx.shadowBlur = 6;
-    ctx.shadowColor = `rgba(255, 140, 0, ${star.alpha})`;
-    ctx.fill();
-  }
-
-  for (let i = shootingStars.length - 1; i >= 0; i--) {
-    const s = shootingStars[i];
-const trailX = s.x - s.length;
-const trailY = s.y - s.length * 0.5;
-
-const grad = ctx.createLinearGradient(s.x, s.y, trailX, trailY);
-grad.addColorStop(0, `rgba(0, 191, 255, ${s.alpha})`);
-grad.addColorStop(1, `rgba(0, 191, 255, 0)`);
-
-ctx.beginPath();
-ctx.moveTo(s.x, s.y);
-ctx.lineTo(trailX, trailY);
-ctx.strokeStyle = grad;
-ctx.lineWidth = 3;
-ctx.shadowBlur = 25;
-ctx.shadowColor = `rgba(0,191,255,${s.alpha})`;
-ctx.stroke();
-
-    s.x += s.vx;
-    s.y += s.vy;
-    s.alpha -= s.fadeRate;
-
-    if (s.alpha <= 0 || s.x < -200 || s.y > canvas.height + 100) {
-      shootingStars.splice(i, 1);
-    }
-  }
-
-  requestAnimationFrame(animateStars);
-}
-
-window.addEventListener('resize', () => {
-  initStars();
-});
-
-window.addEventListener('load', () => {
-  initStars();
-  animateStars();
-
- setInterval(() => {
-  const count = Math.random() > 0.3 ? 2 : 3; 
-  for (let i = 0; i < count; i++) {
-    spawnShootingStar();
-  }
-}, Math.random() * 800 + 1200); 
-
-});
-</script>
-
-
-<div id="popup-overlay" style="
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
-  z-index: 9999;
-  justify-content: center;
-  align-items: center;
-">
-  <div id="pwa-popup" style="
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    max-width: 300px;
-    width: 90%;
-    text-align: center;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    position: relative;
-  ">
-    <button id="closeBtn" style="
-      position: absolute;
-      top: 5px;
-      right: 10px;
-      background: transparent;
-      border: none;
-      font-size: 20px;
-      cursor: pointer;
-    ">&times;</button>
-
-    <p style="margin-bottom: 15px;">Install this app for a better experience!</p>
-    <button id="installBtn" style="
-      padding: 10px 20px;
-      border-radius: 8px;
-      background: orange;
-      color: white;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-    ">Install</button><br><br>
-
-    <label style="font-size: 14px;">
-      <input type="checkbox" id="dontShowAgain"> Don't show again
-    </label>
-  </div>
-</div>
-
-
-
-<div id="open-in-app-popup" style="
-  display: none;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: white;
-  border: 2px solid #444;
-  border-radius: 10px;
-  padding: 20px;
-  z-index: 10001;
-  text-align: center;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-">
-  <p>App installed successfully.</p>
-  <button onclick="openPWA()" style="
-    padding: 10px 20px;
-    border-radius: 8px;
-    background: orange;
-    color: white;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-  ">Open</button>
-  <button onclick="closeInAppPopup()" style="
-    margin-left: 10px;
-    padding: 10px 20px;
-    border-radius: 8px;
-    background: grey;
-    color: white;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-  ">&#x2715;</button>
-</div>
-
-
-
-<!-- Place this right before the </body> tag -->
-<footer>
-    <p><strong>Developed by:</strong> Ambati Lalitha Sagar</p>
-    <p>B.Tech IT (23MH1A1202) ACET</p>
-    <p>
-       <a href="mailto:alalithasagar355@gmail.com">Email me</a> | 
-        Portfolio: <a href="https://alsagar.tech/" target="_blank">alsagar.tech</a>
-    </p> 
-    <p style="margin-top: 10px;">
-        <a href="help.html" style="color: orange; font-weight: bold;">How to Use & Roll No. Guide</a>
-</p> 
-<p>
-        <a href="terms.html" style="color: #11288f; font-weight: bold;">Terms of Use & Disclaimer</a>
-    </p>
-</footer>
-
-
-<div id="error-overlay" style="
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
-  z-index: 9999;
-  justify-content: center;
-  align-items: center;
-">
-  <div id="error-popup" style="
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    max-width: 300px;
-    width: 90%;
-    text-align: center;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-  ">
-    <p id="error-message" style="margin-bottom: 15px;">Error message</p>
-    <button onclick="refreshAfterPopup()" style="
-      padding: 10px 20px;
-      border-radius: 8px;
-      background: orange;
-      color: white;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-    ">OK</button>
-  </div>
-</div>
-<!-- ✅ Custom Info Popup -->
     <div id="info-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center;">
         <div style="background: white; padding: 25px; border-radius: 15px; max-width: 320px; width: 90%; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
             <h3 style="margin-top: 0; color: #11288f;">Search Status</h3>
