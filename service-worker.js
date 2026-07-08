@@ -1,4 +1,4 @@
-const CACHE_NAME = 'offline-cache-v3'; // ← bump this every time you update
+const CACHE_NAME = 'offline-cache-v4'; // ← bump this every time you update
 
 const OFFLINE_URL = './offline.html';  // <-- path updated
 
