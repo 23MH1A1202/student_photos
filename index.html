@@ -1196,7 +1196,8 @@ body::after {
             container.innerHTML = "";
             pagination.innerHTML = "";
             branchDisplay.style.display = "none";
-            clearResultSummary();
+            
+            // UI text summary removed
             setGenerationLoading(true);
 
             try {
@@ -1204,10 +1205,12 @@ body::after {
                 const isNameSearch = !hasNumbers || input.includes(" ");
 
                 if (!isNameSearch) {
+                    // 1. EXACT ROLL NUMBER
                     if (input.length >= 10) {
                         const imageUrl = getPhotoUrl(input);
                         const exists = await checkImageExists(imageUrl);
                         if (!exists) {
+                            setGenerationLoading(false);
                             showError("Photo not found.");
                             return;
                         }
@@ -1227,7 +1230,7 @@ body::after {
                         observer.observe(box);
 
                         displayBranch(input);
-                        updateResultSummary(1, input, "photo");
+                        setGenerationLoading(false);
                         launchConfetti();
 
                         const nameEl = document.getElementById(`name-${input}`);
@@ -1242,18 +1245,19 @@ body::after {
                         return;
                     }
 
-                                        // 2. PREFIX SEARCH
+                    // 2. PREFIX SEARCH
                     if (input.length >= 7 && input.length < 10) {
                         const prefixes = getPrefixVariants(input);
                         
                         validImages = [];
                         currentPage = 0;
-                        const chunkSize = selectedCollege === "AU" ? 40 : 50;
+                        
+                        // 🚀 Fetches 100 photos in one go!
+                        const chunkSize = 100; 
                         const maxEmptyChunks = selectedCollege === "AU" ? 2 : 1;
                         let renderedInitialBatch = false;
                         let confettiLaunched = false;
 
-                        // ✅ Iterate through regular batch, then immediately through LE batch
                         for (const prefix of prefixes) {
                             const rollNumbers = generateRollNumbers(prefix);
                             let consecutiveEmptyChunks = 0;
@@ -1291,7 +1295,7 @@ body::after {
                                             confettiLaunched = true;
                                         }
                                     } else {
-                                        // Elegantly update UI dynamically if we are currently looking at the last populated page
+                                        // Elegantly update UI dynamically
                                         const maxDisplayableOnCurrentPage = (currentPage + 1) * imagesPerPage;
                                         if (prevCount < maxDisplayableOnCurrentPage) {
                                             displayPhotos(); 
@@ -1299,12 +1303,11 @@ body::after {
                                             renderPagination(); 
                                         }
                                     }
-                                    updateResultSummary(validImages.length, input, "photos");
                                     
                                 } else {
                                     consecutiveEmptyChunks++;
-                                    // Isolated breaking rules per prefix (so regular breaking doesn't stop LE loading)
-                                    if (!foundFirstImageInPrefix && selectedCollege === "AU" && consecutiveEmptyChunks >= 20) {
+                                    // Adjusted for chunk size 100: 10 chunks = 1000 combinations checked
+                                    if (!foundFirstImageInPrefix && selectedCollege === "AU" && consecutiveEmptyChunks >= 10) {
                                         break; 
                                     } else if (foundFirstImageInPrefix && consecutiveEmptyChunks >= maxEmptyChunks) {
                                         break; 
@@ -1328,26 +1331,14 @@ body::after {
 
                         setGenerationLoading(false);
                         return;
-                    
-
-
-                        if (!renderedInitialBatch) {
-                            displayBranch(input);
-                            displayPhotos();
-                            document.getElementById("scrollGif").style.display = "block";
-                        } else {
-                            renderPagination();
-                        }
-
-                        updateResultSummary(validImages.length, input, "photos");
-                        if (!confettiLaunched) launchConfetti();
-                        return;
                     }
 
                     showError("Invalid roll number or prefix length. Needs at least 7 characters.");
+                    setGenerationLoading(false);
                     return;
                 }
 
+                // 3. NAME-BASED SEARCH
                 const response = await fetch("https://student-name-api.onrender.com/resolve_name_to_roll", {
                     method: "POST",
                     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -1356,6 +1347,7 @@ body::after {
 
                 const data = await response.json();
                 if (data.error) {
+                    setGenerationLoading(false);
                     console.error("API Error:", data.error);
                     if (data.error === "Query too short") {
                         showError("Please enter at least 3 characters for a name search.");
@@ -1366,6 +1358,7 @@ body::after {
                 }
 
                 if (!Array.isArray(data) || data.length === 0) {
+                    setGenerationLoading(false);
                     showError(`No student found for "${input}" in ${selectedCollege}. Try checking another college tab.`);
                     return;
                 }
@@ -1418,16 +1411,14 @@ body::after {
                     }
                 }
 
-                updateResultSummary(data.length, input, "students");
+                setGenerationLoading(false);
                 launchConfetti();
             } catch (error) {
                 console.error("Fetch Error:", error);
-                showError("Failed to connect to the server. Please wait for the status dot to turn green and try again.");
-            } finally {
                 setGenerationLoading(false);
+                showError("Failed to connect to the server. Please wait for the status dot to turn green and try again.");
             }
         }
-
         function displayPhotos() {
             const container = document.getElementById("photoContainer");
             container.innerHTML = "";
