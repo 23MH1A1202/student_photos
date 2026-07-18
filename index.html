@@ -2014,7 +2014,7 @@ window.addEventListener('load', () => {
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
             <circle cx="12" cy="12" r="3"></circle>
         </svg>
-        Total Visits: <span id="visitor-count" style="color: #ff8c00; font-size: 16px; margin-left: 4px;">...</span>
+        Total Visitors: <span id="visitor-count" style="color: #ff8c00; font-size: 16px; margin-left: 4px;">...</span>
     </div>
 </div>
 
@@ -2025,44 +2025,69 @@ window.addEventListener('load', () => {
 
       const presetVisits = 298; 
       const apiUrl = "https://api.counterapi.dev/v1/alsagarphotos_v2/visits";
+      const savedCount = sessionStorage.getItem("saved_visitor_count");
+
+      // Instantly load the previously generated total on refresh so it NEVER shows "..."
+      if (savedCount) {
+          countSpan.innerText = savedCount;
+      }
 
       // Helper function to update the UI
       const updateCountUI = (apiCount) => {
-          countSpan.innerText = (apiCount + presetVisits).toLocaleString();
+          const finalTotal = (apiCount + presetVisits).toLocaleString();
+          countSpan.innerText = finalTotal;
+          sessionStorage.setItem("saved_visitor_count", finalTotal);
+      };
+
+      // Helper function for completely blocked networks / APIs
+      const fallbackUI = () => {
+          if (countSpan.innerText === "...") {
+              countSpan.innerText = presetVisits.toLocaleString();
+          }
       };
 
       // 1. The "Live Stream" Sync Function (Read-Only)
       const fetchLiveCount = () => {
-          // The cache-buster trick ensures we bypass server caching and get the LIVE number
-          fetch(`${apiUrl}?t=${new Date().getTime()}`, { cache: "no-store" })
-              .then(res => res.json())
+          fetch(apiUrl, { cache: "no-store" })
+              .then(res => {
+                  if (!res.ok) throw new Error("API Issue");
+                  return res.json();
+              })
               .then(data => {
                   if (data && typeof data.count === 'number') updateCountUI(data.count);
               })
-              .catch(err => console.error("Silent live-sync failed:", err));
+              .catch(err => {
+                  console.error("Live sync failed:", err);
+                  fallbackUI();
+              });
       };
 
       // 2. Initial Page Load Logic (Count once per session)
       const hasVisited = sessionStorage.getItem("site_counted");
 
       if (!hasVisited) {
-          // BRAND NEW SESSION: Send the "/up" command to add +1 to the database
+          // BRAND NEW SESSION: Send the "/up" command to add +1
           fetch(`${apiUrl}/up`)
-              .then(res => res.json())
+              .then(res => {
+                  if (!res.ok) throw new Error("API Issue");
+                  return res.json();
+              })
               .then(data => {
                   if (data && typeof data.count === 'number') {
                       updateCountUI(data.count);
-                      sessionStorage.setItem("site_counted", "true"); // Drop the flag
+                      sessionStorage.setItem("site_counted", "true"); 
                   }
               })
-              .catch(err => countSpan.innerText = presetVisits.toLocaleString());
+              .catch(err => {
+                  console.error("Up command failed:", err);
+                  fallbackUI();
+              });
       } else {
-          // REFRESH: Just fetch the current live count without adding +1
+          // REFRESH: Just fetch the live count
           fetchLiveCount();
       }
 
-      // 3. The Live Stream Timer! 
-      // Silently checks the database every 10 seconds (10000ms) to see if someone else visited
+      // 3. The Live Stream Timer! (Checks every 10 seconds)
       setInterval(fetchLiveCount, 10000);
 
   }, 300);
