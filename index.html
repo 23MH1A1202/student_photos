@@ -2020,13 +2020,19 @@ window.addEventListener('load', () => {
 </div>
 
 <script>
-  // Self-executing script so it cannot fail or conflict with other code
   setTimeout(() => {
       const countSpan = document.getElementById("visitor-count");
       if (!countSpan) return;
 
       const presetVisits = 298; 
       const hasVisited = sessionStorage.getItem("site_visited");
+      const savedCount = sessionStorage.getItem("saved_visitor_count");
+      
+      // Instantly load the previously generated total on refresh so it never drops back to 298!
+      if (savedCount) {
+          countSpan.innerText = savedCount;
+      }
+
       const action = hasVisited ? "" : "/up";
       
       fetch(`https://api.counterapi.dev/v1/alsagarphotos_v2/visits${action}`)
@@ -2036,15 +2042,20 @@ window.addEventListener('load', () => {
           })
           .then(data => {
               const apiCount = (data && typeof data.count === 'number') ? data.count : 0;
-              countSpan.innerText = (apiCount + presetVisits).toLocaleString(); 
+              const finalTotal = (apiCount + presetVisits).toLocaleString();
+              
+              countSpan.innerText = finalTotal; 
+              
+              // Save the flags AND the final calculated number to survive page refreshes
               sessionStorage.setItem("site_visited", "true");
+              sessionStorage.setItem("saved_visitor_count", finalTotal);
           })
           .catch(err => {
               console.error("Counter API fallback triggered:", err);
-              // Force the UI to show the preset number if the user has an Adblocker or the API hiccups
-              countSpan.innerText = presetVisits.toLocaleString(); 
+              // If API completely fails, show the saved count. If there is no saved count (first visit), show preset.
+              countSpan.innerText = savedCount ? savedCount : presetVisits.toLocaleString(); 
           });
-  }, 300); // 300ms delay ensures your page loads instantly without waiting for the counter
+  }, 300);
 </script>
 <!-- Place this right before the </body> tag -->
 <footer>
