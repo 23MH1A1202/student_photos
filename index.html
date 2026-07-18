@@ -2048,7 +2048,8 @@ window.addEventListener('load', () => {
 
       // 1. The "Live Stream" Sync Function (Read-Only)
       const fetchLiveCount = () => {
-          fetch(apiUrl, { cache: "no-store" })
+          // 'reload' forces the browser to completely ignore its local cache and hit the network.
+          fetch(apiUrl, { cache: "reload" })
               .then(res => {
                   if (!res.ok) throw new Error("API Issue");
                   return res.json();
@@ -2087,8 +2088,9 @@ window.addEventListener('load', () => {
           fetchLiveCount();
       }
 
-      // 3. The Live Stream Timer! (Checks every 10 seconds)
-      setInterval(fetchLiveCount, 10000);
+      // 3. The Live Stream Timer! 
+      // Checks the API every 15 seconds. (Expect a 1-3 minute delay for the API server cache to clear!)
+      setInterval(fetchLiveCount, 15000);
 
   }, 300);
 </script>
