@@ -1806,23 +1806,28 @@ document.addEventListener("DOMContentLoaded", () => {
       statusText.innerText = "Offline";
   });
 });
-// ✅ Live View Counter Logic (Counts EVERY refresh)
+// ✅ BULLETPROOF Live Visitor Counter Logic
           const countSpan = document.getElementById("visitor-count");
           if (countSpan) {
-              // We removed the sessionStorage check, so it always fires "/up"
-              fetch(`https://api.counterapi.dev/v1/23mh1a1202_photos/visits/up`)
+              const hasVisited = sessionStorage.getItem("site_visited");
+              const action = hasVisited ? "" : "/up";
+              
+              // Cleaned up the namespace name to prevent API format errors
+              fetch(`https://api.counterapi.dev/v1/alsagarphotos/visits${action}`)
                   .then(res => res.json())
                   .then(data => {
-                      if(data.count) {
-                          const presetVisits = 298; // Your preset base number
-                          const totalVisits = data.count + presetVisits;
-                          
-                          countSpan.innerText = totalVisits.toLocaleString(); 
-                      }
+                      // If API returns an error (like 404), default the API count to 0
+                      const apiCount = (typeof data.count === 'number') ? data.count : 0;
+                      const presetVisits = 298; // Your base number
+                      const totalVisits = apiCount + presetVisits;
+                      
+                      countSpan.innerText = totalVisits.toLocaleString(); 
+                      sessionStorage.setItem("site_visited", "true");
                   })
                   .catch(err => {
-                      console.error("Counter API failed:", err);
-                      countSpan.innerText = "Offline";
+                      console.error("Counter API failed or blocked by Adblocker:", err);
+                      // Gracefully fallback to showing preset visits if offline
+                      countSpan.innerText = "298"; 
                   });
           }
 </script>
