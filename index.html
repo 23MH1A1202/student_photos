@@ -1806,7 +1806,27 @@ document.addEventListener("DOMContentLoaded", () => {
       statusText.innerText = "Offline";
   });
 });
-
+// ✅ Live Visitor Counter Logic
+          const countSpan = document.getElementById("visitor-count");
+          if (countSpan) {
+              // Only count as a "new" visit once per browser session to prevent spam-refresh counting
+              const hasVisited = sessionStorage.getItem("site_visited");
+              const action = hasVisited ? "" : "/up";
+              
+              // We are using a unique namespace: 23mh1a1202_photos
+              fetch(`https://api.counterapi.dev/v1/23mh1a1202_photos/visits${action}`)
+                  .then(res => res.json())
+                  .then(data => {
+                      if(data.count) {
+                          countSpan.innerText = data.count.toLocaleString(); // Formats with commas (e.g., 1,234)
+                          sessionStorage.setItem("site_visited", "true");
+                      }
+                  })
+                  .catch(err => {
+                      console.error("Counter API failed:", err);
+                      countSpan.innerText = "Offline";
+                  });
+          }
 </script>
 <script>
 const canvas = document.getElementById('starCanvas');
@@ -2012,6 +2032,16 @@ window.addEventListener('load', () => {
 
 <!-- Place this right before the </body> tag -->
 <footer>
+    <!-- ✅ Live Visitor Counter Badge -->
+    <div style="display: flex; justify-content: center; margin-bottom: 15px;">
+        <div style="background: rgba(255, 140, 0, 0.15); border: 1px solid rgba(255, 140, 0, 0.4); padding: 8px 18px; border-radius: 50px; font-size: 14px; color: #11288f; font-weight: bold; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #ff8c00;">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            Total Visits: <span id="visitor-count" style="color: #ff8c00; font-size: 16px; margin-left: 4px;">...</span>
+        </div>
+    </div>
     <p><strong>Developed by:</strong> Ambati Lalitha Sagar</p>
     <p>B.Tech IT (23MH1A1202) ACET</p>
     <p>
