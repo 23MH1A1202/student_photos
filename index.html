@@ -1806,23 +1806,18 @@ document.addEventListener("DOMContentLoaded", () => {
       statusText.innerText = "Offline";
   });
 });
-// ✅ Live Visitor Counter Logic
+// ✅ Live View Counter Logic (Counts EVERY refresh)
           const countSpan = document.getElementById("visitor-count");
           if (countSpan) {
-              // Only count as a "new" visit once per browser session to prevent spam-refresh counting
-              const hasVisited = sessionStorage.getItem("site_visited");
-              const action = hasVisited ? "" : "/up";
-              
-              // We are using a unique namespace: 23mh1a1202_photos
-              fetch(`https://api.counterapi.dev/v1/23mh1a1202_photos/visits${action}`)
+              // We removed the sessionStorage check, so it always fires "/up"
+              fetch(`https://api.counterapi.dev/v1/23mh1a1202_photos/visits/up`)
                   .then(res => res.json())
                   .then(data => {
                       if(data.count) {
-                          const presetVisits = 298; // ✅ Your preset base number
+                          const presetVisits = 298; // Your preset base number
                           const totalVisits = data.count + presetVisits;
                           
-                          countSpan.innerText = totalVisits.toLocaleString(); // Formats with commas
-                          sessionStorage.setItem("site_visited", "true");
+                          countSpan.innerText = totalVisits.toLocaleString(); 
                       }
                   })
                   .catch(err => {
