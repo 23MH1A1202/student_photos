@@ -2025,42 +2025,40 @@ window.addEventListener('load', () => {
 
       const presetVisits = 298; 
       const apiUrl = "https://api.counterapi.dev/v1/alsagarphotos_v2/visits";
-      const savedCount = sessionStorage.getItem("saved_visitor_count");
+      
+      // ✅ High Watermark Memory: Remembers the highest count ever seen
+      let bestKnownCount = parseInt(localStorage.getItem("best_api_count")) || 0;
 
-      // Instantly load the previously generated total on refresh so it NEVER shows "..."
-      if (savedCount) {
-          countSpan.innerText = savedCount;
+      // Instantly load the previous total on refresh to hide the '...'
+      if (bestKnownCount > 0) {
+          countSpan.innerText = (bestKnownCount + presetVisits).toLocaleString();
       }
 
-      // Helper function to update the UI
+      // Helper function: Only updates the UI if the API number is NEWER than what we already know
       const updateCountUI = (apiCount) => {
-          const finalTotal = (apiCount + presetVisits).toLocaleString();
-          countSpan.innerText = finalTotal;
-          sessionStorage.setItem("saved_visitor_count", finalTotal);
-      };
-
-      // Helper function for completely blocked networks / APIs
-      const fallbackUI = () => {
-          if (countSpan.innerText === "...") {
-              countSpan.innerText = presetVisits.toLocaleString();
+          if (apiCount > bestKnownCount) {
+              bestKnownCount = apiCount;
+              localStorage.setItem("best_api_count", bestKnownCount);
           }
+          countSpan.innerText = (bestKnownCount + presetVisits).toLocaleString();
       };
 
       // 1. The "Live Stream" Sync Function (Read-Only)
       const fetchLiveCount = () => {
-          // 'reload' forces the browser to completely ignore its local cache and hit the network.
           fetch(apiUrl, { cache: "reload" })
               .then(res => {
                   if (!res.ok) throw new Error("API Issue");
                   return res.json();
               })
               .then(data => {
-                  if (data && typeof data.count === 'number') updateCountUI(data.count);
+                  if (data && typeof data.count === 'number') {
+                      // MAGIC FIX: Silently ignores the API if it tries to hand us stale, cached data!
+                      if (data.count > bestKnownCount) {
+                          updateCountUI(data.count);
+                      }
+                  }
               })
-              .catch(err => {
-                  console.error("Live sync failed:", err);
-                  fallbackUI();
-              });
+              .catch(err => console.error("Live sync waiting...", err));
       };
 
       // 2. Initial Page Load Logic (Count once per session)
@@ -2080,16 +2078,14 @@ window.addEventListener('load', () => {
                   }
               })
               .catch(err => {
-                  console.error("Up command failed:", err);
-                  fallbackUI();
+                  if (countSpan.innerText === "...") countSpan.innerText = presetVisits.toLocaleString();
               });
       } else {
-          // REFRESH: Just fetch the live count
+          // REFRESH: Fetch live count, but discard it if it's lagging behind
           fetchLiveCount();
       }
 
-      // 3. The Live Stream Timer! 
-      // Checks the API every 15 seconds. (Expect a 1-3 minute delay for the API server cache to clear!)
+      // 3. The Live Stream Timer! (Checks for other visitors every 15 seconds)
       setInterval(fetchLiveCount, 15000);
 
   }, 300);
