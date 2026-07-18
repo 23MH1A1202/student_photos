@@ -2007,7 +2007,6 @@ window.addEventListener('load', () => {
   ">&#x2715;</button>
 </div>
 
-
 <!-- ✅ Live Visitor Counter Badge & Isolated Script -->
 <div style="display: flex; justify-content: center; margin-bottom: 15px;">
     <div style="background: rgba(255, 140, 0, 0.15); border: 1px solid rgba(255, 140, 0, 0.4); padding: 8px 18px; border-radius: 50px; font-size: 14px; color: #11288f; font-weight: bold; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
@@ -2025,25 +2024,47 @@ window.addEventListener('load', () => {
       if (!countSpan) return;
 
       const presetVisits = 298; 
-      
-      // 🚀 FORCE LIVE DATA: By sending the '/up' command on every load, 
-      // we bypass the API's global cache and force it to hand us the absolute latest real-time number!
-      fetch(`https://api.counterapi.dev/v1/alsagarphotos_v2/visits/up`)
-          .then(res => {
-              if (!res.ok) throw new Error("API Connection Issue");
-              return res.json();
-          })
-          .then(data => {
-              const apiCount = (data && typeof data.count === 'number') ? data.count : 0;
-              
-              // Updates the UI instantly with the live count
-              countSpan.innerText = (apiCount + presetVisits).toLocaleString(); 
-          })
-          .catch(err => {
-              console.error("Counter API fallback triggered:", err);
-              // Graceful fallback if the user has an Adblocker
-              countSpan.innerText = presetVisits.toLocaleString(); 
-          });
+      const apiUrl = "https://api.counterapi.dev/v1/alsagarphotos_v2/visits";
+
+      // Helper function to update the UI
+      const updateCountUI = (apiCount) => {
+          countSpan.innerText = (apiCount + presetVisits).toLocaleString();
+      };
+
+      // 1. The "Live Stream" Sync Function (Read-Only)
+      const fetchLiveCount = () => {
+          // The cache-buster trick ensures we bypass server caching and get the LIVE number
+          fetch(`${apiUrl}?t=${new Date().getTime()}`, { cache: "no-store" })
+              .then(res => res.json())
+              .then(data => {
+                  if (data && typeof data.count === 'number') updateCountUI(data.count);
+              })
+              .catch(err => console.error("Silent live-sync failed:", err));
+      };
+
+      // 2. Initial Page Load Logic (Count once per session)
+      const hasVisited = sessionStorage.getItem("site_counted");
+
+      if (!hasVisited) {
+          // BRAND NEW SESSION: Send the "/up" command to add +1 to the database
+          fetch(`${apiUrl}/up`)
+              .then(res => res.json())
+              .then(data => {
+                  if (data && typeof data.count === 'number') {
+                      updateCountUI(data.count);
+                      sessionStorage.setItem("site_counted", "true"); // Drop the flag
+                  }
+              })
+              .catch(err => countSpan.innerText = presetVisits.toLocaleString());
+      } else {
+          // REFRESH: Just fetch the current live count without adding +1
+          fetchLiveCount();
+      }
+
+      // 3. The Live Stream Timer! 
+      // Silently checks the database every 10 seconds (10000ms) to see if someone else visited
+      setInterval(fetchLiveCount, 10000);
+
   }, 300);
 </script>
 <footer>
