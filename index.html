@@ -2026,15 +2026,13 @@ window.addEventListener('load', () => {
       const presetVisits = 298; 
       const apiUrl = "https://api.counterapi.dev/v1/alsagarphotos_v2/visits";
       
-      // ✅ High Watermark Memory: Remembers the highest count ever seen
+      // ✅ High Watermark Memory
       let bestKnownCount = parseInt(localStorage.getItem("best_api_count")) || 0;
 
-      // Instantly load the previous total on refresh to hide the '...'
       if (bestKnownCount > 0) {
           countSpan.innerText = (bestKnownCount + presetVisits).toLocaleString();
       }
 
-      // Helper function: Only updates the UI if the API number is NEWER than what we already know
       const updateCountUI = (apiCount) => {
           if (apiCount > bestKnownCount) {
               bestKnownCount = apiCount;
@@ -2043,16 +2041,25 @@ window.addEventListener('load', () => {
           countSpan.innerText = (bestKnownCount + presetVisits).toLocaleString();
       };
 
+      const fallbackUI = () => {
+          if (countSpan.innerText === "...") {
+              countSpan.innerText = presetVisits.toLocaleString();
+          }
+      };
+
       // 1. The "Live Stream" Sync Function (Read-Only)
       const fetchLiveCount = () => {
-          fetch(apiUrl, { cache: "reload" })
+          // 🚀 FIX: Removed the headers that caused the CORS crash. 
+          // Appended a unique timestamp to force the Service Worker to fetch fresh data!
+          const cacheBuster = `?_=${new Date().getTime()}`;
+          
+          fetch(`${apiUrl}${cacheBuster}`)
               .then(res => {
                   if (!res.ok) throw new Error("API Issue");
                   return res.json();
               })
               .then(data => {
                   if (data && typeof data.count === 'number') {
-                      // MAGIC FIX: Silently ignores the API if it tries to hand us stale, cached data!
                       if (data.count > bestKnownCount) {
                           updateCountUI(data.count);
                       }
@@ -2078,14 +2085,14 @@ window.addEventListener('load', () => {
                   }
               })
               .catch(err => {
-                  if (countSpan.innerText === "...") countSpan.innerText = presetVisits.toLocaleString();
+                  fallbackUI();
               });
       } else {
-          // REFRESH: Fetch live count, but discard it if it's lagging behind
+          // REFRESH: Fetch live count safely bypassing the Service Worker cache
           fetchLiveCount();
       }
 
-      // 3. The Live Stream Timer! (Checks for other visitors every 15 seconds)
+      // 3. The Live Stream Timer! 
       setInterval(fetchLiveCount, 15000);
 
   }, 300);
