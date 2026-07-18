@@ -2015,7 +2015,7 @@ window.addEventListener('load', () => {
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
             <circle cx="12" cy="12" r="3"></circle>
         </svg>
-        Total Visitors: <span id="visitor-count" style="color: #ff8c00; font-size: 16px; margin-left: 4px;">...</span>
+        Total Visits: <span id="visitor-count" style="color: #ff8c00; font-size: 16px; margin-left: 4px;">...</span>
     </div>
 </div>
 
@@ -2025,39 +2025,24 @@ window.addEventListener('load', () => {
       if (!countSpan) return;
 
       const presetVisits = 298; 
-      const hasVisited = sessionStorage.getItem("site_visited");
-      const savedCount = sessionStorage.getItem("saved_visitor_count");
       
-      // Instantly load the previously generated total to prevent "..." flash
-      if (savedCount) {
-          countSpan.innerText = savedCount;
-      }
-
-      const action = hasVisited ? "" : "/up";
-      
-      // 🚀 CACHE-BUSTER: Forces the browser to grab the live global count instead of reading a frozen cached version
-      const cacheBuster = "?time=" + new Date().getTime();
-      
-      fetch(`https://api.counterapi.dev/v1/alsagarphotos_v2/visits${action}${cacheBuster}`, {
-          cache: "no-store" // Double protection against browser caching
-      })
+      // 🚀 FORCE LIVE DATA: By sending the '/up' command on every load, 
+      // we bypass the API's global cache and force it to hand us the absolute latest real-time number!
+      fetch(`https://api.counterapi.dev/v1/alsagarphotos_v2/visits/up`)
           .then(res => {
               if (!res.ok) throw new Error("API Connection Issue");
               return res.json();
           })
           .then(data => {
               const apiCount = (data && typeof data.count === 'number') ? data.count : 0;
-              const finalTotal = (apiCount + presetVisits).toLocaleString();
               
-              // Updates the UI with the absolute latest real-time count
-              countSpan.innerText = finalTotal; 
-              
-              sessionStorage.setItem("site_visited", "true");
-              sessionStorage.setItem("saved_visitor_count", finalTotal);
+              // Updates the UI instantly with the live count
+              countSpan.innerText = (apiCount + presetVisits).toLocaleString(); 
           })
           .catch(err => {
               console.error("Counter API fallback triggered:", err);
-              countSpan.innerText = savedCount ? savedCount : presetVisits.toLocaleString(); 
+              // Graceful fallback if the user has an Adblocker
+              countSpan.innerText = presetVisits.toLocaleString(); 
           });
   }, 300);
 </script>
