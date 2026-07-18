@@ -2028,14 +2028,19 @@ window.addEventListener('load', () => {
       const hasVisited = sessionStorage.getItem("site_visited");
       const savedCount = sessionStorage.getItem("saved_visitor_count");
       
-      // Instantly load the previously generated total on refresh so it never drops back to 298!
+      // Instantly load the previously generated total to prevent "..." flash
       if (savedCount) {
           countSpan.innerText = savedCount;
       }
 
       const action = hasVisited ? "" : "/up";
       
-      fetch(`https://api.counterapi.dev/v1/alsagarphotos_v2/visits${action}`)
+      // 🚀 CACHE-BUSTER: Forces the browser to grab the live global count instead of reading a frozen cached version
+      const cacheBuster = "?time=" + new Date().getTime();
+      
+      fetch(`https://api.counterapi.dev/v1/alsagarphotos_v2/visits${action}${cacheBuster}`, {
+          cache: "no-store" // Double protection against browser caching
+      })
           .then(res => {
               if (!res.ok) throw new Error("API Connection Issue");
               return res.json();
@@ -2044,20 +2049,18 @@ window.addEventListener('load', () => {
               const apiCount = (data && typeof data.count === 'number') ? data.count : 0;
               const finalTotal = (apiCount + presetVisits).toLocaleString();
               
+              // Updates the UI with the absolute latest real-time count
               countSpan.innerText = finalTotal; 
               
-              // Save the flags AND the final calculated number to survive page refreshes
               sessionStorage.setItem("site_visited", "true");
               sessionStorage.setItem("saved_visitor_count", finalTotal);
           })
           .catch(err => {
               console.error("Counter API fallback triggered:", err);
-              // If API completely fails, show the saved count. If there is no saved count (first visit), show preset.
               countSpan.innerText = savedCount ? savedCount : presetVisits.toLocaleString(); 
           });
   }, 300);
 </script>
-<!-- Place this right before the </body> tag -->
 <footer>
 
     <p><strong>Developed by:</strong> Ambati Lalitha Sagar</p>
