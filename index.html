@@ -1818,7 +1818,10 @@ document.addEventListener("DOMContentLoaded", () => {
                   .then(res => res.json())
                   .then(data => {
                       if(data.count) {
-                          countSpan.innerText = data.count.toLocaleString(); // Formats with commas (e.g., 1,234)
+                          const presetVisits = 298; // ✅ Your preset base number
+                          const totalVisits = data.count + presetVisits;
+                          
+                          countSpan.innerText = totalVisits.toLocaleString(); // Formats with commas
                           sessionStorage.setItem("site_visited", "true");
                       }
                   })
@@ -2039,7 +2042,7 @@ window.addEventListener('load', () => {
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                 <circle cx="12" cy="12" r="3"></circle>
             </svg>
-            Total Visits: <span id="visitor-count" style="color: #ff8c00; font-size: 16px; margin-left: 4px;">...</span>
+            Total Visitors: <span id="visitor-count" style="color: #ff8c00; font-size: 16px; margin-left: 4px;">...</span>
         </div>
     </div>
     <p><strong>Developed by:</strong> Ambati Lalitha Sagar</p>
