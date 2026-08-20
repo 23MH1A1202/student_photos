@@ -2070,34 +2070,62 @@ function closeInfoPopup() {
     document.getElementById('info-overlay').style.display = 'none';
 }
 
+// ✅ Enhanced Background Request to Wake Up Render Server
+function pingRenderServer(retries = 6) {
+    const statusDot = document.getElementById('api-status-dot');
+    const statusText = document.getElementById('api-status-text');
+
+    // Update UI if we are in a retry state
+    if (retries < 6) {
+        statusText.innerText = "Waking Server...";
+        statusText.style.color = "#f97316"; // Match your modern orange
+        statusDot.style.backgroundColor = "#f97316";
+        statusDot.classList.remove('ready');
+    }
+
+    fetch("https://student-name-api.onrender.com/get_name", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "roll_number=23MH1A1202&college=ACET" // Hidden wake-up ping
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("Server is still booting up");
+        return res.json();
+    })
+    .then(data => {
+        if (data) {
+            // Success! Server is awake.
+            statusDot.style.backgroundColor = ""; // Clear inline styles
+            statusDot.classList.add('ready');
+            statusText.innerText = "Ready";
+            statusText.style.color = "#22c55e"; // Modern green
+        }
+    })
+    .catch(err => {
+        if (retries > 0) {
+            // Wait 8 seconds and try again (covers Render's ~45s boot time)
+            setTimeout(() => pingRenderServer(retries - 1), 8000);
+        } else {
+            // Server completely failed to wake up after 1 minute
+            console.log("Wake-up ping failed:", err);
+            statusDot.style.backgroundColor = "#ef4444"; // Red
+            statusText.innerText = "Offline";
+            statusText.style.color = "#ef4444";
+        }
+    });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
-  const input = document.getElementById("rollNumberInput");
-  input.addEventListener("input", () => {
-    input.value = input.value.toUpperCase();
-  });
+    // Keep your input auto-capitalize logic
+    const input = document.getElementById("rollNumberInput");
+    if (input) {
+        input.addEventListener("input", () => {
+            input.value = input.value.toUpperCase();
+        });
+    }
 
-  // ✅ Send Background Request to Wake Up Render Server
-  const statusDot = document.getElementById('api-status-dot');
-  const statusText = document.getElementById('api-status-text');
-
-  fetch("https://student-name-api.onrender.com/get_name", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: "roll_number=23MH1A1202&college=ACET" // Hidden wake-up ping
-  })
-  .then(res => res.json())
-  .then(data => {
-      // Once Render wakes up and replies, turn the dot green!
-      if (data) {
-          statusDot.classList.add('ready');
-          statusText.innerText = "Ready";
-          statusText.style.color = "#4CAF50";
-      }
-  })
-  .catch(err => {
-      console.log("Wake-up ping delayed/failed:", err);
-      statusText.innerText = "Offline";
-  });
+    // Start the ping process as soon as the page loads
+    pingRenderServer();
 });
 </script>
 <script>
