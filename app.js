@@ -1109,11 +1109,7 @@ document.addEventListener("DOMContentLoaded", () => {
     pingRenderServer();
 });
 
-const canvas = document.getElementById('starCanvas');
-const ctx = canvas.getContext('2d');
 
-let stars = [];
-let shootingStars = [];
 
 function initStars() {
   canvas.width = window.innerWidth;
