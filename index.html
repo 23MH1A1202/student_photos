@@ -2458,11 +2458,11 @@ async function updateVisitorCounter() {
     const countSpan = document.getElementById("visitor-count");
     if (!countSpan) return;
 
-    const PRESET_BASELINE = 298; // Base offset for historical visits
+    const PRESET_BASELINE = 527; // Base historical count
 
-    // Safety check: wait until Firebase initializes
-    if (!window.cloudDb) {
-        setTimeout(updateVisitorCounter, 500);
+    // ✅ Fixed check: checks 'cloudDb' directly instead of 'window.cloudDb'
+    if (typeof cloudDb === "undefined" || !cloudDb) {
+        setTimeout(updateVisitorCounter, 300);
         return;
     }
 
@@ -2486,22 +2486,21 @@ async function updateVisitorCounter() {
             sessionStorage.setItem("site_counted", "true");
         }
 
-        // 2. Real-Time Listener (Listens for updates continuously)
+        // 2. Real-time Firestore listener
         counterDocRef.onSnapshot((docSnap) => {
             if (docSnap.exists) {
                 const currentCount = docSnap.data()?.count || 0;
-                // Instantly updates the text on screen in real time
                 countSpan.innerText = (currentCount + PRESET_BASELINE).toLocaleString();
             } else {
                 countSpan.innerText = PRESET_BASELINE.toLocaleString();
             }
         }, (error) => {
-            console.warn("Live visitor listener error:", error);
+            console.warn("Live visitor listener issue:", error);
             countSpan.innerText = PRESET_BASELINE.toLocaleString();
         });
 
     } catch (error) {
-        console.warn("Visitor counter sync issue:", error);
+        console.warn("Visitor counter error:", error);
         countSpan.innerText = PRESET_BASELINE.toLocaleString();
     }
 }
