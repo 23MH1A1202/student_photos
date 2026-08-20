@@ -11,7 +11,7 @@
     <meta name="keywords" content="Aditya Student Photos, Ambati Lalitha Sagar, Lalitha Sagar Ambati, ACET student photos, AEC student photos, 23MH1A1202, roll number photo search, sagar student photos, Lalitha Sagar, Aditya Student photos, Aditya college student photos">
     <meta name="author" content="Ambati Lalitha Sagar">
     <link rel="canonical" href="https://23mh1a1202.github.io/student_photos/" />
-
+    
     <meta property="og:title" content="Aditya Student Photos | Ambati Lalitha Sagar">
     <meta property="og:description" content="Easily generate and view student images from Aditya Group of Engineering Colleges. Developed by Ambati Lalitha Sagar.">
     <meta property="og:image" content="https://23mh1a1202.github.io/student_photos/icon-192.png">
@@ -22,6 +22,155 @@
     <meta name="twitter:title" content="Aditya Student Photos | Ambati Lalitha Sagar">
     <meta name="twitter:description" content="Generate student photos from roll numbers. Built by Ambati Lalitha Sagar.">
     <meta name="twitter:image" content="https://23mh1a1202.github.io/student_photos/banner.png">
+    <!-- Import Modern Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    /* Modern Reset & Typography */
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f8fafc; /* Sleek, very light blue/grey background */
+        color: #0f172a;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    /* Modern Banner */
+    .banner-container {
+        display: flex;
+        justify-content: center;
+        background-color: white;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        border-bottom-left-radius: 30px;
+        border-bottom-right-radius: 30px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        padding-bottom: 10px;
+    }
+    .banner-image {
+        height: 100px;
+        object-fit: contain;
+    }
+
+    /* Premium Glassmorphism Card */
+    .glass {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 24px;
+        padding: 30px 25px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        max-width: 500px;
+        width: 90%;
+        margin: 30px auto;
+        position: relative;
+        z-index: 2;
+    }
+
+    .glass h3 {
+        color: #f97316; /* Modern orange */
+        margin-top: 0;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+    }
+
+    .glass p {
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+
+    /* Modern Segmented Control (College Selector) */
+    .college-selector {
+        display: flex;
+        background: #f1f5f9;
+        border-radius: 12px;
+        padding: 4px;
+        margin-bottom: 20px;
+    }
+    .college-btn {
+        flex: 1;
+        padding: 10px 0;
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        font-size: 14px;
+        color: #64748b;
+        background: transparent;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .college-btn.active {
+        background: white;
+        color: #f97316;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    /* Modern Input Field */
+    .input-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    .input-container input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 16px 20px;
+        font-size: 16px;
+        font-family: 'Inter', sans-serif;
+        border: 2px solid #e2e8f0;
+        border-radius: 16px;
+        background: #f8fafc;
+        transition: all 0.3s ease;
+    }
+    .input-container input:focus {
+        border-color: #f97316;
+        background: white;
+        box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1);
+        outline: none;
+    }
+
+    /* Sleek Button */
+    .btn {
+        width: 100%;
+        padding: 16px 24px;
+        font-size: 16px;
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        color: white;
+        background: #f97316;
+        border: none;
+        border-radius: 16px;
+        cursor: pointer;
+        transition: transform 0.2s, background 0.2s;
+        box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+    }
+    .btn:hover {
+        background: #ea580c;
+        transform: translateY(-2px);
+    }
+    .btn:active {
+        transform: translateY(0);
+    }
+
+    /* Keep your existing photo container styles, but tweak the box */
+    .box {
+        background: white;
+        border-radius: 20px;
+        padding: 16px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f1f5f9;
+        /* ... keep rest of your box logic ... */
+    }
+</style>
     <style>
         body {
             background-color: rgba(255, 255, 255, 0.59);
@@ -805,42 +954,39 @@ body::after {
   <img class="banner-image" style="border-bottom-left-radius: 50px; border-bottom-right-radius: 50px;" src="banner.png">
 </div>
 <br>
-<center>
-<div class="glass" style="margin-left: 20px; margin-right: 20px; margin-top: auto; max-width: max-content;">
-    <h3 style="color: #e78c1d;">STUDENT PHOTOS</h3>
-    <p>Enter Name, Roll Number or Prefix (e.g., 25B11IT for AU, 23P31A12 for ACET, 23A91A12 for AEC) to generate complete batch student photo's.</p>
-    <!-- ✅ API Status Indicator UI -->
+<div class="glass">
+    <h3>Student Photos</h3>
+    <p>Enter a Name, Roll Number, or Prefix (e.g., 25B11IT for AU, 23P31A12 for ACET) to generate batch photos instantly.</p>
+    
+    <!-- API Status Indicator -->
     <div class="status-container">
         <div id="api-status-dot" class="pulse-dot"></div>
         <span id="api-status-text">Connecting...</span>
         <div class="info-icon" onclick="showInfoPopup()">i</div>
     </div>
+
+    <!-- Modern Segmented Control -->
     <div class="college-selector">
         <button class="college-btn active" onclick="selectCollege('AU', event)">AU</button>
         <button class="college-btn" onclick="selectCollege('AEC', event)">AEC</button>
         <button class="college-btn" onclick="selectCollege('ACET', event)">ACET</button>
     </div>
 
-   <div class="input-container">
-       <input
-  type="text"
-  id="rollNumberInput"
-  placeholder="🔍 Enter Roll No. or Name"
-  onkeypress="handleKeyPress(event)"
-  inputmode="text"
-  autocapitalize="characters"
-  autocomplete="off"
-  autocorrect="off"
-  spellcheck="false"
-/>
-
+    <!-- Search Box -->
+    <div class="input-container">
+        <input 
+            type="text" 
+            id="rollNumberInput" 
+            placeholder="🔍 Enter Roll No. or Name" 
+            onkeypress="handleKeyPress(event)" 
+            inputmode="text" 
+            autocapitalize="characters" 
+            autocomplete="off" 
+            spellcheck="false"
+        />
         <button class="btn" id="generateBtn" onclick="generatePhotos()">Generate Photos</button>
-       <br>
-        <br>
-        <br>
     </div>
 </div>
-</center>
     <div id="branchDisplay" class="branch-banner"></div>
     <div id="resultSummary" class="result-summary" aria-live="polite"></div>
     <div id="loader-overlay"></div>
