@@ -1173,6 +1173,11 @@ body::after {
             const cachedName = getCachedName(roll, college);
             if (isValidCachedName(cachedName)) {
                 nameEl.innerText = cachedName;
+                
+                // NEW: Quietly sync the locally cached name to the Cloud DB in the background!
+                // This ensures old local data gets pushed to your new Firebase setup.
+                upsertNameInCloudDb(roll, cachedName, college);
+                
                 return;
             }
 
