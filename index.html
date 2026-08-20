@@ -2442,7 +2442,7 @@ window.addEventListener('load', () => {
       }, 1500); // Set to a fixed 1.5 second interval to prevent stacking
     });
 </script>
-<!-- ✅ Live Visitor Counter Badge & Isolated Script -->
+    <!-- Live Visitor Counter Badge -->
 <div style="display: flex; justify-content: center; margin-bottom: 15px;">
     <div style="background: rgba(255, 140, 0, 0.15); border: 1px solid rgba(255, 140, 0, 0.4); padding: 8px 18px; border-radius: 50px; font-size: 14px; color: #11288f; font-weight: bold; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #ff8c00;">
@@ -2454,83 +2454,61 @@ window.addEventListener('load', () => {
 </div>
 
 <script>
-  setTimeout(() => {
-      const countSpan = document.getElementById("visitor-count");
-      if (!countSpan) return;
+async function updateVisitorCounter() {
+    const countSpan = document.getElementById("visitor-count");
+    if (!countSpan) return;
 
-      const presetVisits = 298; 
-      const apiUrl = "https://api.counterapi.dev/v1/alsagarphotos_v2/visits";
-      
-      // ✅ High Watermark Memory
-      let bestKnownCount = parseInt(localStorage.getItem("best_api_count")) || 0;
+    const PRESET_BASELINE = 298; // Base offset for historical visits
 
-      if (bestKnownCount > 0) {
-          countSpan.innerText = (bestKnownCount + presetVisits).toLocaleString();
-      }
+    // Safety check: wait until Firebase initializes
+    if (!window.cloudDb) {
+        setTimeout(updateVisitorCounter, 500);
+        return;
+    }
 
-      const updateCountUI = (apiCount) => {
-          if (apiCount > bestKnownCount) {
-              bestKnownCount = apiCount;
-              localStorage.setItem("best_api_count", bestKnownCount);
-          }
-          countSpan.innerText = (bestKnownCount + presetVisits).toLocaleString();
-      };
+    // Path stays under 'colleges' to pass your Firestore Security Rules
+    const counterDocRef = cloudDb
+        .collection("colleges")
+        .doc("APP_STATS")
+        .collection("metrics")
+        .doc("visitors");
 
-      const fallbackUI = () => {
-          if (countSpan.innerText === "...") {
-              countSpan.innerText = presetVisits.toLocaleString();
-          }
-      };
+    try {
+        const hasCountedSession = sessionStorage.getItem("site_counted");
 
-      // 1. The "Live Stream" Sync Function (Read-Only)
-      const fetchLiveCount = () => {
-          // 🚀 FIX: Removed the headers that caused the CORS crash. 
-          // Appended a unique timestamp to force the Service Worker to fetch fresh data!
-          const cacheBuster = `?_=${new Date().getTime()}`;
-          
-          fetch(`${apiUrl}${cacheBuster}`)
-              .then(res => {
-                  if (!res.ok) throw new Error("API Issue");
-                  return res.json();
-              })
-              .then(data => {
-                  if (data && typeof data.count === 'number') {
-                      if (data.count > bestKnownCount) {
-                          updateCountUI(data.count);
-                      }
-                  }
-              })
-              .catch(err => console.error("Live sync waiting...", err));
-      };
+        // 1. Increment counter once per session
+        if (!hasCountedSession) {
+            await counterDocRef.set({
+                count: firebase.firestore.FieldValue.increment(1),
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
 
-      // 2. Initial Page Load Logic (Count once per session)
-      const hasVisited = sessionStorage.getItem("site_counted");
+            sessionStorage.setItem("site_counted", "true");
+        }
 
-      if (!hasVisited) {
-          // BRAND NEW SESSION: Send the "/up" command to add +1
-          fetch(`${apiUrl}/up`)
-              .then(res => {
-                  if (!res.ok) throw new Error("API Issue");
-                  return res.json();
-              })
-              .then(data => {
-                  if (data && typeof data.count === 'number') {
-                      updateCountUI(data.count);
-                      sessionStorage.setItem("site_counted", "true"); 
-                  }
-              })
-              .catch(err => {
-                  fallbackUI();
-              });
-      } else {
-          // REFRESH: Fetch live count safely bypassing the Service Worker cache
-          fetchLiveCount();
-      }
+        // 2. Real-Time Listener (Listens for updates continuously)
+        counterDocRef.onSnapshot((docSnap) => {
+            if (docSnap.exists) {
+                const currentCount = docSnap.data()?.count || 0;
+                // Instantly updates the text on screen in real time
+                countSpan.innerText = (currentCount + PRESET_BASELINE).toLocaleString();
+            } else {
+                countSpan.innerText = PRESET_BASELINE.toLocaleString();
+            }
+        }, (error) => {
+            console.warn("Live visitor listener error:", error);
+            countSpan.innerText = PRESET_BASELINE.toLocaleString();
+        });
 
-      // 3. The Live Stream Timer! 
-      setInterval(fetchLiveCount, 15000);
+    } catch (error) {
+        console.warn("Visitor counter sync issue:", error);
+        countSpan.innerText = PRESET_BASELINE.toLocaleString();
+    }
+}
 
-  }, 300);
+document.addEventListener("DOMContentLoaded", () => {
+    updateVisitorCounter();
+});
 </script>
 <footer>
 
