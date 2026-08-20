@@ -857,6 +857,8 @@ body::after {
    <div id="scrollGif" class="bottom-center-gif" style="display: none;">
   <img src="down_image1.gif" alt="Scroll Down">
 </div>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
     <script>
         let validImages = [];
         let currentPage = 0;
@@ -874,6 +876,28 @@ body::after {
         const NAME_CACHE_TTL_MS = 1000 * 60 * 60 * 24 * 60; // 60 days
         const runtimeNameCache = new Map();
         const nameCacheStore = loadNameCacheStore();
+        const cloudNameLookupCache = new Map();
+        const pendingCloudUpserts = new Map();
+
+        const CLOUD_DB_CONFIG = {
+            apiKey: "",
+            authDomain: "",
+            projectId: "",
+            appId: ""
+        };
+
+        const isCloudDbConfigured = Object.values(CLOUD_DB_CONFIG).every((value) => typeof value === "string" && value.trim() !== "");
+
+        const cloudDb = (() => {
+            if (!isCloudDbConfigured || !window.firebase) return null;
+            try {
+                const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(CLOUD_DB_CONFIG);
+                return firebase.firestore(app);
+            } catch (error) {
+                console.warn("Cloud name database disabled:", error);
+                return null;
+            }
+        })();
 
         function isValidCachedName(name) {
             return name && name !== "Not found" && name !== "Not Found" && name !== "Error";
@@ -895,6 +919,122 @@ body::after {
 
         function getNameCacheKey(roll, college = selectedCollege) {
             return `${normalizeCollegeForRoll(roll, college)}:${roll}`;
+        }
+
+        function sanitizeDbKey(value, fallback = "UNKNOWN") {
+            const clean = String(value || "").trim().toUpperCase();
+            if (!clean) return fallback;
+            const sanitized = clean.replace(/[^A-Z0-9_-]+/g, "_").replace(/^_+|_+$/g, "");
+            return sanitized || fallback;
+        }
+
+        function deriveBranchFromRoll(roll, college = selectedCollege) {
+            const normalizedCollege = normalizeCollegeForRoll(roll, college);
+            if (normalizedCollege === "AU") {
+                return auBranchMap?.[roll.slice(5, 7)] || roll.slice(5, 7) || "UNKNOWN";
+            }
+            return branchMap?.[roll.slice(6, 8)] || roll.slice(6, 8) || "UNKNOWN";
+        }
+
+        function getCloudStudentDocRef(roll, college = selectedCollege) {
+            if (!cloudDb) return null;
+            const normalizedCollege = normalizeCollegeForRoll(roll, college);
+            const branchLabel = deriveBranchFromRoll(roll, college);
+            const branchKey = sanitizeDbKey(branchLabel);
+            const yearKey = sanitizeDbKey(roll.slice(0, 2));
+
+            return {
+                docRef: cloudDb
+                    .collection("colleges")
+                    .doc(normalizedCollege)
+                    .collection("branches")
+                    .doc(branchKey)
+                    .collection("years")
+                    .doc(yearKey)
+                    .collection("students")
+                    .doc(roll),
+                metadata: {
+                    college: normalizedCollege,
+                    branch: branchLabel,
+                    branchKey,
+                    year: roll.slice(0, 2),
+                    isLateralEntry: roll.substring(4, 6) === "5A"
+                }
+            };
+        }
+
+        async function getNameFromCloudDb(roll, college = selectedCollege) {
+            if (!cloudDb) return null;
+            const cacheKey = getNameCacheKey(roll, college);
+            if (cloudNameLookupCache.has(cacheKey)) {
+                return cloudNameLookupCache.get(cacheKey);
+            }
+
+            const cloudEntry = getCloudStudentDocRef(roll, college);
+            if (!cloudEntry) return null;
+
+            try {
+                const snapshot = await cloudEntry.docRef.get();
+                const name = snapshot.exists ? snapshot.data()?.name : null;
+                const resolved = isValidCachedName(name) ? name : null;
+                cloudNameLookupCache.set(cacheKey, resolved);
+                if (resolved) setCachedName(roll, resolved, college);
+                return resolved;
+            } catch (error) {
+                console.warn(`Cloud DB lookup failed for ${roll}:`, error);
+                return null;
+            }
+        }
+
+        async function upsertNameInCloudDb(roll, name, college = selectedCollege) {
+            if (!cloudDb || !isValidCachedName(name)) return;
+
+            const cacheKey = getNameCacheKey(roll, college);
+            if (pendingCloudUpserts.has(cacheKey)) {
+                return pendingCloudUpserts.get(cacheKey);
+            }
+
+            const cloudEntry = getCloudStudentDocRef(roll, college);
+            if (!cloudEntry) return;
+
+            const writePromise = (async () => {
+                try {
+                    const { docRef, metadata } = cloudEntry;
+                    const existing = await docRef.get();
+                    const existingName = existing.exists ? existing.data()?.name : null;
+
+                    if (existing.exists && existingName === name) {
+                        cloudNameLookupCache.set(cacheKey, name);
+                        return;
+                    }
+
+                    const serverTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+                    const payload = {
+                        roll,
+                        name,
+                        college: metadata.college,
+                        branch: metadata.branch,
+                        year: metadata.year,
+                        isLateralEntry: metadata.isLateralEntry,
+                        entryType: metadata.isLateralEntry ? "LATERAL_ENTRY" : "REGULAR",
+                        updatedAt: serverTimestamp
+                    };
+
+                    if (!existing.exists) {
+                        payload.createdAt = serverTimestamp;
+                    }
+
+                    await docRef.set(payload, { merge: true });
+                    cloudNameLookupCache.set(cacheKey, name);
+                } catch (error) {
+                    console.warn(`Cloud DB upsert failed for ${roll}:`, error);
+                } finally {
+                    pendingCloudUpserts.delete(cacheKey);
+                }
+            })();
+
+            pendingCloudUpserts.set(cacheKey, writePromise);
+            return writePromise;
         }
 
         function loadNameCacheStore() {
@@ -971,6 +1111,11 @@ body::after {
         }
 
         async function resolveNameWithRetry(roll, college = selectedCollege, retries = 1) {
+            const cloudName = await getNameFromCloudDb(roll, college);
+            if (isValidCachedName(cloudName)) {
+                return cloudName;
+            }
+
             let hadNetworkError = false;
             for (let attempt = 0; attempt <= retries; attempt++) {
                 try {
@@ -978,6 +1123,7 @@ body::after {
                     const name = data?.name;
                     if (isValidCachedName(name)) {
                         setCachedName(roll, name, college);
+                        upsertNameInCloudDb(roll, name, college);
                         return name;
                     }
                 } catch (error) {
@@ -1369,6 +1515,7 @@ body::after {
 
                 for (let { roll, name, branch, campus } of data) {
                     setCachedName(roll, name, selectedCollege);
+                    upsertNameInCloudDb(roll, name, selectedCollege);
                     const year = roll.substring(0, 2);
                     const series = (selectedCollege === "AU" || campus === "AU" || roll.includes("B11") || roll.includes("M11")) ? "AU" : roll.substring(2, 4);
                     if (!grouped[year]) grouped[year] = { MH: [], P3: [], A9: [], AU: [], B1: [], B11: [] };

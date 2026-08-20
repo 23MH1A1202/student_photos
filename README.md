@@ -27,7 +27,47 @@ Live site: [https://23mh1a1202.github.io/student_photos/](https://23mh1a1202.git
 | JavaScript (Vanilla) | Search logic, image loading, pagination, PWA registration |
 | Web App Manifest | PWA metadata (name, icons, display mode) |
 | Service Worker | Offline caching and fallback |
+| Firebase Firestore (optional) | Shared cloud database cache for roll-number to name mapping |
 
+
+---
+
+## Cloud Name Database (Primary) + College Lookup (Secondary)
+
+The app now supports a shared cloud name cache so it does not need to call the college-name lookup flow every time.
+
+- **Primary lookup:** Cloud database by roll number
+- **Secondary fallback:** Existing `student-name-api.onrender.com` lookup (unchanged)
+- **Auto upload:** When fallback returns a valid name, the app uploads `{roll, name}` to cloud DB
+- **No duplicates:** Each student is stored by roll-number document ID, so the same name/roll is not inserted twice
+- **Lateral Entry support:** Lateral entries are stored with `isLateralEntry: true` and `entryType: "LATERAL_ENTRY"`
+
+### Firestore organization
+
+Names are organized in clear sections:
+
+`colleges/{AU|AEC|ACET}/branches/{BRANCH}/years/{YY}/students/{ROLL}`
+
+Each student document stores:
+- roll
+- name
+- college
+- branch
+- year (joining year like `23`, `24`, `25`)
+- isLateralEntry
+- entryType
+- createdAt / updatedAt
+
+### Configuration
+
+In `/home/runner/work/student_photos/student_photos/index.html`, update `CLOUD_DB_CONFIG` with your Firebase project values:
+
+- `apiKey`
+- `authDomain`
+- `projectId`
+- `appId`
+
+If config is left empty, the app continues using existing behavior with local cache + API fallback.
 
 ---
 
