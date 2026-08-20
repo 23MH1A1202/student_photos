@@ -23,7 +23,10 @@
     <meta name="twitter:description" content="Generate student photos from roll numbers. Built by Ambati Lalitha Sagar.">
     <meta name="twitter:image" content="https://23mh1a1202.github.io/student_photos/banner.png">
     <!-- Import Modern Google Font -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 
 <style>
     /* Modern Reset & Typography */
@@ -714,7 +717,7 @@ html {
   100% { transform: translateX(100%) rotate(45deg); }
 }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
 <style>
 .modern-marquee {
   border-top-left-radius: 15px;
@@ -1004,8 +1007,7 @@ body::after {
    <div id="scrollGif" class="bottom-center-gif" style="display: none;">
   <img src="down_image1.gif" alt="Scroll Down">
 </div>
-    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    
 
 <button onclick="scrollToTop()" id="scrollToTopBtn" title="Go to top"></button>
 
@@ -1168,5 +1170,6 @@ body::after {
             <button onclick="closeInfoPopup()" style="padding: 10px 24px; border-radius: 50px; background: linear-gradient(135deg, #FFA500, #FF8C00); color: white; border: none; font-weight: bold; cursor: pointer; font-size: 16px; outline: none;">Got it!</button>
         </div>
     </div>
+    <script src="app.js" defer></script>
 </body>
 </html>
