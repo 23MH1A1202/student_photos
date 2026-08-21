@@ -321,23 +321,38 @@
             return queued;
         }
 
-        function fetchNameWithRetry(roll, nameEl, retries = 1, college = selectedCollege) {
-            const cachedName = getCachedName(roll, college);
-            if (isValidCachedName(cachedName)) {
-                nameEl.innerText = cachedName;
-                
-                // NEW: Quietly sync the locally cached name to the Cloud DB in the background!
-                // This ensures old local data gets pushed to your new Firebase setup.
-                upsertNameInCloudDb(roll, cachedName, college);
-                
-                return;
-            }
+        function fetchNameWithRetry(roll, nameEl, retries = 1, college = selectedCollege, isSecondAttempt = false) {
+    const cachedName = getCachedName(roll, college);
+    if (isValidCachedName(cachedName)) {
+        nameEl.innerText = cachedName;
+        // Quietly sync the locally cached name to the Cloud DB in the background!
+        upsertNameInCloudDb(roll, cachedName, college);
+        return;
+    }
 
-            queueNameLookup(roll, college, retries).then((resolvedName) => {
-                if (!nameEl || !nameEl.isConnected) return;
-                nameEl.innerText = resolvedName;
-            });
+    queueNameLookup(roll, college, retries).then((resolvedName) => {
+        if (!nameEl || !nameEl.isConnected) return;
+        
+        // 1. THE RETRY TRIGGER: If it fails and we haven't retried yet...
+        if ((resolvedName === "Not found" || resolvedName === "Error") && !isSecondAttempt) {
+            // Show a sleek mini-loader text so the user knows it's fixing itself
+            nameEl.innerHTML = `<span style="color: #f97316; font-size: 13px; font-weight: bold;">Retrying...</span>`;
+            
+            // Wait 1.5 seconds (gives the server a moment to recover), then try ONE more time
+            setTimeout(() => {
+                fetchNameWithRetry(roll, nameEl, retries, college, true);
+            }, 1500);
+            return;
         }
+
+        // 2. THE FINAL RESULT: If it still fails, color it red. Otherwise, show the name!
+        if (resolvedName === "Not found" || resolvedName === "Error") {
+            nameEl.innerHTML = `<span style="color: #ef4444; font-size: 13px;">${resolvedName}</span>`;
+        } else {
+            nameEl.innerText = resolvedName;
+        }
+    });
+}
 
         function selectCollege(college, event) {
             selectedCollege = college;
