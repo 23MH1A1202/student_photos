@@ -274,6 +274,11 @@
                 <h4>Loaded / Updated Today</h4>
                 <div class="value" id="stat-today-names">Loading...</div>
             </div>
+            <!-- NEW: Data Size Card -->
+            <div class="metric-card">
+                <h4>Payload Size (Est.)</h4>
+                <div class="value" id="stat-data-size" style="color: #2563eb;">Calculating...</div>
+            </div>
             <div class="metric-card">
                 <h4>Database Status</h4>
                 <div class="value" style="color: #10b981; font-size: 20px; margin-top: 6px;">● Online (Connected)</div>
@@ -456,10 +461,27 @@
 
                     if (data.updatedAt && data.updatedAt.toDate() >= startOfToday) todayCount++;
                 });
-
+                
+                
                 document.getElementById('stat-total-names').innerText = allStudentsData.length.toLocaleString();
                 document.getElementById('stat-today-names').innerText = todayCount.toLocaleString();
-
+                const dataString = JSON.stringify(allStudentsData);
+                const bytes = new Blob([dataString]).size;
+                
+                let sizeDisplay = "";
+                if (bytes < 1024) {
+                    sizeDisplay = `${bytes} Bytes`;
+                } else if (bytes < 1048576) {
+                    // Less than 1 MB, show KB
+                    sizeDisplay = `${(bytes / 1024).toFixed(2)} KB`;
+                } else {
+                    // 1 MB or more, show MB and KB
+                    const mb = Math.floor(bytes / 1048576);
+                    const remainingKb = ((bytes % 1048576) / 1024).toFixed(0);
+                    sizeDisplay = `${mb} MB, ${remainingKb} KB`;
+                }
+                
+                document.getElementById('stat-data-size').innerText = sizeDisplay;
                 populateDropdowns(uniqueColleges, uniqueBranches, uniqueYears);
                 
                 // Initially, filtered data is all data
