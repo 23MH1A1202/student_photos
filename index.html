@@ -12,14 +12,12 @@
     <meta name="author" content="Ambati Lalitha Sagar">
     <link rel="canonical" href="https://23mh1a1202.github.io/student_photos/" />
     
-    <meta property="og:title" content="Aditya Student Photos | Ambati Lalitha Sagar">
-    <meta property="og:description" content="Easily generate and view student images from Aditya Group of Engineering Colleges. Developed by Ambati Lalitha Sagar.">
-    <meta property="og:image" content="https://23mh1a1202.github.io/student_photos/icon-192.png">
-    <meta property="og:url" content="https://23mh1a1202.github.io/student_photos/">
-    <meta property="og:type" content="website">
-
     <!-- Import Modern Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- PQINA Realistic Flip Counter CSS -->
+    <link href="https://unpkg.com/@pqina/flip/dist/flip.min.css" rel="stylesheet">
+
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
@@ -212,46 +210,25 @@
         .btn:active { transform: translateY(1px); }
 
         /* =========================================
-           6. FLIP COUNTER
+           6. REALISTIC FLIP COUNTER
            ========================================= */
         .visitor-wrapper {
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             font-family: 'Inter', sans-serif;
             color: #475569;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 15px;
         }
 
-        #visitor-count {
-            display: inline-block;
-            font-family: 'Courier New', Courier, monospace;
-            background: linear-gradient(to bottom, #334155 50%, #1e293b 50%);
-            color: #ffffff;
-            padding: 6px 8px 6px 12px;
-            border-radius: 6px;
-            letter-spacing: 5px;
-            font-size: 18px;
-            font-weight: 700;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255,255,255,0.1);
-            border: 1px solid #0f172a;
-            position: relative;
-        }
-        
-        /* Simulates the horizontal split across the flip digits */
-        #visitor-count::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: #0f172a;
-            z-index: 1;
-            pointer-events: none;
+        /* Size controller for PQINA Flip */
+        .tick {
+            font-size: 1.5rem; 
+            white-space: nowrap;
+            font-family: 'Inter', sans-serif;
         }
 
         /* =========================================
@@ -325,7 +302,6 @@
             color: #334155;
         }
 
-        /* Loading Shimmy */
         .photo-loader {
             position: absolute;
             inset: 0;
@@ -345,7 +321,7 @@
             font-size: 18px;
             font-weight: 600;
             color: #ffffff;
-            background: #1e293b; /* Corporate Slate */
+            background: #1e293b; 
             padding: 10px 24px;
             border-radius: 8px;
             display: none; 
@@ -393,7 +369,6 @@
             border-color: #2563eb;
         }
 
-        /* Scroll to Top */
         #scrollToTopBtn {
             position: fixed;
             bottom: 30px;
@@ -472,7 +447,6 @@
             color: #94a3b8;
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
             .footer-content {
                 flex-direction: column;
@@ -486,7 +460,7 @@
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(15, 23, 42, 0.7); /* Dark corporate overlay */
+            background: rgba(15, 23, 42, 0.7); 
             backdrop-filter: blur(4px);
             z-index: 9999;
             justify-content: center;
@@ -577,10 +551,19 @@
         </div>
     </div>
 
-    <!-- Live Visitor Counter Badge (Flip Counter Style) -->
+    <!-- Live Visitor Counter Badge (Realistic Flip Style) -->
     <div class="visitor-wrapper">
         Total Visitors
-        <span id="visitor-count">...</span>
+        
+        <!-- Hidden span so app.js can keep securely updating it without breaking -->
+        <span id="visitor-count" style="display: none;">...</span>
+        
+        <!-- PQINA Flip Plugin Elements -->
+        <div class="tick" data-did-init="initVisitorFlip">
+            <div data-repeat="true" aria-hidden="true">
+                <span data-view="flip"></span>
+            </div>
+        </div>
     </div>
 
     <div id="branchDisplay" class="branch-banner"></div>
@@ -596,7 +579,6 @@
     <div class="container" id="photoContainer"></div>
     <div class="pagination" id="pagination"></div>
     
-    <!-- Cleaned up scroll indicator -->
     <div id="scrollGif" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; opacity: 0.6;">
         <img src="down_image1.gif" alt="Scroll Down" style="height: 30px;">
     </div>
@@ -666,6 +648,38 @@
             &copy; 2026 Ambati Lalitha Sagar. All rights reserved.
         </div>
     </footer>
+
+    <!-- PQINA JS -->
+    <script src="https://unpkg.com/@pqina/flip/dist/flip.min.js"></script>
+    
+    <!-- Custom script to sync app.js values into the PQINA Flip component -->
+    <script>
+        let visitorFlipInstance = null;
+
+        function initVisitorFlip(tick) {
+            visitorFlipInstance = tick;
+            tick.value = 0; // Baseline start
+
+            // This watches your hidden #visitor-count span for changes made by app.js!
+            const countSpan = document.getElementById('visitor-count');
+            if (countSpan) {
+                const observer = new MutationObserver(() => {
+                    const num = parseInt(countSpan.innerText.replace(/,/g, ''), 10);
+                    if (!isNaN(num)) {
+                        visitorFlipInstance.value = num; // Triggers the realistic flip animation
+                    }
+                });
+                
+                observer.observe(countSpan, { childList: true, characterData: true, subtree: true });
+                
+                // Immediately set if app.js already pushed the number before this loaded
+                const initialNum = parseInt(countSpan.innerText.replace(/,/g, ''), 10);
+                if (!isNaN(initialNum)) {
+                    visitorFlipInstance.value = initialNum;
+                }
+            }
+        }
+    </script>
 
     <!-- App Logic -->
     <script src="app.js" defer></script>
