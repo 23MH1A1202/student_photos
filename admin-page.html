@@ -280,7 +280,7 @@
             </div>
         </div>
 
-        <!-- Filters Bar -->
+<!-- Filters Bar -->
         <div class="filters-bar">
             <input type="text" id="tableSearch" class="search-box" placeholder="Search by Roll No or Name..." onkeyup="applyFilters()">
             
@@ -301,6 +301,16 @@
                 <option value="Regular">Regular</option>
                 <option value="LE">Lateral Entry (LE)</option>
             </select>
+
+            <!-- NEW: Sort Dropdown -->
+            <select id="filterSort" class="filter-select" onchange="applyFilters()" style="border-color: #94a3b8; font-weight: 600;">
+                <option value="">No Sort (Default)</option>
+                <option value="latest">Latest Updated First</option>
+                <option value="oldest">Oldest Updated First</option>
+            </select>
+
+            <!-- NEW: Reset Button -->
+            <button class="btn btn-danger" style="padding: 10px 15px;" onclick="resetFilters()">Reset</button>
         </div>
 
         <!-- Table Area -->
@@ -485,13 +495,15 @@
             });
         }
 
-        function applyFilters() {
+       function applyFilters() {
             const search = document.getElementById('tableSearch').value.toLowerCase();
             const college = document.getElementById('filterCollege').value;
             const branch = document.getElementById('filterBranch').value;
             const year = document.getElementById('filterYear').value;
             const type = document.getElementById('filterType').value;
+            const sortMode = document.getElementById('filterSort').value;
 
+            // 1. Filter the data
             filteredData = allStudentsData.filter(s => {
                 const matchesSearch = s.roll.toLowerCase().includes(search) || s.name.toLowerCase().includes(search);
                 const matchesCollege = college === "" || s.college === college;
@@ -502,8 +514,38 @@
                 return matchesSearch && matchesCollege && matchesBranch && matchesYear && matchesType;
             });
 
+            // 2. Sort the data
+            if (sortMode === 'latest') {
+                filteredData.sort((a, b) => {
+                    const timeA = a.updatedAt ? a.updatedAt.getTime() : 0;
+                    const timeB = b.updatedAt ? b.updatedAt.getTime() : 0;
+                    return timeB - timeA; // Newest first
+                });
+            } else if (sortMode === 'oldest') {
+                filteredData.sort((a, b) => {
+                    const timeA = a.updatedAt ? a.updatedAt.getTime() : 0;
+                    const timeB = b.updatedAt ? b.updatedAt.getTime() : 0;
+                    return timeA - timeB; // Oldest first
+                });
+            } else {
+                // Default: Sort by Roll Number (descending/newest batch first)
+                filteredData.sort((a, b) => b.roll.localeCompare(a.roll));
+            }
+
             currentPage = 1; // Reset to page 1 on filter
             renderTable();
+        }
+
+        // NEW: Reset Filters Function
+        function resetFilters() {
+            document.getElementById('tableSearch').value = "";
+            document.getElementById('filterCollege').value = "";
+            document.getElementById('filterBranch').value = "";
+            document.getElementById('filterYear').value = "";
+            document.getElementById('filterType').value = "";
+            document.getElementById('filterSort').value = "";
+            
+            applyFilters();
         }
 
         function renderTable() {
