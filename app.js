@@ -72,15 +72,22 @@
 
         function toggleInlineLoader(show) {
     let loader = document.getElementById("inline-fetch-loader");
+    const container = document.getElementById("photoContainer");
+    
     if (!loader) {
         loader = document.createElement("div");
         loader.id = "inline-fetch-loader";
         loader.className = "dot-loader";
-        loader.style.cssText = "width: 100%; display: flex; justify-content: center; padding: 20px 0; margin-top: 10px;";
+        loader.style.cssText = "width: 100%; display: flex; justify-content: center; padding: 30px 0; margin-top: 10px;";
         loader.innerHTML = `<span></span><span></span><span></span>`;
-        document.getElementById("pagination").after(loader);
     }
-    loader.style.display = show ? "flex" : "none";
+
+    if (show && container) {
+        container.appendChild(loader);
+        loader.style.display = "flex";
+    } else if (loader) {
+        loader.style.display = "none";
+    }
 }
 
         function deriveBranchFromRoll(roll, college = selectedCollege) {
@@ -548,7 +555,7 @@
                         for (const prefix of prefixes) {
                             const rollNumbers = generateRollNumbers(prefix);
                             let consecutiveMisses = 0; 
-                            const chunkSize = 8; // Fetch 8 at a time (fast but controllable)
+                            const chunkSize = 50; // Fetch 8 at a time (fast but controllable)
                             
                             for (let i = 0; i < rollNumbers.length; i += chunkSize) {
                                 if (searchId !== activePrefixSearchId) return;
