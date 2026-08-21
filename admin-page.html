@@ -303,8 +303,11 @@
             </select>
 
             <!-- NEW: Sort Dropdown -->
+            <!-- NEW: Sort Dropdown (Now with Roll Number Sorting) -->
             <select id="filterSort" class="filter-select" onchange="applyFilters()" style="border-color: #94a3b8; font-weight: 600;">
-                <option value="">No Sort (Default)</option>
+                <option value="">Default Sort</option>
+                <option value="roll_asc">Roll Number (Ascending)</option>
+                <option value="roll_desc">Roll Number (Descending)</option>
                 <option value="latest">Latest Updated First</option>
                 <option value="oldest">Oldest Updated First</option>
             </select>
@@ -527,6 +530,12 @@
                     const timeB = b.updatedAt ? b.updatedAt.getTime() : 0;
                     return timeA - timeB; // Oldest first
                 });
+            } else if (sortMode === 'roll_asc') {
+                // Roll Number Ascending (e.g., 20... -> 21... -> 22...)
+                filteredData.sort((a, b) => a.roll.localeCompare(b.roll));
+            } else if (sortMode === 'roll_desc') {
+                // Roll Number Descending (e.g., 23... -> 22... -> 21...)
+                filteredData.sort((a, b) => b.roll.localeCompare(a.roll));
             } else {
                 // Default: Sort by Roll Number (descending/newest batch first)
                 filteredData.sort((a, b) => b.roll.localeCompare(a.roll));
