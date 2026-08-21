@@ -78,15 +78,15 @@
         loader = document.createElement("div");
         loader.id = "inline-fetch-loader";
         loader.className = "dot-loader";
-        loader.style.cssText = "width: 100%; display: flex; justify-content: center; padding: 30px 0; margin-top: 10px;";
+        loader.style.cssText = "width: 100%; display: flex; justify-content: center; padding: 40px 0; grid-column: 1 / -1;";
         loader.innerHTML = `<span></span><span></span><span></span>`;
     }
 
     if (show && container) {
-        container.appendChild(loader);
+        container.appendChild(loader); // Puts loader at the very end of the photo grid
         loader.style.display = "flex";
     } else if (loader) {
-        loader.style.display = "none";
+        loader.remove(); // Completely removes it when done
     }
 }
 
@@ -549,20 +549,22 @@
                         let renderedInitialBatch = false;
                         let confettiLaunched = false;
                         
-                        // Turn on the bottom loader UX
+                        // Show bottom loader immediately
                         toggleInlineLoader(true);
         
                         for (const prefix of prefixes) {
                             const rollNumbers = generateRollNumbers(prefix);
                             let consecutiveMisses = 0; 
-                            const chunkSize = 50; // Fetch 8 at a time (fast but controllable)
+                            const chunkSize = 50; // High performance chunk size
                             
                             for (let i = 0; i < rollNumbers.length; i += chunkSize) {
-                                if (searchId !== activePrefixSearchId) return;
+                                if (searchId !== activePrefixSearchId) {
+                                    toggleInlineLoader(false);
+                                    return;
+                                }
         
                                 const chunk = rollNumbers.slice(i, i + chunkSize);
                                 
-                                // Fetch chunk in parallel
                                 const results = await Promise.all(
                                     chunk.map(async (roll) => {
                                         const url = getPhotoUrl(roll);
@@ -575,14 +577,14 @@
                                 for (const res of results) {
                                     if (res.exists) {
                                         validImages.push({ roll: res.roll, imageUrl: res.url });
-                                        consecutiveMisses = 0; // Reset misses since we found a valid photo
+                                        consecutiveMisses = 0;
                                         chunkHasValid = true;
                                     } else {
                                         consecutiveMisses++;
                                     }
                                 }
         
-                                // Show UI progressively
+                                // Render progressively and keep loader pinned at the bottom
                                 if (validImages.length > 0 && !renderedInitialBatch) {
                                     setGenerationLoading(false);
                                     displayBranch(input);
@@ -602,14 +604,16 @@
                                     }
                                 }
         
-                                // THE MAGIC FIX: Break early if we hit 5 misses in a row
+                                // Re-attach the loader to the very end of the container after rendering
+                                toggleInlineLoader(true);
+
                                 if (consecutiveMisses >= 5) {
                                     break; 
                                 }
                             }
                         }
                         
-                        // Turn off the loader when fully finished
+                        // Turn off loader when completely finished searching all variants
                         toggleInlineLoader(false);
         
                         if (searchId !== activePrefixSearchId) return;
