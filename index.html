@@ -536,6 +536,38 @@
             border-radius: 5px;
         }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+
+
+        /* Scroll Down Button Styling */
+        #scrollToBottomBtn {
+            position: fixed;
+            bottom: 85px; /* Positioned right above the scroll-to-top button */
+            right: 20px;
+            z-index: 999;
+            width: 44px;
+            height: 44px;
+            background: #1e293b;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.3s;
+        }
+        #scrollToBottomBtn:hover { background: #334155; }
+        #scrollToBottomBtn::before {
+            content: "";
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-right: 2px solid white;
+            border-bottom: 2px solid white;
+            transform: rotate(45deg);
+            margin-bottom: 4px;
+        }
     </style>
 </head>
 <body>
@@ -576,7 +608,12 @@
                 autocomplete="off" 
                 spellcheck="false"
             />
-            <button class="btn" id="generateBtn" onclick="generatePhotos()">Generate Photos</button>
+            <!-- Terms Checkbox Agreement -->
+            <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin: 4px 0; font-size: 13px; color: #475569; text-align: left;">
+                <input type="checkbox" id="termsAgreement" onchange="toggleGenerateButton()" style="width: 16px; height: 16px; accent-color: #2563eb; cursor: pointer;">
+                <label for="termsAgreement" style="cursor: pointer;">I agree with the <a href="terms.html" target="_blank" style="color: #2563eb; text-decoration: underline;">Terms of Use & Disclaimer</a></label>
+            </div>
+           <button class="btn" id="generateBtn" onclick="generatePhotos()" disabled style="opacity: 0.5; cursor: not-allowed;">Generate Photos</button>
         </div>
     </div>
 
@@ -612,6 +649,9 @@
         <img src="down_image1.gif" alt="Scroll Down" style="height: 30px;">
     </div>
 
+    <!-- Scroll Down Button -->
+    <button onclick="scrollToBottom()" id="scrollToBottomBtn" title="Scroll to bottom"></button>
+    <!-- Scroll To Top Button -->
     <button onclick="scrollToTop()" id="scrollToTopBtn" title="Go to top"></button>
 
     <!-- Modals -->
