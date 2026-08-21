@@ -212,7 +212,50 @@
         .btn:active { transform: translateY(1px); }
 
         /* =========================================
-           6. PHOTO CARDS & GRID
+           6. FLIP COUNTER
+           ========================================= */
+        .visitor-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            font-family: 'Inter', sans-serif;
+            color: #475569;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        #visitor-count {
+            display: inline-block;
+            font-family: 'Courier New', Courier, monospace;
+            background: linear-gradient(to bottom, #334155 50%, #1e293b 50%);
+            color: #ffffff;
+            padding: 6px 8px 6px 12px;
+            border-radius: 6px;
+            letter-spacing: 5px;
+            font-size: 18px;
+            font-weight: 700;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255,255,255,0.1);
+            border: 1px solid #0f172a;
+            position: relative;
+        }
+        
+        /* Simulates the horizontal split across the flip digits */
+        #visitor-count::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #0f172a;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* =========================================
+           7. PHOTO CARDS & GRID
            ========================================= */
         .container {
             display: flex;
@@ -296,7 +339,7 @@
         }
 
         /* =========================================
-           7. TYPOGRAPHY & NOTIFICATIONS
+           8. TYPOGRAPHY & NOTIFICATIONS
            ========================================= */
         .branch-banner {
             font-size: 18px;
@@ -325,7 +368,7 @@
         }
 
         /* =========================================
-           8. PAGINATION & UTILITIES
+           9. PAGINATION & UTILITIES
            ========================================= */
         .pagination { margin-top: 10px; text-align: center; padding-bottom: 20px;}
         .pagination button {
@@ -381,7 +424,7 @@
         }
 
         /* =========================================
-           9. CORPORATE FOOTER
+           10. CORPORATE FOOTER
            ========================================= */
         .corporate-footer {
             background-color: #ffffff;
@@ -501,8 +544,8 @@
     </header>
 
     <div class="search-card">
-        <h3>Student Directory</h3>
-        <p>Enter a Name, Roll Number, or Prefix (e.g., 25B11IT for AU, 23P31A12 for ACET) to fetch directory records.</p>
+        <h3>Student Photos</h3>
+        <p>Enter a Name, Roll Number, or Prefix (e.g., 25B11IT for AU, 23P31A12 for ACET) to generate batch photos instantly.</p>
         
         <!-- API Status Indicator -->
         <div class="status-container">
@@ -530,19 +573,14 @@
                 autocomplete="off" 
                 spellcheck="false"
             />
-            <button class="btn" id="generateBtn" onclick="generatePhotos()">Search Directory</button>
+            <button class="btn" id="generateBtn" onclick="generatePhotos()">Generate Photos</button>
         </div>
     </div>
 
-    <!-- Live Visitor Counter Badge (Corporate Style) -->
-    <div style="display: flex; justify-content: center; margin-bottom: 10px;">
-        <div style="background: #ffffff; border: 1px solid #e2e8f0; padding: 6px 16px; border-radius: 20px; font-size: 13px; color: #475569; font-weight: 500; display: flex; align-items: center; gap: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-            </svg>
-            Total Visitors: <span id="visitor-count" style="color: #2563eb; font-weight: 700; margin-left: 4px;">...</span>
-        </div>
+    <!-- Live Visitor Counter Badge (Flip Counter Style) -->
+    <div class="visitor-wrapper">
+        Total Visitors
+        <span id="visitor-count">...</span>
     </div>
 
     <div id="branchDisplay" class="branch-banner"></div>
@@ -570,7 +608,7 @@
         <div id="pwa-popup" class="modal-box" style="position: relative;">
             <button id="closeBtn" style="position: absolute; top: 10px; right: 15px; background: transparent; border: none; font-size: 20px; cursor: pointer; color: #64748b;">&times;</button>
             <h4 style="margin-top: 5px; color: #0f172a;">Install App</h4>
-            <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">Install this directory application for a faster experience.</p>
+            <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">Install this application for a faster experience.</p>
             <button id="installBtn" class="btn" style="margin-bottom: 15px;">Install Now</button>
             <label style="font-size: 13px; color: #64748b;">
                 <input type="checkbox" id="dontShowAgain"> Don't show again
@@ -609,7 +647,7 @@
     <footer class="corporate-footer">
         <div class="footer-content">
             <div class="footer-section">
-                <h4>Aditya Student Directory</h4>
+                <h4>Aditya Student Photos</h4>
                 <p>Designed & Developed by<br><strong>Ambati Lalitha Sagar</strong></p>
                 <p>B.Tech IT (23MH1A1202) ACET</p>
             </div>
