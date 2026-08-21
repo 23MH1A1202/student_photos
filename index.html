@@ -18,1170 +18,618 @@
     <meta property="og:url" content="https://23mh1a1202.github.io/student_photos/">
     <meta property="og:type" content="website">
 
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Aditya Student Photos | Ambati Lalitha Sagar">
-    <meta name="twitter:description" content="Generate student photos from roll numbers. Built by Ambati Lalitha Sagar.">
-    <meta name="twitter:image" content="https://23mh1a1202.github.io/student_photos/banner.png">
     <!-- Import Modern Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 
-<style>
-    /* Modern Reset & Typography */
-    body {
-        font-family: 'Inter', sans-serif;
-        background-color: #f8fafc; /* Sleek, very light blue/grey background */
-        color: #0f172a;
-        margin: 0;
-        padding: 0;
-        overflow-x: hidden;
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-    }
-    /* FIX: Reserves exact space for the name so the box never resizes/jumps */
-    .student-name {
-        min-height: 48px; /* Fits up to 2 lines of long names perfectly */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        margin-top: 8px;
-        font-weight: 600;
-        line-height: 1.2;
-        width: 100%;
-        word-break: break-word; /* Prevents long names from breaking the box width */
-    }
-    /* Modern Banner */
-    .banner-container {
-        display: flex;
-        justify-content: center;
-        background-color: white;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        border-bottom-left-radius: 30px;
-        border-bottom-right-radius: 30px;
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        padding-bottom: 5px;
-        max-width:fit;
-    }
-    .banner-image {
-        height: 100px;
-        object-fit: contain;
-    }
-
-    /* Premium Glassmorphism Card */
-    .glass {
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.5);
-        border-radius: 24px;
-        padding: 30px 25px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-        max-width: 500px;
-        width: 90%;
-        margin: 30px auto;
-        position: relative;
-        z-index: 2;
-    }
-
-    .glass h3 {
-        color: #f97316; /* Modern orange */
-        margin-top: 0;
-        font-weight: 700;
-        letter-spacing: -0.5px;
-    }
-
-    .glass p {
-        color: #64748b;
-        font-size: 14px;
-        line-height: 1.6;
-        margin-bottom: 20px;
-    }
-
-    /* Modern Segmented Control (College Selector) */
-    .college-selector {
-        display: flex;
-        background: #f1f5f9;
-        border-radius: 12px;
-        padding: 4px;
-        margin-bottom: 20px;
-    }
-    .college-btn {
-        flex: 1;
-        padding: 10px 0;
-        font-family: 'Inter', sans-serif;
-        font-weight: 600;
-        font-size: 14px;
-        color: #64748b;
-        background: transparent;
-        border: none;
-        border-radius: 10px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-    .college-btn.active {
-        background: white;
-        color: #f97316;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    }
-
-    /* Modern Input Field */
-    .input-container {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-    }
-    .input-container input {
-        width: 100%;
-        box-sizing: border-box;
-        padding: 16px 20px;
-        font-size: 16px;
-        font-family: 'Inter', sans-serif;
-        border: 2px solid #e2e8f0;
-        border-radius: 16px;
-        background: #f8fafc;
-        transition: all 0.3s ease;
-    }
-    .input-container input:focus {
-        border-color: #f97316;
-        background: white;
-        box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1);
-        outline: none;
-    }
-
-    /* Sleek Button */
-    .btn {
-        width: 100%;
-        padding: 16px 24px;
-        font-size: 16px;
-        font-family: 'Inter', sans-serif;
-        font-weight: 600;
-        color: white;
-        background: #f97316;
-        border: none;
-        border-radius: 16px;
-        cursor: pointer;
-        transition: transform 0.2s, background 0.2s;
-        box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
-    }
-    .btn:hover {
-        background: #ea580c;
-        transform: translateY(-2px);
-    }
-    .btn:active {
-        transform: translateY(0);
-    }
-
-    /* Keep your existing photo container styles, but tweak the box */
-    .box {
-        background: white;
-        border-radius: 20px;
-        padding: 16px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-        border: 1px solid #f1f5f9;
-        /* ... keep rest of your box logic ... */
-    }
-</style>
     <style>
+        /* =========================================
+           1. MODERN CORPORATE RESET & TYPOGRAPHY
+           ========================================= */
         body {
-            background-color: rgba(255, 255, 255, 0.59);
-            text-align: center;
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Very light slate background */
+            color: #0f172a;
             margin: 0;
             padding: 0;
             overflow-x: hidden;
-            padding-bottom: 40px; 
-            position: relative;
             display: flex;
             flex-direction: column;
-
+            min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
         }
-        /* Add this to your existing <style> block */
-.img-loading {
-    background-color: #f0f0f0;
-    position: relative;
-    overflow: hidden;
-}
 
-.img-loading::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-    animation: shimmer 1.5s infinite;
-}
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
 
-@keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-}
+        /* =========================================
+           2. HEADER & BANNER
+           ========================================= */
+        .corporate-header {
+            background-color: #ffffff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 10px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .banner-image {
+            height: 80px;
+            object-fit: contain;
+        }
 
-/* Ensure the fallback image displays nicely */
-.photo {
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-    border-radius: 16px;
-    margin-bottom: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    background-color: white; /* Add white background for the transparent PNG */
-    min-height: 150px; /* Give it a minimum height while loading */
-}
+        /* =========================================
+           3. MAIN SEARCH INTERFACE (CORPORATE CARD)
+           ========================================= */
+        .search-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 35px 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid #e2e8f0;
+            max-width: 550px;
+            width: 92%;
+            margin: 40px auto 20px auto;
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
 
-    footer {
-    padding: 8px;
-    margin-top: auto;
-    background-color: #ffffff;
-    border-top: 1px solid #eee;
-    text-align: center;
-    color: #666;
-    font-size: 14px;
-    max-width: 100%;
-    position: relative;
-    bottom: 0;
-}
+        .search-card h3 {
+            color: #1e293b;
+            margin-top: 0;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
 
+        .search-card p {
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
 
-footer a {
-    color: #0e1d5e;
-    text-decoration: none;
-    font-weight: 500;
-}
+        /* =========================================
+           4. STATUS & COLLEGE SELECTOR TABS
+           ========================================= */
+        .status-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #475569;
+            font-weight: 600;
+        }
 
-footer a:hover {
-    text-decoration: underline;
-}
-        /* ✅ API Status Indicator Styles */
-.status-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 5px;
-    margin-bottom: 15px;
-    font-size: 13px;
-    color: #555;
-    font-weight: 600;
-}
-.pulse-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background-color: #ff4d4d;
-    box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7);
-    animation: pulse-red 1.5s infinite;
-}
-.pulse-dot.ready {
-    background-color: #4CAF50;
-    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
-    animation: pulse-green 1.5s infinite;
-}
-@keyframes pulse-red {
-    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7); }
-    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(255, 77, 77, 0); }
-    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
-}
-@keyframes pulse-green {
-    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
-    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(76, 175, 80, 0); }
-    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
-}
-.info-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background-color: black;
-    color: white;
-    font-size: 12px;
-    font-style: italic;
-    cursor: pointer;
-}
+        .pulse-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #ef4444; /* Red */
+        }
+        .pulse-dot.ready {
+            background-color: #10b981; /* Emerald Green */
+        }
+        
+        .info-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background-color: #94a3b8;
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .info-icon:hover { background-color: #64748b; }
+
+        .college-selector {
+            display: flex;
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 24px;
+            border: 1px solid #e2e8f0;
+        }
+        .college-btn {
+            flex: 1;
+            padding: 10px 0;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            color: #64748b;
+            background: transparent;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .college-btn:hover {
+            color: #1e293b;
+        }
+        .college-btn.active {
+            background: #ffffff;
+            color: #2563eb; /* Corporate Blue */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* =========================================
+           5. INPUTS & BUTTONS
+           ========================================= */
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .input-container input {
+            width: 100%;
+            padding: 14px 20px;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            background: #ffffff;
+            transition: all 0.2s ease;
+            text-align: center;
+            color: #0f172a;
+        }
+        .input-container input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+            outline: none;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px 24px;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            color: white;
+            background: #2563eb;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn:hover { background: #1d4ed8; }
+        .btn:active { transform: translateY(1px); }
+
+        /* =========================================
+           6. PHOTO CARDS & GRID
+           ========================================= */
         .container {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 20px;
-            padding: 20px;
-            max-width: 100vw;
+            gap: 24px;
+            padding: 20px 5%;
             flex: 1;
         }
 
-        .input-container {
-            margin: 20px;
-            gap: 15px;
-            flex-wrap: wrap;
+        .box {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid #e2e8f0;
+            width: 220px;
+            text-align: center;
+            color: #1e293b;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        input {
-            padding: 5px;
+        .box:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .box h3 {
+            margin: 0 0 12px 0;
             font-size: 16px;
-                  border-radius: 16px;
-            border-color: #FF8C00;
-        }
-        input:focus {
-            outline: none;
-            box-shadow: none;
-        }
-        .input-container input {
-            padding: 10px 15px;
-      font-size: 16px;
-      border: 2px solid #ccc;
-      border-radius: 50px;
-      outline: none;
-      transition: border-color 0.3s ease, box-shadow 0.3s ease;
-      text-align: center;
+            color: #0f172a;
         }
 
-        .input-container input:focus {
-            border-color: orange;
-            box-shadow: 0 0 5px rgba(255,165,0,0.4);
+        .photo-shell {
+            position: relative;
+            width: 100%;
+            min-height: 180px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f1f5f9;
+        }
+        .photo-shell.is-loading .photo { opacity: 0; }
+        
+        .photo {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 0;
+            background-color: #ffffff;
+            min-height: 180px;
+            transition: opacity 0.3s ease;
         }
 
-        .btn {
-            padding: 12px 24px;
-            font-size: 16px;
-            font-weight: 600;
-            color: #fff;
-            background: linear-gradient(135deg, #FFA500, #FF8C00);
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease-in-out;
-            margin-left: 10px;
-            margin-top: 10px;
-            outline: none !important;
-            box-shadow: none !important;
-        }
-        .btn:hover {
-            background: linear-gradient(135deg, #FF8C00, #FFA500);
-        }
-        .btn:active {
-            transform: translateY(1px);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-
-        .college-selector {
+        .student-name {
+            min-height: 48px; 
             display: flex;
+            align-items: center;
             justify-content: center;
-            gap: 8px;
-            margin: 15px 10px 5px 10px;
-            flex-wrap: wrap;
-        }
-        .college-btn {
-            padding: 8px 18px;
+            text-align: center;
+            margin-top: 8px;
+            font-weight: 600;
             font-size: 14px;
-            font-weight: bold;
-            border-radius: 25px;
-            border: 2px solid #FFA500;
-            background: white;
-            color: #FFA500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            outline: none !important;
-            box-shadow: none !important;
-        }
-        .college-btn:hover { background: rgba(255, 165, 0, 0.1); }
-        .college-btn.active {
-            background: linear-gradient(135deg, #FFA500, #FF8C00);
-            color: white;
-            border-color: #FF8C00;
-            box-shadow: 0 4px 10px rgba(255, 140, 0, 0.3) !important;
+            line-height: 1.3;
+            width: 100%;
+            word-break: break-word;
+            color: #334155;
         }
 
-        .loader {
+        /* Loading Shimmy */
+        .photo-loader {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite linear;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* =========================================
+           7. TYPOGRAPHY & NOTIFICATIONS
+           ========================================= */
+        .branch-banner {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffffff;
+            background: #1e293b; /* Corporate Slate */
+            padding: 10px 24px;
+            border-radius: 8px;
+            display: none; 
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin: 10px auto; 
+            width: fit-content;
+        }
+
+        .result-summary {
+            display: none;
+            margin: 10px auto 0;
+            padding: 8px 16px;
+            border-radius: 8px;
+            width: fit-content;
+            font-size: 14px;
+            font-weight: 500;
+            color: #2563eb;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+        }
+
+        /* =========================================
+           8. PAGINATION & UTILITIES
+           ========================================= */
+        .pagination { margin-top: 10px; text-align: center; padding-bottom: 20px;}
+        .pagination button {
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            margin: 4px;
+            cursor: pointer;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #475569;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .pagination button:hover {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+        }
+        .pagination button:disabled {
+            background: #2563eb;
+            color: #ffffff;
+            border-color: #2563eb;
+        }
+
+        /* Scroll to Top */
+        #scrollToTopBtn {
+            position: fixed;
+            bottom: 30px;
+            right: 20px;
+            z-index: 999;
+            width: 44px;
+            height: 44px;
+            background: #1e293b;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.3s;
+        }
+        #scrollToTopBtn:hover { background: #334155; }
+        #scrollToTopBtn::before {
+            content: "";
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-left: 2px solid white;
+            border-bottom: 2px solid white;
+            transform: rotate(135deg);
+            margin-top: 4px;
+        }
+
+        /* =========================================
+           9. CORPORATE FOOTER
+           ========================================= */
+        .corporate-footer {
+            background-color: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            padding: 40px 20px 20px 20px;
+            margin-top: auto;
+            color: #475569;
+            font-size: 14px;
+        }
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: left;
+        }
+        .footer-section {
+            flex: 1;
+            min-width: 250px;
+        }
+        .footer-section h4 {
+            color: #0f172a;
+            font-size: 16px;
+            margin-top: 0;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        .footer-section p, .footer-section a {
+            margin: 6px 0;
+            display: block;
+            color: #64748b;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .footer-section a:hover { color: #2563eb; }
+        
+        .footer-bottom {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #f1f5f9;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 25px;
+            }
+        }
+
+        /* Fullscreen Loaders & Modals */
+        #loader-overlay, #error-overlay, #info-overlay, #popup-overlay {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.7); /* Dark corporate overlay */
+            backdrop-filter: blur(4px);
             z-index: 9999;
             justify-content: center;
             align-items: center;
-            gap: 20px;
         }
-
-        .loader div {
-            width: 16px;
-            height: 16px;
-            background-color: orange;
-            border-radius: 50%;
-            animation: bounce 1.5s infinite ease-in-out;
-        }
-        .loader div:nth-child(1) { animation-delay: 0s; }
-        .loader div:nth-child(2) { animation-delay: 0.2s; }
-        .loader div:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
-            40% { transform: scale(1); opacity: 1; }
-        }
-        .pagination {
-            margin-top: 20px; 
-        }
-        .pagination button {
-            padding: 10px 20px;
-            font-size: 16px;
-            margin: 5px;
-            cursor: pointer;
-            border: 2px solid orange;
-            background: white;
-            color: orange;
-            border-radius: 50px;
-            transition: all 0.3s;
-        }
-        .pagination button:hover {
-            background: orange;
-            color: white;
-        }
-      * {
-        user-select: none;
-        }
-        @media (max-width: 600px) {
-        .input-container {
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .input-container input,
-        .input-container .btn {
+        .modal-box {
+            background: #ffffff;
+            padding: 24px;
+            border-radius: 12px;
+            max-width: 320px;
             width: 90%;
-            max-width: 300px;
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
-        }
-
-        .dot-loader {
-            display: inline-flex;
-            align-items: center;
+        
+        .loader {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
             justify-content: center;
-            gap: 5px;
+            align-items: center;
+            gap: 12px;
         }
-
-        .dot-loader span {
-            width: 8px;
-            height: 8px;
-            background-color: orange;
+        .loader div {
+            width: 14px;
+            height: 14px;
+            background-color: #2563eb;
             border-radius: 50%;
-            animation: dot-flash 1.2s infinite ease-in-out;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .loader div:nth-child(1) { animation-delay: -0.32s; }
+        .loader div:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
         }
 
-        .dot-loader span:nth-child(1) { animation-delay: 0s; }
-        .dot-loader span:nth-child(2) { animation-delay: 0.2s; }
-        .dot-loader span:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes dot-flash {
-            0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
-            40% { opacity: 1; transform: scale(1.2); }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 5px;
         }
-      .branch-banner {
-    font-size: 20px;
-    font-weight: 600;
-    font-family: 'Arial', sans-serif;
-    color: #fff;
-    background: linear-gradient(135deg, #FF8C00, #11288f);
-    padding: 12px 24px;
-    border-radius: 16px;
-    border: none;
-    display: none; 
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    letter-spacing: 1px;
-    margin: 15px auto; 
-    width: fit-content;
-}
-
-
-        .banner-container {
-  display: flex;
-  justify-content: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); 
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  border-bottom-left-radius: 50px;
-  border-bottom-right-radius: 50px;
-  background-color: white;
-}
-
-.banner-image {
-  height: 120px;
-  width: 100%;
-  max-width: 850px;
-}
-.fade-in {
-  animation: fadeIn 0.6s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.student-photo {
-    transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(255, 140, 0, 0.6);
-            z-index: 1;
-             border-radius: 10px;
-}
-.bottom-center-gif {
-  position: fixed;
-  bottom: 40px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-}
-
-.bottom-center-gif img {
-  height: 50px;
-  animation: bounce 2s infinite;
-}
-
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-/* Scrollbar Base */
-::-webkit-scrollbar {
-    width: 12px;
-    height: 10px;
-}
-
-/* BIG KNOB STYLE SCROLLBAR */
-::-webkit-scrollbar {
-    width: 16px;    
-    height: 14px;   
-}
-
-::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #ffa500, #ff4500);
-    border-radius: 100px;
-    border: 4px solid white; 
-    box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-    min-height: 60px; 
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #ff9c00, #e63900);
-}
-
-::-webkit-scrollbar-track {
-    background: #eee;
-    border-radius: 10px;
-}
-
-/* Firefox */
-* {
-    scrollbar-width: thick;
-    scrollbar-color: orange #eee;
-}
-
-body {
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch; 
-}
-
-#scrollToTopBtn {
-    position: fixed;
-    bottom: 120px;
-    right: 7px;
-    z-index: 999;
-    width: 50px;
-    height: 50px;
-    background: linear-gradient(135deg, #FFA500, #FF8C00);
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    transition: opacity 0.3s ease;
-    padding: 1;
-    outline: none;
-  box-shadow: none;
-}
-
-#scrollToTopBtn::before {
-    content: "";
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-left: 3px solid white;
-    border-bottom: 3px solid white;
-    transform: rotate(135deg);
-    margin-top: 4px;
-}
-#scrollToTopBtn:hover {
-    background: linear-gradient(135deg, #FF8C00, #FFA500);
-}
-
-button:focus {
-            outline: none !important;
-            box-shadow: none !important;
-}
-
-button:focus-visible {
-    outline: none !important;
-    box-shadow: none !important;
-}
-
-.btn:focus,
-.btn:focus-visible {
-    outline: none !important;
-    box-shadow: none !important;
-}
-
-* {
-    -webkit-tap-highlight-color: transparent;
-}
-
-button, .btn {
-    -webkit-tap-highlight-color: transparent;
-    outline: none !important;
-    box-shadow: none !important;
-}
-
-button, .btn, .pagination button, #scrollToTopBtn {
-    outline: none !important;
-    box-shadow: none !important;
-    -webkit-tap-highlight-color: transparent !important;
-    -webkit-focus-ring-color: transparent !important;
-}
-
-html {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
- <style>
-    body {
-      margin: 0;
-      padding: 0;
-      position: relative;
-    }
-    #popup-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 9999;
-      justify-content: center;
-      align-items: center;
-    }
-    #pwa-popup, #open-in-app-popup {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 300px;
-      width: 90%;
-      text-align: center;
-      position: relative;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    }
-    #closeBtn {
-      position: absolute;
-      top: 5px;
-      right: 10px;
-      background: transparent;
-      border: none;
-      font-size: 20px;
-      cursor: pointer;
-    }
-  </style>
-
-<style>
-.btn {
-  position: relative;
-  overflow: hidden;
-}
-.btn::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(to right, transparent 0%, white 50%, transparent 100%);
-  transform: rotate(45deg);
-  animation: shine 2s infinite;
-  pointer-events: none;
-}
-@keyframes shine {
-  0% { transform: translateX(-100%) rotate(45deg); }
-  100% { transform: translateX(100%) rotate(45deg); }
-}
-</style>
-
-<style>
-.modern-marquee {
-  border-top-left-radius: 15px;
-  border-top-right-radius: 15px;
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  height: 40px;
-  background: linear-gradient(90deg,  #ff8c00,#11288f);
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  z-index: 1000;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
-}
-
-.marquee-content {
-  white-space: nowrap;
-  animation: scroll-left 15s linear infinite;
-  font-size: 16px;
-  font-weight: bold;
-  color: #fff;
-  text-shadow: 0 0 3px rgba(255, 255, 255, 0.4);
-  padding-left: 100%;
-}
-
-@keyframes scroll-left {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-100%); }
-}
-
-.glass {
-  border-radius: 20px;
-  padding: 16px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  position: relative;
-  z-index: 2;
-  background: rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.stars-light, .twinkling-light {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.stars-light {
-  background: 
-    radial-gradient(circle, #fff700 1px, transparent 1px),
-    radial-gradient(circle, #ffd700 1px, transparent 1px),
-    radial-gradient(circle, #ffffff 1px, transparent 1px);
-  background-size: 30px 30px, 40px 40px, 60px 60px;
-  background-position: 0 0, 20px 20px, 10px 30px;
-  opacity: 1; 
-  animation: starsMove 80s linear infinite;
-}
-
-.twinkling-light {
-  background: 
-    radial-gradient(circle, #fff 2px, transparent 3px),
-    radial-gradient(circle, #ffae00 2px, transparent 3px);
-  background-size: 120px 120px, 80px 80px;
-  opacity: 0.5;
-  animation: twinkleShift 100s linear infinite;
-}
-
-@keyframes starsMove {
-  0% { background-position: 0 0, 20px 20px, 10px 30px; }
-  100% { background-position: 1000px 1000px, 1020px 1020px, 1010px 1030px; }
-}
-
-@keyframes twinkleShift {
-  0% { background-position: 0 0, 0 0; }
-  100% { background-position: -1000px 1000px, -800px 1200px; }
-}
-body {
-  background-color: #f4f4f4;
-}
-
-#loader-overlay {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 9998;
-}
-
-#starCanvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: -1;
-  width: 100%;
-  height: 100%;
-  display: block;
-  pointer-events: none;
-  background: transparent;
-}
-
-.box {
-  position: relative;
-  background: linear-gradient(135deg, #edb56b, #618ff3);
-  border-radius: 20px;
-  padding: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(200, 200, 200, 0.4);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  width: 220px;
-  text-align: center;
-  overflow: visible;
-  z-index: 1;
-  color: white;
-}
-
-.box:hover {
-  transform: translateY(-5px) scale(1.02);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
-}
-
-.photo {
-  width: 100%;
-  height: auto;
-  object-fit: cover;
-  border-radius: 16px;
-  margin-bottom: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.photo-shell {
-  position: relative;
-  width: 100%;
-  min-height: 160px;
-  margin-bottom: 12px;
-  border-radius: 16px;
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.85);
-}
-
-.photo-shell .photo {
-  margin-bottom: 0;
-}
-
-.photo-shell.is-loading .photo {
-  opacity: 0;
-}
-
-.photo-loader {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.9) 25%, rgba(255, 244, 229, 0.95) 50%, rgba(255, 255, 255, 0.9) 75%);
-  background-size: 200% 100%;
-  animation: previewShimmer 1.1s linear infinite;
-}
-
-.photo-loader::before {
-  content: "";
-  width: 22px;
-  height: 22px;
-  border: 3px solid rgba(255, 140, 0, 0.25);
-  border-top-color: #ff8c00;
-  border-radius: 50%;
-  animation: previewSpin 0.9s linear infinite;
-}
-
-@keyframes previewShimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
-@keyframes previewSpin {
-  to { transform: rotate(360deg); }
-}
-
-.result-summary {
-  display: none;
-  margin: 12px auto 0;
-  padding: 10px 16px;
-  border-radius: 24px;
-  width: fit-content;
-  max-width: calc(100% - 40px);
-  font-weight: 600;
-  color: #11288f;
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(17, 40, 143, 0.2);
-  box-shadow: 0 3px 10px rgba(17, 40, 143, 0.08);
-}
-
-.box.animate {
-  transform: scale(1.05);
-}
-
-.box.animate::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  z-index: -1;
-  background: linear-gradient(135deg, rgba(255,140,0,0.5), rgba(17,40,143,0.5));
-  box-shadow: 0 0 12px rgba(255, 140, 0, 0.4), 0 0 12px rgba(17, 40, 143, 0.4);
-  filter: blur(8px);
-  opacity: 1;
-  pointer-events: none;
-}
-
-#photoContainer {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 20px;
-  padding-bottom: 20px;
-}
-
-body::after {
-  content: "";
-  height: env(safe-area-inset-bottom);
-  display: block;
-  background-color: #ffffff;
-}
-
-</style>
 </head>
 <body>
-  <canvas id="starCanvas"></canvas>
+    <!-- Hidden Canvas to prevent App.js errors -->
+    <canvas id="starCanvas" style="display: none !important;"></canvas>
 
-    <div class="banner-container">
-  <img class="banner-image" style="border-bottom-left-radius: 50px; border-bottom-right-radius: 50px;" src="banner.png">
-</div>
-<br>
-<div class="glass">
-    <h3>Student Photos</h3>
-    <p>Enter a Name, Roll Number, or Prefix (e.g., 25B11IT for AU, 23P31A12 for ACET) to generate batch photos instantly.</p>
-    
-    <!-- API Status Indicator -->
-    <div class="status-container">
-        <div id="api-status-dot" class="pulse-dot"></div>
-        <span id="api-status-text">Connecting...</span>
-        <div class="info-icon" onclick="showInfoPopup()">i</div>
+    <header class="corporate-header">
+        <img class="banner-image" src="banner.png" alt="Aditya Student Photos">
+    </header>
+
+    <div class="search-card">
+        <h3>Student Directory</h3>
+        <p>Enter a Name, Roll Number, or Prefix (e.g., 25B11IT for AU, 23P31A12 for ACET) to fetch directory records.</p>
+        
+        <!-- API Status Indicator -->
+        <div class="status-container">
+            <div id="api-status-dot" class="pulse-dot"></div>
+            <span id="api-status-text">Connecting...</span>
+            <div class="info-icon" onclick="showInfoPopup()">?</div>
+        </div>
+
+        <!-- Modern Segmented Control -->
+        <div class="college-selector">
+            <button class="college-btn active" onclick="selectCollege('AU', event)">AU</button>
+            <button class="college-btn" onclick="selectCollege('AEC', event)">AEC</button>
+            <button class="college-btn" onclick="selectCollege('ACET', event)">ACET</button>
+        </div>
+
+        <!-- Search Box -->
+        <div class="input-container">
+            <input 
+                type="text" 
+                id="rollNumberInput" 
+                placeholder="Enter Roll No. or Name" 
+                onkeypress="handleKeyPress(event)" 
+                inputmode="text" 
+                autocapitalize="characters" 
+                autocomplete="off" 
+                spellcheck="false"
+            />
+            <button class="btn" id="generateBtn" onclick="generatePhotos()">Search Directory</button>
+        </div>
     </div>
 
-    <!-- Modern Segmented Control -->
-    <div class="college-selector">
-        <button class="college-btn active" onclick="selectCollege('AU', event)">AU</button>
-        <button class="college-btn" onclick="selectCollege('AEC', event)">AEC</button>
-        <button class="college-btn" onclick="selectCollege('ACET', event)">ACET</button>
+    <!-- Live Visitor Counter Badge (Corporate Style) -->
+    <div style="display: flex; justify-content: center; margin-bottom: 10px;">
+        <div style="background: #ffffff; border: 1px solid #e2e8f0; padding: 6px 16px; border-radius: 20px; font-size: 13px; color: #475569; font-weight: 500; display: flex; align-items: center; gap: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            Total Visitors: <span id="visitor-count" style="color: #2563eb; font-weight: 700; margin-left: 4px;">...</span>
+        </div>
     </div>
 
-    <!-- Search Box -->
-    <div class="input-container">
-        <input 
-            type="text" 
-            id="rollNumberInput" 
-            placeholder="🔍 Enter Roll No. or Name" 
-            onkeypress="handleKeyPress(event)" 
-            inputmode="text" 
-            autocapitalize="characters" 
-            autocomplete="off" 
-            spellcheck="false"
-        />
-        <button class="btn" id="generateBtn" onclick="generatePhotos()">Generate Photos</button>
-    </div>
-</div>
     <div id="branchDisplay" class="branch-banner"></div>
     <div id="resultSummary" class="result-summary" aria-live="polite"></div>
     <div id="loader-overlay"></div>
 
-    <div style="margin-top: 30px;" class="loader" id="loader">
+    <div class="loader" id="loader">
         <div></div>
         <div></div>
         <div></div>
     </div>
-
 
     <div class="container" id="photoContainer"></div>
     <div class="pagination" id="pagination"></div>
-   <div id="scrollGif" class="bottom-center-gif" style="display: none;">
-  <img src="down_image1.gif" alt="Scroll Down">
-</div>
     
-
-<button onclick="scrollToTop()" id="scrollToTopBtn" title="Go to top"></button>
-
-
-<div id="popup-overlay" style="
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
-  z-index: 9999;
-  justify-content: center;
-  align-items: center;
-">
-  <div id="pwa-popup" style="
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    max-width: 300px;
-    width: 90%;
-    text-align: center;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    position: relative;
-  ">
-    <button id="closeBtn" style="
-      position: absolute;
-      top: 5px;
-      right: 10px;
-      background: transparent;
-      border: none;
-      font-size: 20px;
-      cursor: pointer;
-    ">&times;</button>
-
-    <p style="margin-bottom: 15px;">Install this app for a better experience!</p>
-    <button id="installBtn" style="
-      padding: 10px 20px;
-      border-radius: 8px;
-      background: orange;
-      color: white;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-    ">Install</button><br><br>
-
-    <label style="font-size: 14px;">
-      <input type="checkbox" id="dontShowAgain"> Don't show again
-    </label>
-  </div>
-</div>
-
-
-
-<div id="open-in-app-popup" style="
-  display: none;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: white;
-  border: 2px solid #444;
-  border-radius: 10px;
-  padding: 20px;
-  z-index: 10001;
-  text-align: center;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-">
-  <p>App installed successfully.</p>
-  <button onclick="openPWA()" style="
-    padding: 10px 20px;
-    border-radius: 8px;
-    background: orange;
-    color: white;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-  ">Open</button>
-  <button onclick="closeInAppPopup()" style="
-    margin-left: 10px;
-    padding: 10px 20px;
-    border-radius: 8px;
-    background: grey;
-    color: white;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-  ">&#x2715;</button>
-</div>
-    <!-- Live Visitor Counter Badge -->
-<div style="display: flex; justify-content: center; margin-bottom: 15px;">
-    <div style="background: rgba(255, 140, 0, 0.15); border: 1px solid rgba(255, 140, 0, 0.4); padding: 8px 18px; border-radius: 50px; font-size: 14px; color: #11288f; font-weight: bold; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #ff8c00;">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-            <circle cx="12" cy="12" r="3"></circle>
-        </svg>
-        Total Visitors: <span id="visitor-count" style="color: #ff8c00; font-size: 16px; margin-left: 4px;">...</span>
+    <!-- Cleaned up scroll indicator -->
+    <div id="scrollGif" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; opacity: 0.6;">
+        <img src="down_image1.gif" alt="Scroll Down" style="height: 30px;">
     </div>
-</div>
-<footer>
 
-    <p><strong>Developed by:</strong> Ambati Lalitha Sagar</p>
-    <p>B.Tech IT (23MH1A1202) ACET</p>
-    <p>
-       <a href="mailto:alalithasagar355@gmail.com">Email me</a> | 
-        Portfolio: <a href="https://alsagar.tech/" target="_blank">alsagar.tech</a>
-    </p> 
-    <p style="margin-top: 10px;">
-        <a href="help.html" style="color: orange; font-weight: bold;">How to Use & Roll No. Guide</a>
-</p> 
-<p>
-        <a href="terms.html" style="color: #11288f; font-weight: bold;">Terms of Use & Disclaimer</a>
-    </p>
-     
-        
-</footer>
+    <button onclick="scrollToTop()" id="scrollToTopBtn" title="Go to top"></button>
 
-
-<div id="error-overlay" style="
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
-  z-index: 9999;
-  justify-content: center;
-  align-items: center;
-">
-  <div id="error-popup" style="
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    max-width: 300px;
-    width: 90%;
-    text-align: center;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-  ">
-    <p id="error-message" style="margin-bottom: 15px;">Error message</p>
-    <button onclick="refreshAfterPopup()" style="
-      padding: 10px 20px;
-      border-radius: 8px;
-      background: orange;
-      color: white;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-    ">OK</button>
-  </div>
-</div>
-<!-- ✅ Custom Info Popup -->
-    <div id="info-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center;">
-        <div style="background: white; padding: 25px; border-radius: 15px; max-width: 320px; width: 90%; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
-            <h3 style="margin-top: 0; color: #11288f;">Search Status</h3>
-            <p style="color: #444; font-size: 15px; margin-bottom: 20px; line-height: 1.5;">
-                If you are doing a <strong>Name-Based Search</strong>, or if you need the student's name to load under their photo, please wait until the status dot turns <strong style="color: #4CAF50;">Green (Ready)</strong>.
-            </p>
-            <button onclick="closeInfoPopup()" style="padding: 10px 24px; border-radius: 50px; background: linear-gradient(135deg, #FFA500, #FF8C00); color: white; border: none; font-weight: bold; cursor: pointer; font-size: 16px; outline: none;">Got it!</button>
+    <!-- Modals -->
+    <div id="popup-overlay">
+        <div id="pwa-popup" class="modal-box" style="position: relative;">
+            <button id="closeBtn" style="position: absolute; top: 10px; right: 15px; background: transparent; border: none; font-size: 20px; cursor: pointer; color: #64748b;">&times;</button>
+            <h4 style="margin-top: 5px; color: #0f172a;">Install App</h4>
+            <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">Install this directory application for a faster experience.</p>
+            <button id="installBtn" class="btn" style="margin-bottom: 15px;">Install Now</button>
+            <label style="font-size: 13px; color: #64748b;">
+                <input type="checkbox" id="dontShowAgain"> Don't show again
+            </label>
         </div>
     </div>
+
+    <div id="open-in-app-popup" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 12px; padding: 24px; z-index: 10001; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); width: 90%; max-width: 320px;">
+        <h4 style="margin-top: 0; color: #0f172a;">Installation Complete</h4>
+        <p style="color: #64748b; font-size: 14px;">The application was installed successfully.</p>
+        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+            <button class="btn" onclick="openPWA()" style="flex: 1;">Open App</button>
+            <button class="btn" onclick="closeInAppPopup()" style="flex: 1; background: #94a3b8;">Dismiss</button>
+        </div>
+    </div>
+
+    <div id="error-overlay">
+        <div id="error-popup" class="modal-box">
+            <svg style="margin: 0 auto 15px auto; display: block;" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <p id="error-message" style="color: #0f172a; margin-bottom: 20px; font-weight: 500;">Error message</p>
+            <button class="btn" onclick="refreshAfterPopup()">Acknowledge</button>
+        </div>
+    </div>
+
+    <div id="info-overlay">
+        <div class="modal-box">
+            <h3 style="margin-top: 0; color: #1e293b; font-size: 18px;">Search Status</h3>
+            <p style="color: #64748b; font-size: 14px; margin-bottom: 20px; line-height: 1.5;">
+                For <strong>Name-Based Searches</strong> and real-time data fetching, please wait until the connection status indicator turns <strong style="color: #10b981;">Green (Ready)</strong>.
+            </p>
+            <button class="btn" onclick="closeInfoPopup()">Understood</button>
+        </div>
+    </div>
+
+    <!-- Corporate Footer -->
+    <footer class="corporate-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Aditya Student Directory</h4>
+                <p>Designed & Developed by<br><strong>Ambati Lalitha Sagar</strong></p>
+                <p>B.Tech IT (23MH1A1202) ACET</p>
+            </div>
+            <div class="footer-section">
+                <h4>Resources</h4>
+                <a href="help.html">How to Use & Guide</a>
+                <a href="terms.html">Terms of Use & Disclaimer</a>
+            </div>
+            <div class="footer-section">
+                <h4>Connect</h4>
+                <a href="mailto:alalithasagar355@gmail.com">Email Developer</a>
+                <a href="https://alsagar.tech/" target="_blank">Portfolio: alsagar.tech</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 Ambati Lalitha Sagar. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- App Logic -->
     <script src="app.js" defer></script>
 </body>
 </html>
