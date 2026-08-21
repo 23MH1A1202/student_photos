@@ -275,7 +275,8 @@
             margin-bottom: 12px;
             border-radius: 8px;
             overflow: hidden;
-            background: #f1f5f9;
+            background: #0f172a; /* Sleek dark contrast background so photos stand out */
+            border: 1px solid #cbd5e1;
         }
         .photo-shell.is-loading .photo { opacity: 0; }
         
@@ -289,7 +290,22 @@
             min-height: 180px;
             transition: opacity 0.3s ease;
         }
-
+        /* Ensures smooth, centered loading dots for student names */
+    .student-name .dot-loader {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        height: 24px;
+    }
+    
+    .student-name .dot-loader span {
+        width: 6px;
+        height: 6px;
+        background-color: #2563eb; /* Corporate Blue loader dots */
+        border-radius: 50%;
+        animation: dot-flash 1.2s infinite ease-in-out;
+    }
         .student-name {
             min-height: 48px; 
             display: flex;
