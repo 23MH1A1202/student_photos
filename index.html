@@ -291,20 +291,30 @@
             transition: opacity 0.3s ease;
         }
         /* Ensures smooth, centered loading dots for student names */
-    .student-name .dot-loader {
+    .dot-loader {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 5px;
+        gap: 6px;
         height: 24px;
     }
-    
-    .student-name .dot-loader span {
-        width: 6px;
-        height: 6px;
-        background-color: #2563eb; /* Corporate Blue loader dots */
+
+    .dot-loader span {
+        width: 7px;
+        height: 7px;
+        background-color: #2563eb; /* Corporate Blue */
         border-radius: 50%;
-        animation: dot-flash 1.2s infinite ease-in-out;
+        display: inline-block;
+        animation: smoothPulse 1.4s infinite ease-in-out both;
+    }
+
+    .dot-loader span:nth-child(1) { animation-delay: -0.32s; }
+    .dot-loader span:nth-child(2) { animation-delay: -0.16s; }
+    .dot-loader span:nth-child(3) { animation-delay: 0s; }
+
+    @keyframes smoothPulse {
+        0%, 80%, 100% { opacity: 0.15; transform: scale(0.75); }
+        40% { opacity: 1; transform: scale(1.15); }
     }
         .student-name {
             min-height: 48px; 
