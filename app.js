@@ -100,7 +100,7 @@
                     branch: branchLabel,
                     branchKey,
                     year: roll.slice(0, 2),
-                    isLateralEntry: roll.substring(4, 6) === "5A"
+                    isLateralEntry: checkIsLE(roll)
                 }
             };
         }
@@ -416,26 +416,9 @@
             photo.src = "noimage.png";
         }
 
-        function shouldGenerateLePrefix(prefix) {
-            if (selectedCollege === "AU") return false;
-            if (prefix.length < 7 || prefix.length > 9) return false;
-            if (prefix.substring(4, 5) === "5") return false;
-            if (prefix.includes("B11") || prefix.includes("M11") || prefix.includes("M12") || prefix.includes("B12")) return false;
-            const seriesCode = prefix.substring(2, 4);
-            return seriesCode === "P3" || seriesCode === "A9" || seriesCode === "MH";
-        }
+       
 
-        function getPrefixVariants(prefix) {
-            const prefixes = [prefix];
-            if (shouldGenerateLePrefix(prefix)) {
-                const lePrefix = convertToLE(prefix);
-                if (lePrefix && lePrefix !== prefix) {
-                    prefixes.push(lePrefix);
-                }
-            }
-            return prefixes;
-        }
-
+        
         function createPhotoBox(roll, imageUrl, nameHtml) {
             const box = document.createElement("div");
             box.className = "box fade-in";
@@ -451,25 +434,9 @@
         }
 
 
-        function shouldGenerateLePrefix(prefix) {
-            if (selectedCollege === "AU") return false;
-            if (prefix.length < 7 || prefix.length > 9) return false;
-            if (prefix.substring(4, 5) === "5") return false; 
-            if (prefix.includes("B11") || prefix.includes("M11") || prefix.includes("M12") || prefix.includes("B12")) return false;
-            const seriesCode = prefix.substring(2, 4);
-            return seriesCode === "P3" || seriesCode === "A9" || seriesCode === "MH";
-        }
+       
 
-        function getPrefixVariants(prefix) {
-            const prefixes = [prefix];
-            if (shouldGenerateLePrefix(prefix)) {
-                const lePrefix = convertToLE(prefix);
-                if (lePrefix && lePrefix !== prefix) {
-                    prefixes.push(lePrefix);
-                }
-            }
-            return prefixes;
-        }
+        
 
         async function generatePhotos() {
             const inputField = document.getElementById("rollNumberInput");
@@ -509,7 +476,7 @@
                         }
 
                         const fragment = document.createDocumentFragment();
-                        if (input.substring(4, 6) === "5A") {
+                        if (checkIsLE(input)) {
                             appendLeBanner(fragment);
                         }
 
@@ -724,7 +691,7 @@
             let leBannerShown = false;
 
             imagesToShow.forEach(({ roll, imageUrl }) => {
-                const isLE = roll.substring(4, 6) === "5A";
+                const isLE = checkIsLE(roll);
                 if (isLE && !leBannerShown) {
                     appendLeBanner(fragment);
                     leBannerShown = true;
@@ -868,11 +835,68 @@ const observer = new IntersectionObserver((entries) => {
             return rollNumbers;
         }
 
-        function convertToLE(prefix) {
-            var year = parseInt(prefix.substring(0, 2)) + 1;
-            var branchCode = prefix.startsWith("23MH") ? "P3" : prefix.substring(2, 4);
-            return year.toString() + branchCode + "5" + prefix.substring(5);
+        // --- 1. LATERAL ENTRY (LE) CORE LOGIC ---
+
+// Helper function to identify AU prefixes
+function isAuPrefix(prefix) {
+    return selectedCollege === "AU" || 
+           prefix.includes("B11") || prefix.includes("B12") || 
+           prefix.includes("M11") || prefix.includes("M12") ||
+           prefix.includes("B21"); 
+}
+
+// Helper function to detect if a roll number is a Lateral Entry
+function checkIsLE(roll) {
+    if (!roll || roll.length < 7) return false;
+    
+    // AU Lateral Entry Check (Strictly B21)
+    if (isAuPrefix(roll)) {
+        return roll.includes("B21");
+    }
+    
+    // AEC / ACET Lateral Entry Check
+    return roll.substring(4, 6) === "5A" || roll.substring(4, 5) === "5";
+}
+
+function shouldGenerateLePrefix(prefix) {
+    if (prefix.length < 7 || prefix.length > 9) return false;
+
+    // AU Handling - ONLY generate LEs if the prefix is B11
+    if (isAuPrefix(prefix)) {
+        return prefix.includes("B11");
+    }
+
+    // AEC / ACET Handling
+    if (prefix.substring(4, 5) === "5") return false;
+    
+    const seriesCode = prefix.substring(2, 4);
+    return seriesCode === "P3" || seriesCode === "A9" || seriesCode === "MH";
+}
+
+function convertToLE(prefix) {
+    var year = parseInt(prefix.substring(0, 2)) + 1;
+
+    // AU Conversion Logic (Strictly 24B11 -> 25B21)
+    if (isAuPrefix(prefix) && prefix.includes("B11")) {
+        let leSeries = prefix.substring(2, 5).replace("B11", "B21");
+        return year.toString() + leSeries + prefix.substring(5);
+    }
+
+    // AEC / ACET Conversion Logic
+    var branchCode = prefix.startsWith("23MH") ? "P3" : prefix.substring(2, 4);
+    return year.toString() + branchCode + "5" + prefix.substring(5);
+}
+
+function getPrefixVariants(prefix) {
+    const prefixes = [prefix];
+    if (shouldGenerateLePrefix(prefix)) {
+        const lePrefix = convertToLE(prefix);
+        if (lePrefix && lePrefix !== prefix) {
+            prefixes.push(lePrefix);
         }
+    }
+    return prefixes;
+}
 
         function handleKeyPress(event) {
             if (event.key === "Enter") {
