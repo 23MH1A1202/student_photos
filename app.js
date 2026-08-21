@@ -434,7 +434,7 @@
         
         function createPhotoBox(roll, imageUrl, nameHtml) {
             const box = document.createElement("div");
-            box.className = "box fade-in";
+            box.className = "box";
             box.innerHTML = `
                 <h3>${roll}</h3>
                 <div class="photo-shell is-loading">
