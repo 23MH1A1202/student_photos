@@ -70,6 +70,19 @@
             return sanitized || fallback;
         }
 
+        function toggleInlineLoader(show) {
+    let loader = document.getElementById("inline-fetch-loader");
+    if (!loader) {
+        loader = document.createElement("div");
+        loader.id = "inline-fetch-loader";
+        loader.className = "dot-loader";
+        loader.style.cssText = "width: 100%; display: flex; justify-content: center; padding: 20px 0; margin-top: 10px;";
+        loader.innerHTML = `<span></span><span></span><span></span>`;
+        document.getElementById("pagination").after(loader);
+    }
+    loader.style.display = show ? "flex" : "none";
+}
+
         function deriveBranchFromRoll(roll, college = selectedCollege) {
             const normalizedCollege = normalizeCollegeForRoll(roll, college);
             if (normalizedCollege === "AU") {
@@ -426,7 +439,7 @@
                 <h3>${roll}</h3>
                 <div class="photo-shell is-loading">
                     <div class="photo-loader" aria-hidden="true"></div>
-                    <img class="photo" loading="lazy" decoding="async" src="${imageUrl}" alt="Student Photo" onload="handlePhotoLoad(this)" onerror="handlePhotoError(this)">
+                    <img class="photo" decoding="async" src="${imageUrl}" alt="Student Photo" onload="handlePhotoLoad(this)" onerror="handlePhotoError(this)">
                 </div>
                 ${nameHtml}
             `;
@@ -511,85 +524,78 @@
                         
                         validImages = [];
                         currentPage = 0;
-                        
-                        // 🚀 Fetches 100 photos in one go!
-                        const chunkSize = 100; 
-                        const maxEmptyChunks = selectedCollege === "AU" ? 2 : 1;
                         let renderedInitialBatch = false;
                         let confettiLaunched = false;
-
+                        
+                        // Turn on the bottom loader UX
+                        toggleInlineLoader(true);
+        
                         for (const prefix of prefixes) {
                             const rollNumbers = generateRollNumbers(prefix);
-                            let consecutiveEmptyChunks = 0;
-                            let foundFirstImageInPrefix = false;
-
+                            let consecutiveMisses = 0; 
+                            const chunkSize = 8; // Fetch 8 at a time (fast but controllable)
+                            
                             for (let i = 0; i < rollNumbers.length; i += chunkSize) {
                                 if (searchId !== activePrefixSearchId) return;
-
+        
                                 const chunk = rollNumbers.slice(i, i + chunkSize);
-                                const results = await Promise.allSettled(
-                                    chunk.map(roll => {
+                                
+                                // Fetch chunk in parallel
+                                const results = await Promise.all(
+                                    chunk.map(async (roll) => {
                                         const url = getPhotoUrl(roll);
-                                        return checkImageExists(url).then(result => (result ? { roll, imageUrl: url } : null));
+                                        const exists = await checkImageExists(url);
+                                        return { roll, url, exists };
                                     })
                                 );
-
-                                const foundInChunk = results
-                                    .filter(result => result.status === "fulfilled" && result.value !== null)
-                                    .map(result => result.value);
-
-                                if (foundInChunk.length > 0) {
-                                    const prevCount = validImages.length;
-                                    validImages.push(...foundInChunk);
-                                    foundFirstImageInPrefix = true;
-                                    consecutiveEmptyChunks = 0;
-
-                                    if (!renderedInitialBatch) {
-                                        setGenerationLoading(false);
-                                        displayBranch(input);
-                                        displayPhotos();
-                                        document.getElementById("scrollGif").style.display = "block";
-                                        renderedInitialBatch = true;
-                                        if (!confettiLaunched) {
-                                            launchConfetti();
-                                            confettiLaunched = true;
-                                        }
+        
+                                let chunkHasValid = false;
+                                for (const res of results) {
+                                    if (res.exists) {
+                                        validImages.push({ roll: res.roll, imageUrl: res.url });
+                                        consecutiveMisses = 0; // Reset misses since we found a valid photo
+                                        chunkHasValid = true;
                                     } else {
-                                        // Elegantly update UI dynamically
-                                        const maxDisplayableOnCurrentPage = (currentPage + 1) * imagesPerPage;
-                                        if (prevCount < maxDisplayableOnCurrentPage) {
-                                            displayPhotos(); 
-                                        } else {
-                                            renderPagination(); 
-                                        }
-                                    }
-                                    
-                                } else {
-                                    consecutiveEmptyChunks++;
-                                    // Adjusted for chunk size 100: 10 chunks = 1000 combinations checked
-                                    if (!foundFirstImageInPrefix && selectedCollege === "AU" && consecutiveEmptyChunks >= 10) {
-                                        break; 
-                                    } else if (foundFirstImageInPrefix && consecutiveEmptyChunks >= maxEmptyChunks) {
-                                        break; 
-                                    } else if (!foundFirstImageInPrefix && selectedCollege !== "AU" && consecutiveEmptyChunks >= 2) {
-                                        break; 
+                                        consecutiveMisses++;
                                     }
                                 }
-
-                                // Yield UI threading
-                                await new Promise(resolve => setTimeout(resolve, selectedCollege === "AU" ? 200 : 50));
+        
+                                // Show UI progressively
+                                if (validImages.length > 0 && !renderedInitialBatch) {
+                                    setGenerationLoading(false);
+                                    displayBranch(input);
+                                    displayPhotos();
+                                    document.getElementById("scrollGif").style.display = "block";
+                                    renderedInitialBatch = true;
+                                    if (!confettiLaunched) {
+                                        launchConfetti();
+                                        confettiLaunched = true;
+                                    }
+                                } else if (chunkHasValid && renderedInitialBatch) {
+                                    const maxDisplayable = (currentPage + 1) * imagesPerPage;
+                                    if (validImages.length <= maxDisplayable || (validImages.length - chunk.length) < maxDisplayable) {
+                                        displayPhotos();
+                                    } else {
+                                        renderPagination();
+                                    }
+                                }
+        
+                                // THE MAGIC FIX: Break early if we hit 5 misses in a row
+                                if (consecutiveMisses >= 5) {
+                                    break; 
+                                }
                             }
                         }
-
+                        
+                        // Turn off the loader when fully finished
+                        toggleInlineLoader(false);
+        
                         if (searchId !== activePrefixSearchId) return;
-
+        
                         if (validImages.length === 0) {
                             setGenerationLoading(false);
                             showError("No photos found for this prefix.");
-                            return;
                         }
-
-                        setGenerationLoading(false);
                         return;
                     }
 
@@ -802,9 +808,7 @@ const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
             entry.target.classList.add('animate');
-        } else {
-            entry.target.classList.remove('animate');
-        }
+        } 
     });
 }, observerOptions);
         function generateRollNumbers(basePrefix) {
