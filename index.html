@@ -41,7 +41,19 @@
         flex-direction: column;
         min-height: 100vh;
     }
-
+    /* FIX: Reserves exact space for the name so the box never resizes/jumps */
+    .student-name {
+        min-height: 48px; /* Fits up to 2 lines of long names perfectly */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin-top: 8px;
+        font-weight: 600;
+        line-height: 1.2;
+        width: 100%;
+        word-break: break-word; /* Prevents long names from breaking the box width */
+    }
     /* Modern Banner */
     .banner-container {
         display: flex;
