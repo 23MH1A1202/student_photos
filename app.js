@@ -661,10 +661,16 @@
                         if (!students || !students.length) continue;
 
                         students.forEach(({ roll, name, branch, campus, imageUrl }) => {
+                            // 1. Check if this specific roll number is an LE
+                            const isLE = checkIsLE(roll);
+                            
+                            // 2. Create a clean, modern orange badge only if they are LE
+                            const leBadge = isLE ? ` <span style="color: #f97316; font-weight: 800; font-size: 13px; margin-left: 4px;">(LE)</span>` : "";
+
                             const box = createPhotoBox(
                                 roll,
                                 imageUrl,
-                                `<div class="student-name">${name}</div><div style="margin-top: 5px;"><strong>Branch:</strong> ${branch}</div><div style="margin-top: 2px;"><strong>Campus:</strong> ${campus || (campusNames[series] || series)}</div>`
+                                `<div class="student-name">${name}</div><div style="margin-top: 5px;"><strong>Branch:</strong> ${branch}${leBadge}</div><div style="margin-top: 2px;"><strong>Campus:</strong> ${campus || (campusNames[series] || series)}</div>`
                             );
                             container.appendChild(box);
                             observer.observe(box);
