@@ -40,7 +40,26 @@
                 return null;
             }
         })();
+        // Enables or disables the generate button based on the checkbox state
+function toggleGenerateButton() {
+    const checkbox = document.getElementById("termsAgreement");
+    const btn = document.getElementById("generateBtn");
+    
+    if (checkbox.checked) {
+        btn.disabled = false;
+        btn.style.opacity = "1";
+        btn.style.cursor = "pointer";
+    } else {
+        btn.disabled = true;
+        btn.style.opacity = "0.5";
+        btn.style.cursor = "not-allowed";
+    }
+}
 
+// Smooth scroll to the bottom of the page
+function scrollToBottom() {
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
         function isValidCachedName(name) {
             return name && name !== "Not found" && name !== "Not Found" && name !== "Error";
         }
