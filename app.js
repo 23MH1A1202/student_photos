@@ -480,7 +480,8 @@ function scrollToBottom() {
                 <h3>${roll}</h3>
                 <div class="photo-shell is-loading">
                     <div class="photo-loader" aria-hidden="true"></div>
-                    <img class="photo" decoding="async" src="${imageUrl}" alt="Student Photo" onload="handlePhotoLoad(this)" onerror="handlePhotoError(this)">
+                    <!-- FIX: Added loading="lazy" to stop network freezing -->
+                    <img class="photo" decoding="async" loading="lazy" src="${imageUrl}" alt="Student Photo" onload="handlePhotoLoad(this)" onerror="handlePhotoError(this)">
                 </div>
                 ${nameHtml}
             `;
@@ -584,10 +585,26 @@ function scrollToBottom() {
         
                                 const chunk = rollNumbers.slice(i, i + chunkSize);
                                 
-                                const results = await Promise.all(
+                               const results = await Promise.all(
                                     chunk.map(async (roll) => {
                                         const url = getPhotoUrl(roll);
-                                        const exists = await checkImageExists(url);
+                                        let exists = false;
+
+                                        // 1. FASTEST: Check Local Memory Cache
+                                        const localName = getCachedName(roll, selectedCollege);
+                                        if (isValidCachedName(localName)) {
+                                            exists = true;
+                                        } else {
+                                            // 2. SUPER FAST: Check Firestore DB (Bypasses slow image downloading)
+                                            const cloudName = await getNameFromCloudDb(roll, selectedCollege);
+                                            if (isValidCachedName(cloudName)) {
+                                                exists = true;
+                                            } else {
+                                                // 3. SLOWEST: Fallback to downloading image to discover NEW students
+                                                exists = Boolean(await checkImageExists(url));
+                                            }
+                                        }
+                                        
                                         return { roll, url, exists };
                                     })
                                 );
