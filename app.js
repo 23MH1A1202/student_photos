@@ -569,31 +569,42 @@ function scrollToBottom() {
                         setGenerationLoading(true);
                         let foundInDb = false;
 
-                        // BLAZING FAST APPROACH: Grab the entire branch range from Firestore instantly
+                        // BLAZING FAST APPROACH: Grab exact branch/year folder (No Firestore Index Required!)
                         if (cloudDb) {
                             try {
-                                const queries = prefixes.map(prefix => {
-                                    return cloudDb.collectionGroup('students')
-                                        .orderBy('roll')
-                                        .startAt(prefix)
-                                        .endAt(prefix + '\uf8ff')
-                                        .get();
-                                });
+                                for (const prefix of prefixes) {
+                                    // Derive exact DB path elements from the prefix
+                                    const coll = normalizeCollegeForRoll(prefix, selectedCollege);
+                                    const branchLabel = deriveBranchFromRoll(prefix, coll);
+                                    const branchKey = sanitizeDbKey(branchLabel);
+                                    const yearKey = sanitizeDbKey(prefix.slice(0, 2));
 
-                                const snapshots = await Promise.all(queries);
-                                snapshots.forEach(snapshot => {
+                                    // Query the exact subcollection directly
+                                    const snapshot = await cloudDb
+                                        .collection("colleges")
+                                        .doc(coll)
+                                        .collection("branches")
+                                        .doc(branchKey)
+                                        .collection("years")
+                                        .doc(yearKey)
+                                        .collection("students")
+                                        .get();
+
                                     snapshot.forEach(doc => {
                                         const data = doc.data();
                                         const roll = data.roll || doc.id;
-                                        validImages.push({ 
-                                            roll: roll, 
-                                            imageUrl: getPhotoUrl(roll), 
-                                            name: data.name 
-                                        });
-                                        // Cache locally so we don't fetch names again
-                                        if (data.name) setCachedName(roll, data.name, selectedCollege);
+                                        
+                                        // Ensure it matches the requested prefix
+                                        if (roll.startsWith(prefix)) {
+                                            validImages.push({ 
+                                                roll: roll, 
+                                                imageUrl: getPhotoUrl(roll), 
+                                                name: data.name 
+                                            });
+                                            if (data.name) setCachedName(roll, data.name, selectedCollege);
+                                        }
                                     });
-                                });
+                                }
 
                                 if (validImages.length > 0) {
                                     foundInDb = true;
@@ -605,12 +616,12 @@ function scrollToBottom() {
 
                         // IF FOUND IN DB: Render ALL of them instantly. Zero chunking delay!
                         if (foundInDb) {
-                            // Sort ascending so Regular and LE students are perfectly in order
+                            // Sort ascending so Regular and LE students are perfectly in numerical order
                             validImages.sort((a, b) => a.roll.localeCompare(b.roll));
                             
                             setGenerationLoading(false);
                             displayBranch(input);
-                            displayPhotos(); // Instantly draws up to 100 boxes!
+                            displayPhotos(); // Instantly draws all boxes!
                             document.getElementById("scrollGif").style.display = "block";
                             launchConfetti();
                             return; 
@@ -996,6 +1007,12 @@ function getPrefixVariants(prefix) {
 
         function handleKeyPress(event) {
             if (event.key === "Enter") {
+                const btn = document.getElementById("generateBtn");
+                // Strictly enforce the checkbox agreement on Enter key
+                if (btn && btn.disabled) {
+                    showError("Please agree to the Terms of Use & Disclaimer first.");
+                    return; 
+                }
                 event.target.blur();
                 generatePhotos();
             }
