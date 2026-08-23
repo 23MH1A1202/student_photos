@@ -1,5 +1,7 @@
 
         let validImages = [];
+        let prefetchTimeout = null;          // NEW: Controls background loading
+        const prefetchedImages = new Set();
         let currentPage = 0;
         const imagesPerPage = 100;
         let selectedCollege = "AU"; 
@@ -571,6 +573,7 @@ function scrollToBottom() {
                     if (input.length >= 7 && input.length < 10) {
                         const prefixes = getPrefixVariants(input);
                         validImages = [];
+                        prefetchedImages.clear();
                         currentPage = 0;
                         
                         setGenerationLoading(true);
@@ -780,6 +783,36 @@ function scrollToBottom() {
                 showError("Failed to connect to the server. Please wait for the status dot to turn green and try again.");
             }
         }
+
+        function startBackgroundPrefetch() {
+            clearTimeout(prefetchTimeout);
+
+            // Wait 800ms to ensure the current visible page gets 100% of the network priority first
+            prefetchTimeout = setTimeout(() => {
+                validImages.forEach((student, index) => {
+                    // 1. SILENT NAME PREFETCH: Uses your existing queue (max 8 at a time)
+                    const cachedName = getCachedName(student.roll, selectedCollege);
+                    if (!isValidCachedName(cachedName)) {
+                        queueNameLookup(student.roll, selectedCollege, 1).then(name => {
+                            if (isValidCachedName(name)) {
+                                upsertNameInCloudDb(student.roll, name, selectedCollege);
+                            }
+                        });
+                    }
+
+                    // 2. SILENT IMAGE PREFETCH: Staggered to prevent network freezing
+                    if (!prefetchedImages.has(student.imageUrl)) {
+                        prefetchedImages.add(student.imageUrl);
+                        setTimeout(() => {
+                            const img = new Image();
+                            img.decoding = "async"; 
+                            img.src = student.imageUrl; // Forces browser to save it to disk cache
+                        }, index * 25); // Loads one hidden image every 25ms in the background
+                    }
+                });
+            }, 800);
+        }
+        
         function displayPhotos() {
             const container = document.getElementById("photoContainer");
             container.innerHTML = "";
@@ -818,6 +851,8 @@ function scrollToBottom() {
             }, 50);
 
             renderPagination();
+
+            startBackgroundPrefetch();
         }
 
 function renderPagination() {
