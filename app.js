@@ -1518,7 +1518,7 @@ async function updateVisitorCounter() {
     const countSpan = document.getElementById("visitor-count");
     if (!countSpan) return;
 
-    const PRESET_BASELINE = 527; // Base historical count
+    const PRESET_BASELINE = 852; // Base historical count
 
     // ✅ Fixed check: checks 'cloudDb' directly instead of 'window.cloudDb'
     if (typeof cloudDb === "undefined" || !cloudDb) {
