@@ -498,6 +498,13 @@ function scrollToBottom() {
             const input = inputField.value.trim().toUpperCase();
             const searchId = ++activePrefixSearchId;
 
+            // NEW: Bulletproof Checkbox Verification
+            const checkbox = document.getElementById("termsAgreement");
+            if (checkbox && !checkbox.checked) {
+                showError("Please agree to the Terms of Use & Disclaimer first.");
+                return; 
+            }
+
             if (input === "") {
                 showError("Please enter a name, roll number, or prefix.");
                 return;
@@ -569,54 +576,38 @@ function scrollToBottom() {
                         setGenerationLoading(true);
                         let foundInDb = false;
 
-                        // BLAZING FAST APPROACH: Grab exact branch/year folder (No Firestore Index Required!)
+                        // BULLETPROOF INDEX-FREE APPROACH: Fetch and filter locally!
                         if (cloudDb) {
                             try {
-                                for (const prefix of prefixes) {
-                                    // Derive exact DB path elements from the prefix
-                                    const coll = normalizeCollegeForRoll(prefix, selectedCollege);
-                                    const branchLabel = deriveBranchFromRoll(prefix, coll);
-                                    const branchKey = sanitizeDbKey(branchLabel);
-                                    const yearKey = sanitizeDbKey(prefix.slice(0, 2));
-
-                                    // Query the exact subcollection directly
-                                    const snapshot = await cloudDb
-                                        .collection("colleges")
-                                        .doc(coll)
-                                        .collection("branches")
-                                        .doc(branchKey)
-                                        .collection("years")
-                                        .doc(yearKey)
-                                        .collection("students")
-                                        .get();
-
-                                    snapshot.forEach(doc => {
-                                        const data = doc.data();
-                                        const roll = data.roll || doc.id;
-                                        
-                                        // Ensure it matches the requested prefix
-                                        if (roll.startsWith(prefix)) {
-                                            validImages.push({ 
-                                                roll: roll, 
-                                                imageUrl: getPhotoUrl(roll), 
-                                                name: data.name 
-                                            });
-                                            if (data.name) setCachedName(roll, data.name, selectedCollege);
-                                        }
-                                    });
-                                }
+                                // Gets all students (extremely fast, caches locally, tiny payload)
+                                const snapshot = await cloudDb.collectionGroup('students').get();
+                                
+                                snapshot.forEach(doc => {
+                                    const data = doc.data();
+                                    const roll = data.roll || doc.id;
+                                    
+                                    // If the roll starts with any of our generated prefixes (Regular or LE)
+                                    if (prefixes.some(prefix => roll.startsWith(prefix))) {
+                                        validImages.push({ 
+                                            roll: roll, 
+                                            imageUrl: getPhotoUrl(roll), 
+                                            name: data.name 
+                                        });
+                                        if (data.name) setCachedName(roll, data.name, selectedCollege);
+                                    }
+                                });
 
                                 if (validImages.length > 0) {
                                     foundInDb = true;
                                 }
                             } catch (e) {
-                                console.warn("Fast DB fetch failed, falling back to discovery", e);
+                                console.warn("DB fetch failed:", e);
                             }
                         }
 
-                        // IF FOUND IN DB: Render ALL of them instantly. Zero chunking delay!
+                        // IF FOUND IN DB: Render ALL of them instantly. Zero delay!
                         if (foundInDb) {
-                            // Sort ascending so Regular and LE students are perfectly in numerical order
+                            // Sort ascending so Regular and LE students are perfectly in order
                             validImages.sort((a, b) => a.roll.localeCompare(b.roll));
                             
                             setGenerationLoading(false);
@@ -627,7 +618,7 @@ function scrollToBottom() {
                             return; 
                         }
 
-                        // FALLBACK: DISCOVERY MODE (Only runs for brand-new batches not in DB yet)
+                        // FALLBACK: DISCOVERY MODE (Runs for brand-new batches not in DB yet)
                         let renderedInitialBatch = false;
                         let confettiLaunched = false;
                         toggleInlineLoader(true);
@@ -635,7 +626,7 @@ function scrollToBottom() {
                         for (const prefix of prefixes) {
                             const rollNumbers = generateRollNumbers(prefix);
                             let consecutiveMisses = 0; 
-                            const chunkSize = 50; 
+                            const chunkSize = 200; // Increased from 50 to 200 to process the entire class in ONE go!
                             
                             for (let i = 0; i < rollNumbers.length; i += chunkSize) {
                                 if (searchId !== activePrefixSearchId) {
@@ -1007,9 +998,8 @@ function getPrefixVariants(prefix) {
 
         function handleKeyPress(event) {
             if (event.key === "Enter") {
-                const btn = document.getElementById("generateBtn");
-                // Strictly enforce the checkbox agreement on Enter key
-                if (btn && btn.disabled) {
+                const checkbox = document.getElementById("termsAgreement");
+                if (checkbox && !checkbox.checked) {
                     showError("Please agree to the Terms of Use & Disclaimer first.");
                     return; 
                 }
