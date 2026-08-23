@@ -591,56 +591,39 @@ function scrollToResults() {
                     if (input.length >= 7 && input.length < 10) {
                         const prefixes = getPrefixVariants(input);
                         validImages = [];
-                        prefetchedImages.clear();
                         currentPage = 0;
                         
                         setGenerationLoading(true);
-                        let foundInDb = false;
+                        
+                        const dbRolls = new Set();
+                        const highestKnownPerPrefix = new Map();
+                        prefixes.forEach(p => highestKnownPerPrefix.set(p, ""));
 
-                        // BULLETPROOF INDEX-FREE APPROACH: Fetch and filter locally!
+                        // 1. SMART CACHE: Pre-fetch known rolls from DB so we don't waste time pinging them
                         if (cloudDb) {
                             try {
-                                // Gets all students (extremely fast, caches locally, tiny payload)
                                 const snapshot = await cloudDb.collectionGroup('students').get();
-                                
                                 snapshot.forEach(doc => {
                                     const data = doc.data();
                                     const roll = data.roll || doc.id;
                                     
-                                    // If the roll starts with any of our generated prefixes (Regular or LE)
-                                    if (prefixes.some(prefix => roll.startsWith(prefix))) {
-                                        validImages.push({ 
-                                            roll: roll, 
-                                            imageUrl: getPhotoUrl(roll), 
-                                            name: data.name 
-                                        });
-                                        if (data.name) setCachedName(roll, data.name, selectedCollege);
-                                    }
+                                    prefixes.forEach(prefix => {
+                                        if (roll.startsWith(prefix)) {
+                                            dbRolls.add(roll);
+                                            // Keep track of the highest known roll number so we don't stop searching too early!
+                                            if (roll > highestKnownPerPrefix.get(prefix)) {
+                                                highestKnownPerPrefix.set(prefix, roll);
+                                            }
+                                            if (data.name) setCachedName(roll, data.name, selectedCollege);
+                                        }
+                                    });
                                 });
-
-                                if (validImages.length > 0) {
-                                    foundInDb = true;
-                                }
                             } catch (e) {
-                                console.warn("DB fetch failed:", e);
+                                console.warn("DB fetch failed, falling back to pure discovery:", e);
                             }
                         }
 
-                        // IF FOUND IN DB: Render ALL of them instantly. Zero delay!
-                        if (foundInDb) {
-                            // Sort ascending so Regular and LE students are perfectly in order
-                            validImages.sort((a, b) => a.roll.localeCompare(b.roll));
-                            
-                            setGenerationLoading(false);
-                            displayBranch(input);
-                            displayPhotos(); // Instantly draws all boxes!
-                            document.getElementById("scrollGif").style.display = "block";
-                            launchConfetti();
-                            scrollToResults();
-                            return; 
-                        }
-
-                        // FALLBACK: DISCOVERY MODE (Runs for brand-new batches not in DB yet)
+                        // 2. HYBRID DISCOVERY: Combines instant DB hits with network discovery for missing ones
                         let renderedInitialBatch = false;
                         let confettiLaunched = false;
                         toggleInlineLoader(true);
@@ -648,7 +631,8 @@ function scrollToResults() {
                         for (const prefix of prefixes) {
                             const rollNumbers = generateRollNumbers(prefix);
                             let consecutiveMisses = 0; 
-                            const chunkSize = 200; // Increased from 50 to 200 to process the entire class in ONE go!
+                            const chunkSize = 200; 
+                            const currentHighest = highestKnownPerPrefix.get(prefix);
                             
                             for (let i = 0; i < rollNumbers.length; i += chunkSize) {
                                 if (searchId !== activePrefixSearchId) {
@@ -660,9 +644,18 @@ function scrollToResults() {
                                 
                                 const results = await Promise.all(
                                     chunk.map(async (roll) => {
-                                        const url = getPhotoUrl(roll);
-                                        const exists = await checkImageExists(url);
-                                        return { roll, url, exists };
+                                        let exists = false;
+                                        
+                                        // INSTANT HIT: If it's already in the DB, skip the slow network ping!
+                                        if (dbRolls.has(roll)) {
+                                            exists = true;
+                                        } else {
+                                            // DISCOVERY: Not in DB yet, ping the college server to see if they exist
+                                            const url = getPhotoUrl(roll);
+                                            exists = Boolean(await checkImageExists(url));
+                                        }
+                                        
+                                        return { roll, exists, url: getPhotoUrl(roll) };
                                     })
                                 );
         
@@ -673,7 +666,14 @@ function scrollToResults() {
                                         consecutiveMisses = 0;
                                         chunkHasValid = true;
                                     } else {
-                                        consecutiveMisses++;
+                                        // SMART MISS DETECTION: 
+                                        // If there is a massive gap (e.g., between 081 and 222), we DO NOT stop searching 
+                                        // as long as we know a valid roll exists further ahead in the DB!
+                                        if (currentHighest === "" || res.roll > currentHighest) {
+                                            consecutiveMisses++;
+                                        } else {
+                                            consecutiveMisses = 0; 
+                                        }
                                     }
                                 }
         
@@ -687,14 +687,14 @@ function scrollToResults() {
                                         launchConfetti();
                                         confettiLaunched = true;
                                     }
-                                        scrollToResults();
-                                } 
-                                else if (chunkHasValid && renderedInitialBatch) {
+                                    scrollToResults();
+                                } else if (chunkHasValid && renderedInitialBatch) {
                                     displayPhotos();
                                 }
         
                                 toggleInlineLoader(true);
 
+                                // Only completely abort the chunking loop if we are past the DB records and hit 5 misses in a row
                                 if (consecutiveMisses >= 5) {
                                     break; 
                                 }
