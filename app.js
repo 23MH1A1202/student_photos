@@ -491,7 +491,25 @@ function scrollToBottom() {
         }
 
 
-       
+       // NEW UX FEATURE: Smooth scroll to results
+function scrollToResults() {
+    setTimeout(() => {
+        const branchDisplay = document.getElementById("branchDisplay");
+        const photoContainer = document.getElementById("photoContainer");
+        
+        // Find the top-most visible element (Branch Banner if visible, else Photo Container)
+        const target = (branchDisplay && branchDisplay.style.display !== "none") ? branchDisplay : photoContainer;
+        
+        if (target) {
+            // Get position and subtract 100px so it perfectly clears the sticky header
+            const targetPosition = target.getBoundingClientRect().top + window.scrollY;
+            window.scrollTo({
+                top: targetPosition - 100, 
+                behavior: "smooth"
+            });
+        }
+    }, 150); // Tiny delay to ensure the DOM has finished painting the photos
+}
 
         
 
@@ -618,6 +636,7 @@ function scrollToBottom() {
                             displayPhotos(); // Instantly draws all boxes!
                             document.getElementById("scrollGif").style.display = "block";
                             launchConfetti();
+                            scrollToResults();
                             return; 
                         }
 
@@ -668,7 +687,9 @@ function scrollToBottom() {
                                         launchConfetti();
                                         confettiLaunched = true;
                                     }
-                                } else if (chunkHasValid && renderedInitialBatch) {
+                                        scrollToResults();
+                                } 
+                                else if (chunkHasValid && renderedInitialBatch) {
                                     displayPhotos();
                                 }
         
@@ -777,6 +798,7 @@ function scrollToBottom() {
 
                 setGenerationLoading(false);
                 launchConfetti();
+                scrollToResults();
             } catch (error) {
                 console.error("Fetch Error:", error);
                 setGenerationLoading(false);
@@ -867,7 +889,7 @@ function renderPagination() {
             prevBtn.onclick = () => {
                 currentPage--;
                 displayPhotos();
-                window.scrollTo(0, 0);
+                scrollToResults();
             };
             pagination.appendChild(prevBtn);
         }
@@ -883,7 +905,7 @@ function renderPagination() {
             pageBtn.onclick = () => {
                 currentPage = i;
                 displayPhotos();
-                window.scrollTo(0, 0);
+                scrollToResults();
             };
             pagination.appendChild(pageBtn);
         }
@@ -894,7 +916,7 @@ function renderPagination() {
             nextBtn.onclick = () => {
                 currentPage++;
                 displayPhotos();
-                window.scrollTo(0, 0);
+                scrollToResults();
             };
             pagination.appendChild(nextBtn);
         }
@@ -982,9 +1004,10 @@ function isAuPrefix(prefix) {
 function checkIsLE(roll) {
     if (!roll || roll.length < 7) return false;
     
-    // AU Lateral Entry Check (Strictly B21)
+    // AU Lateral Entry Check (Strictly check series at the correct index)
     if (isAuPrefix(roll)) {
-        return roll.includes("B21");
+        // roll.substring(2, 5) grabs exactly the "B11" or "B21" part, ignoring the rest!
+        return roll.substring(2, 5) === "B21";
     }
     
     // AEC / ACET Lateral Entry Check
