@@ -480,7 +480,7 @@ function scrollToBottom() {
                 <h3>${roll}</h3>
                 <div class="photo-shell is-loading">
                     <div class="photo-loader" aria-hidden="true"></div>
-                    <!-- FIX: Added loading="lazy" to stop network freezing -->
+                    <!-- FIX: Added loading="lazy" to prevent network freezing -->
                     <img class="photo" decoding="async" loading="lazy" src="${imageUrl}" alt="Student Photo" onload="handlePhotoLoad(this)" onerror="handlePhotoError(this)">
                 </div>
                 ${nameHtml}
@@ -563,19 +563,68 @@ function scrollToBottom() {
                     // 2. PREFIX SEARCH
                     if (input.length >= 7 && input.length < 10) {
                         const prefixes = getPrefixVariants(input);
-                        
                         validImages = [];
                         currentPage = 0;
+                        
+                        setGenerationLoading(true);
+                        let foundInDb = false;
+
+                        // BLAZING FAST APPROACH: Grab the entire branch range from Firestore instantly
+                        if (cloudDb) {
+                            try {
+                                const queries = prefixes.map(prefix => {
+                                    return cloudDb.collectionGroup('students')
+                                        .orderBy('roll')
+                                        .startAt(prefix)
+                                        .endAt(prefix + '\uf8ff')
+                                        .get();
+                                });
+
+                                const snapshots = await Promise.all(queries);
+                                snapshots.forEach(snapshot => {
+                                    snapshot.forEach(doc => {
+                                        const data = doc.data();
+                                        const roll = data.roll || doc.id;
+                                        validImages.push({ 
+                                            roll: roll, 
+                                            imageUrl: getPhotoUrl(roll), 
+                                            name: data.name 
+                                        });
+                                        // Cache locally so we don't fetch names again
+                                        if (data.name) setCachedName(roll, data.name, selectedCollege);
+                                    });
+                                });
+
+                                if (validImages.length > 0) {
+                                    foundInDb = true;
+                                }
+                            } catch (e) {
+                                console.warn("Fast DB fetch failed, falling back to discovery", e);
+                            }
+                        }
+
+                        // IF FOUND IN DB: Render ALL of them instantly. Zero chunking delay!
+                        if (foundInDb) {
+                            // Sort ascending so Regular and LE students are perfectly in order
+                            validImages.sort((a, b) => a.roll.localeCompare(b.roll));
+                            
+                            setGenerationLoading(false);
+                            displayBranch(input);
+                            displayPhotos(); // Instantly draws up to 100 boxes!
+                            document.getElementById("scrollGif").style.display = "block";
+                            launchConfetti();
+                            return; 
+                        }
+
+                        // FALLBACK: DISCOVERY MODE (Only runs for brand-new batches not in DB yet)
                         let renderedInitialBatch = false;
                         let confettiLaunched = false;
-                        
-                        // Show bottom loader immediately
                         toggleInlineLoader(true);
         
                         for (const prefix of prefixes) {
                             const rollNumbers = generateRollNumbers(prefix);
                             let consecutiveMisses = 0; 
-                            const chunkSize = 50; // High performance chunk size
+                            const chunkSize = 50; 
                             
                             for (let i = 0; i < rollNumbers.length; i += chunkSize) {
                                 if (searchId !== activePrefixSearchId) {
@@ -585,26 +634,10 @@ function scrollToBottom() {
         
                                 const chunk = rollNumbers.slice(i, i + chunkSize);
                                 
-                               const results = await Promise.all(
+                                const results = await Promise.all(
                                     chunk.map(async (roll) => {
                                         const url = getPhotoUrl(roll);
-                                        let exists = false;
-
-                                        // 1. FASTEST: Check Local Memory Cache
-                                        const localName = getCachedName(roll, selectedCollege);
-                                        if (isValidCachedName(localName)) {
-                                            exists = true;
-                                        } else {
-                                            // 2. SUPER FAST: Check Firestore DB (Bypasses slow image downloading)
-                                            const cloudName = await getNameFromCloudDb(roll, selectedCollege);
-                                            if (isValidCachedName(cloudName)) {
-                                                exists = true;
-                                            } else {
-                                                // 3. SLOWEST: Fallback to downloading image to discover NEW students
-                                                exists = Boolean(await checkImageExists(url));
-                                            }
-                                        }
-                                        
+                                        const exists = await checkImageExists(url);
                                         return { roll, url, exists };
                                     })
                                 );
@@ -620,7 +653,6 @@ function scrollToBottom() {
                                     }
                                 }
         
-                                // Render progressively and keep loader pinned at the bottom
                                 if (validImages.length > 0 && !renderedInitialBatch) {
                                     setGenerationLoading(false);
                                     displayBranch(input);
@@ -632,15 +664,9 @@ function scrollToBottom() {
                                         confettiLaunched = true;
                                     }
                                 } else if (chunkHasValid && renderedInitialBatch) {
-                                    const maxDisplayable = (currentPage + 1) * imagesPerPage;
-                                    if (validImages.length <= maxDisplayable || (validImages.length - chunk.length) < maxDisplayable) {
-                                        displayPhotos();
-                                    } else {
-                                        renderPagination();
-                                    }
+                                    displayPhotos();
                                 }
         
-                                // Re-attach the loader to the very end of the container after rendering
                                 toggleInlineLoader(true);
 
                                 if (consecutiveMisses >= 5) {
@@ -649,7 +675,6 @@ function scrollToBottom() {
                             }
                         }
                         
-                        // Turn off loader when completely finished searching all variants
                         toggleInlineLoader(false);
         
                         if (searchId !== activePrefixSearchId) return;
@@ -660,7 +685,6 @@ function scrollToBottom() {
                         }
                         return;
                     }
-
                     showError("Invalid roll number or prefix length. Needs at least 7 characters.");
                     setGenerationLoading(false);
                     return;
