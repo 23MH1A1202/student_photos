@@ -5,12 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Help & Guide | Aditya Student Photos</title>
     <style>
+        /* Modern App Theme Variables */
+        :root {
+            --primary-blue: #1e40af;
+            --secondary-blue: #3b82f6;
+            --primary-orange: #f97316;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #334155;
+            --text-heading: #0f172a;
+            --border-color: #e2e8f0;
+        }
+
         body { 
-            font-family: 'Arial', sans-serif; 
-            padding: 20px; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            padding: 30px 15px; 
             line-height: 1.6; 
-            background-color: rgba(255, 255, 255, 0.59);
-            color: #333;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             margin: 0;
             display: flex;
             flex-direction: column;
@@ -18,174 +30,313 @@
         }
         
         .container {
-            max-width: 800px;
+            max-width: 850px;
             width: 100%;
         }
 
-        .card { 
-            background: white; 
-            padding: 30px; 
-            border-radius: 20px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-            margin-bottom: 20px;
-            border: 1px solid rgba(200, 200, 200, 0.4);
+        /* Header Section */
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
         }
 
-        h1, h2, h3 { 
-            color: #11288f; 
+        .page-header h1 {
+            color: var(--primary-blue);
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .page-header p {
+            color: #64748b;
+            font-size: 16px;
+        }
+
+        /* Card Styling */
+        .card { 
+            background: var(--card-bg); 
+            padding: 35px; 
+            border-radius: 16px; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+        }
+
+        h2 { 
+            color: var(--text-heading); 
             margin-top: 0;
+            font-size: 22px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
-        h1 { text-align: center; color: #FF8C00; }
+        h3 {
+            color: var(--primary-blue);
+            font-size: 18px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        p, li { font-size: 15px; }
         
         .highlight {
-            color: #FF8C00;
-            font-weight: bold;
+            color: var(--primary-orange);
+            font-weight: 700;
+            background: #fff7ed;
+            padding: 2px 6px;
+            border-radius: 4px;
         }
 
+        /* Step-by-Step List */
+        .steps-list {
+            padding-left: 20px;
+        }
+        .steps-list > li {
+            margin-bottom: 15px;
+        }
+        .steps-list ul {
+            margin-top: 8px;
+            background: #f1f5f9;
+            padding: 15px 15px 15px 35px;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary-blue);
+        }
+        .steps-list ul li {
+            margin-bottom: 6px;
+        }
+        .steps-list ul li:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Roll Number Breakdown Badges */
         .roll-breakdown {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            margin: 15px 0;
-            font-family: monospace;
-            font-size: 18px;
-            justify-content: center;
+            gap: 12px;
+            margin: 20px 0;
         }
 
         .roll-part {
-            background: #f4f4f4;
-            padding: 10px 15px;
-            border-radius: 10px;
+            background: #f1f5f9;
+            padding: 12px 18px;
+            border-radius: 12px;
             text-align: center;
-            border: 2px solid #ddd;
+            border: 1px solid var(--border-color);
+            flex: 1;
+            min-width: 100px;
+            font-size: 20px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 700;
+            color: var(--primary-blue);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
         
         .roll-part span {
             display: block;
             font-size: 12px;
-            color: #666;
-            margin-top: 5px;
-            font-family: sans-serif;
+            color: #64748b;
+            margin-top: 6px;
+            font-family: -apple-system, sans-serif;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Info Alert Boxes */
+        .info-alert {
+            background-color: #fff7ed;
+            border-left: 4px solid var(--primary-orange);
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 0 8px 8px 0;
+            font-size: 14px;
+        }
+
+        /* Tables */
+        .grid-tables {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
         }
 
         table {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
         }
 
         th, td {
-            padding: 12px;
+            padding: 12px 15px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
         }
 
         th {
-            background-color: #f8f9fa;
-            color: #11288f;
+            background-color: #f8fafc;
+            color: var(--text-heading);
+            font-weight: 600;
         }
 
-        .back-btn {
-            display: inline-block;
-            padding: 10px 20px;
-            border-radius: 50px;
-            background: linear-gradient(135deg, #FFA500, #FF8C00);
-            color: white;
+        td:first-child {
+            font-weight: 700;
+            color: var(--primary-blue);
+            width: 25%;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        tr:hover td {
+            background-color: #f1f5f9;
+        }
+
+        .table-subheader {
+            background-color: #e2e8f0;
+            color: var(--text-heading);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
             text-decoration: none;
-            font-weight: bold;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 10px rgba(255, 140, 0, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
         }
 
-        .back-btn:hover {
-            background: linear-gradient(135deg, #FF8C00, #FFA500);
+        .btn-primary {
+            background-color: var(--secondary-blue);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
         }
 
-        .grid-tables {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
+        .btn-primary:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
         }
 
-        .table-wrapper {
-            flex: 1;
-            min-width: 300px;
+        .btn-back {
+            background-color: white;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            margin-bottom: 25px;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .btn-back:hover {
+            background-color: #f1f5f9;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .card { padding: 20px; }
+            .roll-part { min-width: 45%; }
+            .page-header h1 { font-size: 26px; }
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <a href="index.html" class="back-btn">Back to App</a>
+        <a href="index.html" class="btn btn-back">← Back to App</a>
+
+        <div class="page-header">
+            <h1>Help & Guide</h1>
+            <p>Everything you need to master the Aditya Student Photos search tool.</p>
+        </div>
 
         <div class="card">
-            <h1>📖 How to Use the App</h1>
-            <p>Welcome to Aditya Student Photos! This tool makes it easy to find student photos using their roll numbers or names.</p>
-            <ol>
-                <li><strong>Select your College:</strong> Choose between AU (Aditya University), AEC, or ACET using the buttons at the top.</li>
-                <li><strong>Enter your search:</strong>
+            <h2>🎯 How to Search</h2>
+            <ol class="steps-list">
+                <li><strong>Select your College:</strong> Choose between AU (Aditya University), AEC, or ACET using the toggle buttons at the top of the main page.</li>
+                <li><strong>Enter your search query:</strong>
                     <ul>
-                        <li>Type a <strong>full 10-digit roll number</strong> to see exactly one student.</li>
-                        <li>Type a <strong>Name</strong> (like "Sagar") to find students with that name.</li>
-                        <li>Type a <strong>Prefix</strong> to see an entire batch (All photos of a specific branch and year) photos at once.</li>
+                        <li><strong>Full Roll Number:</strong> Type exactly 10 characters (e.g., <code>23MH1A0501</code>) to load a specific student.</li>
+                        <li><strong>Name Search:</strong> Type a student's name (e.g., <code>Sagar</code>) to find matches.</li>
+                        <li><strong>Prefix Search:</strong> Type the starting characters of a roll number to load an entire class batch at once (explained below).</li>
                     </ul>
                 </li>
-                <li><strong>Click Generate Photos:</strong> The app will automatically find the photos, student names, and their branches.</li>
+                <li><strong>Click Generate:</strong> Check the agreement box, hit generate, and the app will do the rest!</li>
             </ol>
         </div>
 
         <div class="card">
-            <h2>🧩 What is a "Prefix"?</h2>
-            <p>A prefix is just the <strong>starting part</strong> of a roll number. </p>
-            <p>Instead of typing >60 different roll numbers to see your entire class or branch, you only need to type the first 7 or 8 characters that your whole class shares.</p>
+            <h2>🚀 What is a "Prefix Search"?</h2>
+            <p>Think of a prefix as a shortcut. Instead of searching for 60 students one by one, you just type the part of the roll number that the whole class shares.</p>
             
             <p><strong>For AEC / ACET Students:</strong></p>
             <ul>
-                <li>If you are in ACET IT (2023 batch), your full roll number might be <code>23MH1A1202</code>.</li>
+                <li>If you are in ACET IT (2023 batch), your full roll number is something like <code>23MH1A1202</code>.</li>
                 <li>The prefix for your entire class is <span class="highlight">23MH1A12</span>.</li>
-                <li>If you type just <code>23MH1A12</code> and click search, the app will magically generate photos for every student from <code>01</code> to <code>the End</code> in your branch!</li>
+                <li>Searching for <code>23MH1A12</code> will instantly generate the entire IT batch.</li>
             </ul>
 
             <p><strong>For Aditya University (AU) Students:</strong></p>
             <ul>
-                <li>If you are in AU CSE (2024 batch), your full roll number might be <code>24B11CS001</code>.</li>
+                <li>If you are in AU CSE (2024 batch), your full roll number is something like <code>24B11CS001</code>.</li>
                 <li>The prefix for your entire class is <span class="highlight">24B11CS</span>.</li>
-                <li>If you type just <code>24B11CS</code> and click search, the app will magically generate photos for every student from <code>001</code> to <code>the End</code> in your branch!</li>
+                <li>Searching for <code>24B11CS</code> will instantly generate your entire CSE batch.</li>
             </ul>
         </div>
 
         <div class="card">
-            <h2>🔍 Understanding Roll Numbers</h2>
-            <p>Roll numbers look confusing, but they are just a secret code that tells us exactly when you joined, what campus you are in, and what you are studying.</p>
+            <h2>🧩 Understanding Roll Numbers</h2>
+            <p>Roll numbers are just codes that tell us your joining year, campus, and branch.</p>
 
             <h3>1. Traditional Format (AEC & ACET)</h3>
             <p>Example: <strong>23MH1A1202</strong></p>
             <div class="roll-breakdown">
-                <div class="roll-part">23 <span>Joining Year (2023)</span></div>
+                <div class="roll-part">23 <span>Year (2023)</span></div>
                 <div class="roll-part">MH <span>Campus (ACET)</span></div>
-                <div class="roll-part">1A <span>Course (B.Tech Regular)</span></div>
+                <div class="roll-part">1A <span>Course (Regular)</span></div>
                 <div class="roll-part">12 <span>Branch (IT)</span></div>
-                <div class="roll-part">02 <span>Student Number</span></div>
+                <div class="roll-part">02 <span>Student No.</span></div>
             </div>
-            <p><em>Note: Lateral Entry students will have "5A" instead of "1A" (e.g., 24MH5A1201).</em></p>
+            <div class="info-alert">
+                <strong>Lateral Entry Note (AEC/ACET):</strong> LE students will have <strong>5A</strong> instead of 1A (Example: 24MH<strong>5A</strong>1201).
+            </div>
 
             <h3>2. Aditya University Format (AU)</h3>
             <p>Example: <strong>24B11CS001</strong></p>
             <div class="roll-breakdown">
-                <div class="roll-part">24 <span>Joining Year (2024)</span></div>
+                <div class="roll-part">24 <span>Year (2024)</span></div>
                 <div class="roll-part">B11 <span>Program (B.Tech)</span></div>
                 <div class="roll-part">CS <span>Branch (CSE)</span></div>
-                <div class="roll-part">001 <span>Student Number</span></div>
+                <div class="roll-part">001 <span>Student No.</span></div>
+            </div>
+            <div class="info-alert">
+                <strong>Lateral Entry Note (AU):</strong> LE students will have <strong>B21</strong> instead of B11 (Example: 25<strong>B21</strong>CS001).
             </div>
         </div>
 
         <div class="card">
             <h2>🏫 Branch Codes Dictionary</h2>
-            <p>Use these tables to figure out the code for your specific department.</p>
+            <p>Use these reference tables to easily find the code for your specific department.</p>
 
             <div class="grid-tables">
-                <div class="table-wrapper">
+                <!-- AEC/ACET Table -->
+                <div>
                     <h3>AEC / ACET Codes (Numbers)</h3>
                     <table>
                         <tr><th>Code</th><th>Branch Name</th></tr>
@@ -199,17 +350,17 @@
                         <tr><td>44</td><td>Data Science (DS)</td></tr>
                         <tr><td>49</td><td>Internet of Things (IoT)</td></tr>
                         <tr><td>61</td><td>Artificial Intelligence (AIML)</td></tr>
-                        <tr><td>26</td><td>Mining</td></tr>
-                        <tr><td>27</td><td>Petroleum (PT)</td></tr>
-                        <tr><td>00</td><td>Pharmacy</td></tr>
+                        <tr><td>26</td><td>Mining Engineering</td></tr>
+                        <tr><td>27</td><td>Petroleum Technology (PT)</td></tr>
                     </table>
                 </div>
 
-                <div class="table-wrapper">
+                <!-- AU Table -->
+                <div>
                     <h3>Aditya University Codes (Letters)</h3>
                     <table>
                         <!-- B.Tech Programs Sub-header -->
-                        <tr><th colspan="2" style="text-align: center; font-size: 15px;">B.Tech Programs</th></tr>
+                        <tr><th colspan="2" class="table-subheader">B.Tech Programs</th></tr>
                         <tr><td>CS</td><td>Computer Science (CSE)</td></tr>
                         <tr><td>DS</td><td>(CSE) Data Science</td></tr>
                         <tr><td>AI</td><td>Artificial Intelligence (AIML)</td></tr>
@@ -223,7 +374,7 @@
                         <tr><td>PT</td><td>Petroleum Technology</td></tr>
                         
                         <!-- Other Programs Sub-header -->
-                        <tr><th colspan="2" style="text-align: center; font-size: 15px;">Other Programs</th></tr>
+                        <tr><th colspan="2" class="table-subheader">Other Programs</th></tr>
                         <tr><td>MC</td><td>Master of Computer Apps (MCA)</td></tr>
                         <tr><td>MB</td><td>Master of Business Admin (MBA)</td></tr>
                         <tr><td>BB</td><td>Bachelor of Business Admin (BBA)</td></tr>
@@ -232,8 +383,8 @@
             </div>
         </div>
 
-        <div style="text-align: center; margin-bottom: 40px;">
-            <a href="index.html" class="back-btn">Go Try It Out!</a>
+        <div style="text-align: center; margin: 40px 0;">
+            <a href="index.html" class="btn btn-primary">Try searching now</a>
         </div>
     </div>
 
