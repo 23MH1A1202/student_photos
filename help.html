@@ -154,6 +154,7 @@
             margin-top: 15px;
             border-radius: 0 8px 8px 0;
             font-size: 14px;
+            line-height: 1.8;
         }
 
         /* Tables */
@@ -294,9 +295,9 @@
 
             <p><strong>For Aditya University (AU) Students:</strong></p>
             <ul>
-                <li>If you are in AU CSE (2024 batch), your full roll number is something like <code>24B11CS001</code>.</li>
-                <li>The prefix for your entire class is <span class="highlight">24B11CS</span>.</li>
-                <li>Searching for <code>24B11CS</code> will instantly generate your entire CSE batch.</li>
+                <li>If you are in AU B.Tech CSE (2024 batch), your prefix is <span class="highlight">24B11CS</span>.</li>
+                <li>If you are in AU M.Tech VLSI (2025 batch), your prefix is <span class="highlight">25M11VD</span>.</li>
+                <li>Searching for your prefix will instantly generate your entire class batch!</li>
             </ul>
         </div>
 
@@ -318,15 +319,18 @@
             </div>
 
             <h3>2. Aditya University Format (AU)</h3>
-            <p>Example: <strong>24B11CS001</strong></p>
+            <p>Example: <strong>24B11CS001</strong> (B.Tech) or <strong>25M11VD001</strong> (M.Tech)</p>
             <div class="roll-breakdown">
-                <div class="roll-part">24 <span>Year (2024)</span></div>
-                <div class="roll-part">B11 <span>Program (B.Tech)</span></div>
-                <div class="roll-part">CS <span>Branch (CSE)</span></div>
+                <div class="roll-part">25 <span>Year (2025)</span></div>
+                <div class="roll-part">M11 <span>Program Code</span></div>
+                <div class="roll-part">VD <span>Branch (VLSI)</span></div>
                 <div class="roll-part">001 <span>Student No.</span></div>
             </div>
             <div class="info-alert">
-                <strong>Lateral Entry Note (AU):</strong> LE students will have <strong>B21</strong> instead of B11 (Example: 25<strong>B21</strong>CS001).
+                <strong>AU Program Codes Guide:</strong><br>
+                <strong>B11</strong> = B.Tech (Regular)<br>
+                <strong>B21</strong> = B.Tech (Lateral Entry)<br>
+                <strong>M11</strong> = M.Tech (Postgraduate - <em>No Lateral Entries</em>)
             </div>
         </div>
 
@@ -372,6 +376,15 @@
                         <tr><td>AE</td><td>Agriculture Engineering</td></tr>
                         <tr><td>MN</td><td>Mining Engineering</td></tr>
                         <tr><td>PT</td><td>Petroleum Technology</td></tr>
+
+                        <!-- M.Tech Programs Sub-header -->
+                        <tr><th colspan="2" class="table-subheader">M.Tech Programs</th></tr>
+                        <tr><td>CS</td><td>Computer Science (CSE)</td></tr>
+                        <tr><td>AI</td><td>CSE (AIML)</td></tr>
+                        <tr><td>ET</td><td>Energy Science and Technology</td></tr>
+                        <tr><td>ST</td><td>Structural Engineering</td></tr>
+                        <tr><td>PD</td><td>Power Electronics and Drives</td></tr>
+                        <tr><td>VD</td><td>VLSI Design</td></tr>
                         
                         <!-- Other Programs Sub-header -->
                         <tr><th colspan="2" class="table-subheader">Other Programs</th></tr>
