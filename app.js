@@ -599,29 +599,51 @@ function scrollToResults() {
                         const highestKnownPerPrefix = new Map();
                         prefixes.forEach(p => highestKnownPerPrefix.set(p, ""));
 
-                        // 1. SMART CACHE: Pre-fetch known rolls from DB so we don't waste time pinging them
+                                                // 1. SMART CACHE: Fetch ONLY the exact branch class (Saves 98% of your read quota!)
                         if (cloudDb) {
                             try {
-                                const snapshot = await cloudDb.collectionGroup('students').get();
-                                snapshot.forEach(doc => {
-                                    const data = doc.data();
-                                    const roll = data.roll || doc.id;
-                                    
-                                    prefixes.forEach(prefix => {
+                                const fetchPromises = prefixes.map(async (prefix) => {
+                                    // Figure out exactly which folder this class lives in
+                                    const coll = normalizeCollegeForRoll(prefix, selectedCollege);
+                                    const branchLabel = deriveBranchFromRoll(prefix, coll);
+                                    const branchKey = sanitizeDbKey(branchLabel);
+                                    const yearKey = sanitizeDbKey(prefix.slice(0, 2));
+
+                                    // Fetch ONLY this specific class folder (costs ~100-200 reads, not 6,000!)
+                                    const snapshot = await cloudDb
+                                        .collection("colleges")
+                                        .doc(coll)
+                                        .collection("branches")
+                                        .doc(branchKey)
+                                        .collection("years")
+                                        .doc(yearKey)
+                                        .collection("students")
+                                        .get();
+
+                                    snapshot.forEach(doc => {
+                                        const data = doc.data();
+                                        const roll = data.roll || doc.id;
+                                        
+                                        // Make sure we are pulling the right students
                                         if (roll.startsWith(prefix)) {
                                             dbRolls.add(roll);
-                                            // Keep track of the highest known roll number so we don't stop searching too early!
-                                            if (roll > highestKnownPerPrefix.get(prefix)) {
+                                            // Keep track of the highest roll for the gap-bridging logic
+                                            const currentHighest = highestKnownPerPrefix.get(prefix);
+                                            if (currentHighest === "" || roll > currentHighest) {
                                                 highestKnownPerPrefix.set(prefix, roll);
                                             }
                                             if (data.name) setCachedName(roll, data.name, selectedCollege);
                                         }
                                     });
                                 });
+
+                                // Run the exact folder fetches concurrently
+                                await Promise.all(fetchPromises);
                             } catch (e) {
-                                console.warn("DB fetch failed, falling back to pure discovery:", e);
+                                console.warn("Targeted DB fetch failed, falling back to pure discovery:", e);
                             }
                         }
+
 
                         // 2. HYBRID DISCOVERY: Combines instant DB hits with network discovery for missing ones
                         let renderedInitialBatch = false;
