@@ -83,6 +83,29 @@ function scrollToBottom() {
         function getNameCacheKey(roll, college = selectedCollege) {
             return `${normalizeCollegeForRoll(roll, college)}:${roll}`;
         }
+
+async function fetchSystemNote(roll, college, branch) {
+    try {
+        if (!cloudDb) return null;
+        const series = roll.substring(0, 5); // e.g., '26P31' or '26MAU'
+
+        // 1. Check if there's a note for this exact roll number
+        let doc = await cloudDb.collection('system_notes').doc(roll).get();
+        if (doc.exists) return doc.data().note;
+
+        // 2. Check if there's a note for this specific branch
+        doc = await cloudDb.collection('system_notes').doc(`${college}_branch_${branch}`).get();
+        if (doc.exists) return doc.data().note;
+
+        // 3. Check if there's a note for this roll series
+        doc = await cloudDb.collection('system_notes').doc(`${college}_series_${series}`).get();
+        if (doc.exists) return doc.data().note;
+
+    } catch (e) {
+        console.error("Error fetching system note:", e);
+    }
+    return null;
+}
         // In main app.js - When displaying a student profile:
 async function fetchSystemNoteForStudent(studentData) {
     const roll = studentData.roll;
@@ -518,20 +541,17 @@ async function getMappedBranchName(originalCode) {
 
        
 
-        function createPhotoBox(roll, imageUrl, nameHtml, branchText = null) {
+  function createPhotoBox(roll, imageUrl, nameHtml, rawBranchCode = null) {
     const box = document.createElement("div");
     box.className = "box";
     
-    // Generate a unique ID for this branch span
     const branchSpanId = `branch-span-${roll}`;
+    const noteContainerId = `note-container-${roll}`;
     
-    // Determine initial display branch text
-    let initialBranch = branchText;
+    let initialBranch = rawBranchCode;
     if (!initialBranch) {
-        // Derive default branch from roll number if not provided explicitly
-        initialBranch = (selectedCollege === "AU" || roll.includes("B11") || roll.includes("M11")) 
-            ? (auBranchMap?.[roll.slice(5, 7)] || roll.slice(5, 7) || "UNKNOWN")
-            : (branchMap?.[roll.slice(6, 8)] || roll.slice(6, 8) || "UNKNOWN");
+        let isAU = selectedCollege === "AU" || roll.includes("B11") || roll.includes("M11") || roll.includes("M12") || roll.includes("B12") || roll.includes("B21");
+        initialBranch = isAU ? (auBranchMap?.[roll.slice(5, 7)] || roll.slice(5, 7) || "UNKNOWN") : (branchMap?.[roll.slice(6, 8)] || roll.slice(6, 8) || "UNKNOWN");
     }
 
     box.innerHTML = `
@@ -542,14 +562,27 @@ async function getMappedBranchName(originalCode) {
         </div>
         ${nameHtml}
         <div style="margin-top: 5px;"><strong>Branch:</strong> <span id="${branchSpanId}">${initialBranch}</span></div>
+        <div id="${noteContainerId}"></div>
     `;
 
-    // Asynchronously update with your custom admin mapping from Firestore
+    // 1. Resolve Branch Mapping asynchronously
     getMappedBranchName(initialBranch).then(customName => {
         const branchEl = document.getElementById(branchSpanId);
-        if (branchEl) {
-            branchEl.innerText = customName;
-        }
+        if (branchEl) branchEl.innerText = customName;
+        
+        // 2. Fetch and display System Note once branch context is ready
+        fetchSystemNote(roll, selectedCollege, initialBranch).then(noteText => {
+            if (noteText) {
+                const noteEl = document.getElementById(noteContainerId);
+                if (noteEl) {
+                    noteEl.innerHTML = `
+                        <div style="background-color: #fff3cd; color: #856404; padding: 8px; border-radius: 6px; margin-top: 10px; font-size: 12px; text-align: left; border: 1px solid #ffeeba;">
+                            <strong>Admin Note:</strong> ${noteText}
+                        </div>
+                    `;
+                }
+            }
+        });
     });
 
     return box;
