@@ -1257,7 +1257,31 @@ function showInfoPopup() {
 function closeInfoPopup() {
     document.getElementById('info-overlay').style.display = 'none';
 }
+function renderStudentProfile(studentData) {
+  const profileContainer = document.getElementById('student-profile');
+  
+  let html = `
+    <h2>${studentData.name}</h2>
+    <p>Roll No: ${studentData.rollNumber}</p>
+    <p>Branch: <span id="display-branch">${studentData.branchCode}</span></p>
+  `;
 
+  // Conditionally render the custom note if it exists in the database
+  if (studentData.custom_note && studentData.custom_note.trim() !== "") {
+    html += `
+      <div style="background-color: #fff3cd; color: #856404; padding: 10px; border-radius: 5px; margin-top: 15px;">
+        <strong>Admin Note:</strong> ${studentData.custom_note}
+      </div>
+    `;
+  }
+
+  profileContainer.innerHTML = html;
+
+  // Resolve the custom branch name asynchronously after basic render
+  getDisplayBranchName(studentData.branchCode).then(customName => {
+      document.getElementById('display-branch').innerText = customName;
+  });
+}
 // ✅ Enhanced Background Request to Wake Up Render Server
 function pingRenderServer(retries = 6) {
     const statusDot = document.getElementById('api-status-dot');
