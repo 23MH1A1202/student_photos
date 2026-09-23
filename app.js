@@ -104,6 +104,18 @@ async function fetchSystemNoteForStudent(studentData) {
 
     return null; // No notes
 }
+
+async function getMappedBranchName(originalCode) {
+    try {
+        const doc = await db.collection('branch_mappings').doc(originalCode).get();
+        if (doc.exists) {
+            return doc.data().customName; // Returns "New Joining"
+        }
+    } catch (e) {
+        console.error("Mapping fetch error", e);
+    }
+    return originalCode; // Fallback to original if not mapped
+}
         function sanitizeDbKey(value, fallback = "UNKNOWN") {
             const clean = String(value || "").trim().toUpperCase();
             if (!clean) return fallback;
