@@ -105,18 +105,28 @@ async function fetchSystemNoteForStudent(studentData) {
     return null; // No notes
 }
 
+// Fetch custom branch mapping from Firestore with debugging
 async function getMappedBranchName(originalCode) {
     try {
-        const doc = await db.collection('branch_mappings').doc(originalCode).get();
+        if (!cloudDb) {
+            console.warn("cloudDb is not initialized!");
+            return originalCode;
+        }
+        
+        const docRef = cloudDb.collection('branch_mappings').doc(originalCode);
+        const doc = await docRef.get();
+        
         if (doc.exists) {
-            return doc.data().customName; // Returns "New Joining"
+            console.log(`✅ Branch Mapped: "${originalCode}" -> "${doc.data().customName}"`);
+            return doc.data().customName; 
+        } else {
+            console.log(`ℹ️ No custom mapping found in Firestore for branch code: "${originalCode}"`);
         }
     } catch (e) {
-        console.error("Mapping fetch error", e);
+        console.error("❌ Mapping fetch error from Firestore:", e);
     }
-    return originalCode; // Fallback to original if not mapped
+    return originalCode; 
 }
-
 
         function sanitizeDbKey(value, fallback = "UNKNOWN") {
             const clean = String(value || "").trim().toUpperCase();
