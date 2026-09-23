@@ -24,6 +24,22 @@
         }
         * { box-sizing: border-box; }
 
+        .loader {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 8px;
+}
+
+@keyframes spin { 
+  0% { transform: rotate(0deg); } 
+  100% { transform: rotate(360deg); } 
+}
         /* Header */
         header {
             background: #ffffff;
@@ -259,7 +275,7 @@
                 <input type="password" id="adminPassword" placeholder="••••••••" onkeypress="if(event.key==='Enter') adminLogin()">
             </div>
             <button id="auth-btn" onclick="authenticateAdmin()">
-              <span id="btn-text">Authenticate</span>
+              <span id="btn-text">Login</span>
               <span id="btn-spinner" style="display: none;" class="loader"></span>
             </button>
             <div id="loginError" class="error-text">Invalid credentials or unauthorized access.</div>
@@ -323,7 +339,23 @@
             <!-- NEW: Reset Button -->
             <button class="btn btn-danger" style="padding: 10px 15px;" onclick="resetFilters()">Reset</button>
         </div>
-
+        <div class="admin-section">
+  <h3>Update Branch Mapping</h3>
+  <input type="text" id="branch-code" placeholder="Branch Code (e.g., CQ)">
+  <input type="text" id="branch-custom-name" placeholder="Custom Name (e.g., CQ -- New Joining)">
+  <button onclick="updateBranchMapping()">Save Mapping</button>
+</div>
+        <div class="admin-section">
+  <h3>Merge Temporary Roll Number</h3>
+  <input type="text" id="old-roll" placeholder="Old Roll No (e.g., 24XXCQ)">
+  <input type="text" id="new-roll" placeholder="New Permanent Roll No">
+  <button onclick="mergeStudentRecords()">Merge & Approve</button>
+</div>
+<div>
+  <label>Custom Note (Visible to User):</label>
+  <textarea id="student-custom-note" placeholder="E.g., Temporary roll number pending university update."></textarea>
+  <button onclick="saveStudentNote()">Save Note</button>
+</div>
         <!-- Table Area -->
         <div class="table-container">
             <table>
@@ -416,25 +448,51 @@
                 errDiv.innerText = error.message;
             });
         }
-        async function authenticateAdmin() {
+
+        // Save the mapping to the database
+async function updateBranchMapping() {
+  const code = document.getElementById('branch-code').value.toUpperCase();
+  const name = document.getElementById('branch-custom-name').value;
+  
+  if(!code || !name) return alert("Please fill both fields.");
+
+  try {
+    // Assuming you have a 'branch_mappings' collection
+    await db.collection('branch_mappings').doc(code).set({ customName: name });
+    alert("Branch mapping updated successfully!");
+  } catch (error) {
+    console.error("Error updating mapping:", error);
+  }
+}
+
+// Function to call before displaying branch names in the UI
+async function getDisplayBranchName(originalCode) {
+  const doc = await db.collection('branch_mappings').doc(originalCode).get();
+  if (doc.exists) {
+    return doc.data().customName; // Returns "CQ -- New Joining"
+  }
+  return originalCode; // Fallback to original if no custom name exists
+}
+ async function authenticateAdmin() {
   const btn = document.getElementById('auth-btn');
   const spinner = document.getElementById('btn-spinner');
   const text = document.getElementById('btn-text');
 
-  // UI Loading State
+  // Trigger Loader
   btn.disabled = true;
   text.innerText = "Authenticating...";
   spinner.style.display = "inline-block";
 
   try {
-    // Your authentication logic (e.g., Firebase Auth or API call)
-    await loginUser(); 
+    // Replace with your actual Firebase Auth or login function
+    await firebase.auth().signInWithEmailAndPassword(email, password);
+    // Redirect or load admin dashboard
   } catch (error) {
-    console.error("Login failed", error);
+    alert("Login failed: " + error.message);
   } finally {
-    // Reset UI
+    // Reset Loader
     btn.disabled = false;
-    text.innerText = "Authenticate";
+    text.innerText = "Login";
     spinner.style.display = "none";
   }
 }
@@ -448,7 +506,18 @@
             }
             return roll.substring(4, 6) === "5A" || roll.substring(4, 5) === "5";
         }
-
+        async function saveStudentNote(currentRollNumber) {
+  const note = document.getElementById('student-custom-note').value;
+  
+  try {
+    await db.collection('students').doc(currentRollNumber).update({
+      custom_note: note
+    });
+    alert("Note saved successfully.");
+  } catch (error) {
+    console.error("Error saving note:", error);
+  }
+}
         async function fetchAdminData() {
             try {
                 const snapshot = await db.collectionGroup('students').get();
@@ -658,6 +727,43 @@
             currentPage += direction;
             renderTable();
         }
+        async function mergeStudentRecords() {
+  const oldRoll = document.getElementById('old-roll').value.toUpperCase();
+  const newRoll = document.getElementById('new-roll').value.toUpperCase();
+
+  if(!oldRoll || !newRoll) return alert("Enter both roll numbers.");
+
+  const oldDocRef = db.collection('students').doc(oldRoll);
+  const newDocRef = db.collection('students').doc(newRoll);
+
+  try {
+    await db.runTransaction(async (transaction) => {
+      const oldDoc = await transaction.get(oldDocRef);
+      
+      if (!oldDoc.exists) {
+        throw "Temporary roll number not found!";
+      }
+
+      // 1. Get old data and update the roll number field
+      const studentData = oldDoc.data();
+      studentData.rollNumber = newRoll; 
+      
+      // 2. Remove the custom note if it's no longer a temporary candidate
+      studentData.custom_note = firebase.firestore.FieldValue.delete();
+
+      // 3. Write data to the new document ID
+      transaction.set(newDocRef, studentData);
+
+      // 4. Delete the old document
+      transaction.delete(oldDocRef);
+    });
+
+    alert(`Successfully merged ${oldRoll} into ${newRoll}`);
+    
+  } catch (error) {
+    alert("Merge failed: " + error);
+  }
+}
 
         function updatePaginationUI() {
             const totalPages = Math.ceil(filteredData.length / rowsPerPage) || 1;
