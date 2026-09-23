@@ -83,7 +83,27 @@ function scrollToBottom() {
         function getNameCacheKey(roll, college = selectedCollege) {
             return `${normalizeCollegeForRoll(roll, college)}:${roll}`;
         }
+        // In main app.js - When displaying a student profile:
+async function fetchSystemNoteForStudent(studentData) {
+    const roll = studentData.roll;
+    const college = studentData.college;
+    const branch = studentData.branch;
+    const series = roll.substring(0, 5); // e.g., '26P31'
 
+    // Check specific roll first
+    let doc = await db.collection('system_notes').doc(roll).get();
+    if(doc.exists) return doc.data().note;
+
+    // Then check Branch rule
+    doc = await db.collection('system_notes').doc(`${college}_branch_${branch}`).get();
+    if(doc.exists) return doc.data().note;
+
+    // Then check Series rule
+    doc = await db.collection('system_notes').doc(`${college}_series_${series}`).get();
+    if(doc.exists) return doc.data().note;
+
+    return null; // No notes
+}
         function sanitizeDbKey(value, fallback = "UNKNOWN") {
             const clean = String(value || "").trim().toUpperCase();
             if (!clean) return fallback;
