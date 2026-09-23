@@ -116,6 +116,8 @@ async function getMappedBranchName(originalCode) {
     }
     return originalCode; // Fallback to original if not mapped
 }
+
+
         function sanitizeDbKey(value, fallback = "UNKNOWN") {
             const clean = String(value || "").trim().toUpperCase();
             if (!clean) return fallback;
@@ -506,21 +508,42 @@ async function getMappedBranchName(originalCode) {
 
        
 
-        
-        function createPhotoBox(roll, imageUrl, nameHtml) {
-            const box = document.createElement("div");
-            box.className = "box";
-            box.innerHTML = `
-                <h3>${roll}</h3>
-                <div class="photo-shell is-loading">
-                    <div class="photo-loader" aria-hidden="true"></div>
-                    <!-- FIX: Added loading="lazy" to prevent network freezing -->
-                    <img class="photo" decoding="async" loading="lazy" src="${imageUrl}" alt="Student Photo" onload="handlePhotoLoad(this)" onerror="handlePhotoError(this)">
-                </div>
-                ${nameHtml}
-            `;
-            return box;
+        function createPhotoBox(roll, imageUrl, nameHtml, branchText = null) {
+    const box = document.createElement("div");
+    box.className = "box";
+    
+    // Generate a unique ID for this branch span
+    const branchSpanId = `branch-span-${roll}`;
+    
+    // Determine initial display branch text
+    let initialBranch = branchText;
+    if (!initialBranch) {
+        // Derive default branch from roll number if not provided explicitly
+        initialBranch = (selectedCollege === "AU" || roll.includes("B11") || roll.includes("M11")) 
+            ? (auBranchMap?.[roll.slice(5, 7)] || roll.slice(5, 7) || "UNKNOWN")
+            : (branchMap?.[roll.slice(6, 8)] || roll.slice(6, 8) || "UNKNOWN");
+    }
+
+    box.innerHTML = `
+        <h3>${roll}</h3>
+        <div class="photo-shell is-loading">
+            <div class="photo-loader" aria-hidden="true"></div>
+            <img class="photo" decoding="async" loading="lazy" src="${imageUrl}" alt="Student Photo" onload="handlePhotoLoad(this)" onerror="handlePhotoError(this)">
+        </div>
+        ${nameHtml}
+        <div style="margin-top: 5px;"><strong>Branch:</strong> <span id="${branchSpanId}">${initialBranch}</span></div>
+    `;
+
+    // Asynchronously update with your custom admin mapping from Firestore
+    getMappedBranchName(initialBranch).then(customName => {
+        const branchEl = document.getElementById(branchSpanId);
+        if (branchEl) {
+            branchEl.innerText = customName;
         }
+    });
+
+    return box;
+}
 
 
        // NEW UX FEATURE: Smooth scroll to results
@@ -840,10 +863,11 @@ function scrollToResults() {
                             const leBadge = isLE ? ` <span style="color: #f97316; font-weight: 800; font-size: 13px; margin-left: 4px;">(LE)</span>` : "";
 
                             const box = createPhotoBox(
-                                roll,
-                                imageUrl,
-                                `<div class="student-name">${name}</div><div style="margin-top: 5px;"><strong>Branch:</strong> ${branch}${leBadge}</div><div style="margin-top: 2px;"><strong>Campus:</strong> ${campus || (campusNames[series] || series)}</div>`
-                            );
+                                    roll,
+                                    imageUrl,
+                                    `<div class="student-name">${name}</div><div style="margin-top: 2px;"><strong>Campus:</strong> ${campus || (campusNames[series] || series)}</div>`,
+                                    branch + (isLE ? " (LE)" : "")
+                                );
                             container.appendChild(box);
                             observer.observe(box);
                         });
