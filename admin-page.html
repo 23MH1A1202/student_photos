@@ -258,7 +258,10 @@
                 <label>Password</label>
                 <input type="password" id="adminPassword" placeholder="••••••••" onkeypress="if(event.key==='Enter') adminLogin()">
             </div>
-            <button class="btn" style="width: 100%; margin-top: 10px;" onclick="adminLogin()">Authenticate</button>
+            <button id="auth-btn" onclick="authenticateAdmin()">
+              <span id="btn-text">Authenticate</span>
+              <span id="btn-spinner" style="display: none;" class="loader"></span>
+            </button>
             <div id="loginError" class="error-text">Invalid credentials or unauthorized access.</div>
         </div>
     </div>
@@ -413,6 +416,28 @@
                 errDiv.innerText = error.message;
             });
         }
+        async function authenticateAdmin() {
+  const btn = document.getElementById('auth-btn');
+  const spinner = document.getElementById('btn-spinner');
+  const text = document.getElementById('btn-text');
+
+  // UI Loading State
+  btn.disabled = true;
+  text.innerText = "Authenticating...";
+  spinner.style.display = "inline-block";
+
+  try {
+    // Your authentication logic (e.g., Firebase Auth or API call)
+    await loginUser(); 
+  } catch (error) {
+    console.error("Login failed", error);
+  } finally {
+    // Reset UI
+    btn.disabled = false;
+    text.innerText = "Authenticate";
+    spinner.style.display = "none";
+  }
+}
         function adminLogout() { auth.signOut(); }
 
         // Helper to check LE status for exact mapping
