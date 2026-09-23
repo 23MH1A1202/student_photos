@@ -874,6 +874,7 @@ async function getDisplayBranchName(originalCode) {
                 
                 currentPage = 1;
                 renderTable();
+                detectDuplicatesForMerge();
             } catch (error) {
                 console.error("Fetch error:", error);
                 alert("Failed to load records from Firestore. Make sure Firestore rules are updated.");
