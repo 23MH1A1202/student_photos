@@ -367,38 +367,7 @@
             </div>
         </div>
 
-        <!-- Filters Bar -->
-        <div class="filters-bar">
-            <input type="text" id="tableSearch" class="search-box" placeholder="Search by Roll No or Name..." onkeyup="applyFilters()">
-            
-            <select id="filterCollege" class="filter-select" onchange="applyFilters()">
-                <option value="">All Colleges</option>
-            </select>
-            
-            <select id="filterBranch" class="filter-select" onchange="applyFilters()">
-                <option value="">All Branches</option>
-            </select>
-            
-            <select id="filterYear" class="filter-select" onchange="applyFilters()">
-                <option value="">All Years</option>
-            </select>
-
-            <select id="filterType" class="filter-select" onchange="applyFilters()">
-                <option value="">All Types (Reg/LE)</option>
-                <option value="Regular">Regular</option>
-                <option value="LE">Lateral Entry (LE)</option>
-            </select>
-
-            <select id="filterSort" class="filter-select" onchange="applyFilters()" style="border-color: #94a3b8; font-weight: 600;">
-                <option value="">Default Sort</option>
-                <option value="roll_asc">Roll Number (Ascending)</option>
-                <option value="roll_desc">Roll Number (Descending)</option>
-                <option value="latest">Latest Updated First</option>
-                <option value="oldest">Oldest Updated First</option>
-            </select>
-
-            <button class="btn btn-danger" style="padding: 10px 15px;" onclick="resetFilters()">Reset</button>
-        </div>
+     
 
         <!-- Admin Management Tools -->
         <div class="admin-tools-grid">
@@ -480,8 +449,88 @@
                     </table>
                 </div>
             </div>
+<!-- Tool 4: Permanent Branch Database Management -->
+<div class="tool-card">
+    <h3>
+        Database Branch Editor
+        <span style="font-size: 11px; background: #fee2e2; color: #ef4444; padding: 3px 6px; border-radius: 4px;">DANGER ZONE</span>
+    </h3>
+    <p style="font-size: 12px; color: #64748b; margin-top: -10px; margin-bottom: 15px;">Permanently modifies student paths in Firestore. Consumes Write Quota.</p>
+    
+    <div class="form-row">
+        <label>1. Scope (Optional)</label>
+        <select id="manage-branch-college">
+            <option value="">All Colleges</option>
+            <option value="AU">Aditya University (AU)</option>
+            <option value="AEC">AEC</option>
+            <option value="ACET">ACET</option>
+        </select>
+    </div>
+    
+    <div class="form-row">
+        <label>2. Target Branch to Modify</label>
+        <select id="manage-branch-select">
+            <option value="">-- Select Branch --</option>
+        </select>
+    </div>
+    
+    <div class="form-row">
+        <label>3. Action to Perform</label>
+        <select id="manage-branch-action" onchange="toggleManageBranchAction()">
+            <option value="rename">Rename / Change to New Code</option>
+            <option value="merge">Merge into Existing Branch</option>
+            <option value="delete">Delete All Records in Branch</option>
+        </select>
+    </div>
+    
+    <div class="form-row" id="manage-branch-input-row">
+        <label id="manage-branch-input-label">New Branch Code / Name</label>
+        <input type="text" id="manage-branch-input" placeholder="e.g., CSE-AIML">
+        <select id="manage-branch-target-select" style="display: none;">
+            <option value="">-- Select Destination Branch --</option>
+        </select>
+    </div>
+    
+    <button id="manage-branch-btn" class="btn btn-danger" style="width: 100%; background: #dc2626;" onclick="executeBranchManagement()">Execute Database Change</button>
+</div>
+
+
         </div>
 
+
+
+   <!-- Filters Bar -->
+        <div class="filters-bar">
+            <input type="text" id="tableSearch" class="search-box" placeholder="Search by Roll No or Name..." onkeyup="applyFilters()">
+            
+            <select id="filterCollege" class="filter-select" onchange="applyFilters()">
+                <option value="">All Colleges</option>
+            </select>
+            
+            <select id="filterBranch" class="filter-select" onchange="applyFilters()">
+                <option value="">All Branches</option>
+            </select>
+            
+            <select id="filterYear" class="filter-select" onchange="applyFilters()">
+                <option value="">All Years</option>
+            </select>
+
+            <select id="filterType" class="filter-select" onchange="applyFilters()">
+                <option value="">All Types (Reg/LE)</option>
+                <option value="Regular">Regular</option>
+                <option value="LE">Lateral Entry (LE)</option>
+            </select>
+
+            <select id="filterSort" class="filter-select" onchange="applyFilters()" style="border-color: #94a3b8; font-weight: 600;">
+                <option value="">Default Sort</option>
+                <option value="roll_asc">Roll Number (Ascending)</option>
+                <option value="roll_desc">Roll Number (Descending)</option>
+                <option value="latest">Latest Updated First</option>
+                <option value="oldest">Oldest Updated First</option>
+            </select>
+
+            <button class="btn btn-danger" style="padding: 10px 15px;" onclick="resetFilters()">Reset</button>
+        </div>
         <!-- Table Area -->
         <div class="table-container">
             <table>
@@ -728,7 +777,10 @@
             // Populate mapping and notes tools
             addOptions("mapping-branch-select", branches, "-- Select Branch --");
             addOptions("note-target-select", branches, "-- Select Branch --");
-            
+            // Add these two lines inside your populateDropdowns() function
+addOptions("manage-branch-select", branches, "-- Select Branch to Modify --");
+addOptions("manage-branch-target-select", branches, "-- Select Destination Branch --");
+
             const yearSelect = document.getElementById("filterYear");
             yearSelect.innerHTML = '<option value="">All Years</option>';
             [...years].sort((a, b) => b - a).forEach(val => {
@@ -738,6 +790,136 @@
                 yearSelect.appendChild(option);
             });
         }
+
+
+// --- Management Tool 4: Permanent Branch Database Management ---
+function toggleManageBranchAction() {
+    const action = document.getElementById('manage-branch-action').value;
+    const input = document.getElementById('manage-branch-input');
+    const select = document.getElementById('manage-branch-target-select');
+    const label = document.getElementById('manage-branch-input-label');
+    const inputRow = document.getElementById('manage-branch-input-row');
+
+    if (action === 'delete') {
+        inputRow.style.display = 'none';
+    } else {
+        inputRow.style.display = 'block';
+        if (action === 'rename') {
+            label.innerText = "New Branch Code / Name";
+            input.style.display = 'block';
+            select.style.display = 'none';
+        } else if (action === 'merge') {
+            label.innerText = "Select Destination Branch";
+            input.style.display = 'none';
+            select.style.display = 'block';
+        }
+    }
+}
+
+async function executeBranchManagement() {
+    const collegeFilter = document.getElementById('manage-branch-college').value;
+    const oldBranch = document.getElementById('manage-branch-select').value;
+    const action = document.getElementById('manage-branch-action').value;
+    
+    let newBranchName = "";
+    if (action === 'rename') {
+        newBranchName = document.getElementById('manage-branch-input').value.trim();
+    } else if (action === 'merge') {
+        newBranchName = document.getElementById('manage-branch-target-select').value;
+    }
+
+    if (!oldBranch) return alert("Please select a branch to modify.");
+    if (action !== 'delete' && !newBranchName) return alert("Please specify the destination branch name.");
+    if (oldBranch === newBranchName) return alert("Source and destination branch cannot be the same.");
+
+    // Isolate the students that are going to be affected
+    const targetStudents = allStudentsData.filter(s => 
+        s.branch === oldBranch && (collegeFilter === "" || s.college === collegeFilter)
+    );
+
+    if (targetStudents.length === 0) {
+        return alert(`No students found in branch "${oldBranch}"${collegeFilter ? ` for college ${collegeFilter}` : ''}.`);
+    }
+
+    // Safety Confirmation
+    const confirmMsg = action === 'delete' 
+        ? `⚠️ DANGER: Are you sure you want to PERMANENTLY DELETE ${targetStudents.length} student records from ${oldBranch}? This cannot be undone.`
+        : `Are you sure you want to permanently move ${targetStudents.length} students from "${oldBranch}" to "${newBranchName}"?`;
+
+    if (!confirm(confirmMsg)) return;
+
+    const btn = document.getElementById('manage-branch-btn');
+    const originalText = btn.innerText;
+    btn.innerText = `Processing ${targetStudents.length} records... Please wait.`;
+    btn.disabled = true;
+
+    try {
+        let batches = [];
+        let currentBatch = db.batch();
+        let operationCount = 0;
+
+        for (let student of targetStudents) {
+            const oldDocRef = db.doc(student.docPath);
+
+            if (action === 'delete') {
+                currentBatch.delete(oldDocRef);
+                operationCount++;
+            } else {
+                // Generates a URL-safe key for the new branch folder (e.g. CSE-AIML -> CSE_AIML)
+                const newBranchKey = newBranchName.replace(/[^A-Z0-9_-]+/gi, "_").replace(/^_+|_+$/g, "").toUpperCase();
+                
+                // Reconstruct exact nested path format
+                const newPath = `colleges/${student.college}/branches/${newBranchKey}/years/${student.year}/students/${student.roll}`;
+                const newDocRef = db.doc(newPath);
+
+                // Write full profile payload to new branch path
+                currentBatch.set(newDocRef, {
+                    roll: student.roll,
+                    name: student.name,
+                    college: student.college,
+                    branch: newBranchName,
+                    year: student.year,
+                    isLateralEntry: student.type === 'LE',
+                    entryType: student.type === 'LE' ? "LATERAL_ENTRY" : "REGULAR",
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+
+                // Delete old profile from old branch path
+                currentBatch.delete(oldDocRef);
+                operationCount += 2;
+            }
+
+            // Firestore limits batches to 500 operations. 
+            // 245 students * 2 ops (write+delete) = 490 ops.
+            if (operationCount >= 490) {
+                batches.push(currentBatch);
+                currentBatch = db.batch();
+                operationCount = 0;
+            }
+        }
+        
+        if (operationCount > 0) batches.push(currentBatch);
+
+        // Commit all batched requests synchronously
+        for (let b of batches) {
+            await b.commit();
+        }
+
+        alert(`Successfully processed ${targetStudents.length} records!`);
+        
+        // Force refresh UI to show the new data
+        localStorage.removeItem('adminDataCache'); 
+        fetchAdminData(); 
+        document.getElementById('manage-branch-input').value = "";
+        
+    } catch (error) {
+        console.error("Branch management error:", error);
+        alert("Failed to modify records. You may have exceeded your daily Firestore write quota.");
+    } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
+    }
+}
 
         // --- Management Tool 1: Branch Mapping ---
         async function updateBranchMapping() {
