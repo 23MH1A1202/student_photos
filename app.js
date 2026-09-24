@@ -19,6 +19,7 @@
         const nameCacheStore = loadNameCacheStore();
         const cloudNameLookupCache = new Map();
         const pendingCloudUpserts = new Map();
+        let dynamicBranchMap = {};
 
         const CLOUD_DB_CONFIG = {
             apiKey: "AIzaSyDuVC2xdJF-Z6fcDeSgbrgj-1N0p0vYNDo",
@@ -84,6 +85,18 @@ function scrollToBottom() {
             return `${normalizeCollegeForRoll(roll, college)}:${roll}`;
         }
 
+async function loadDynamicBranchMappings() {
+    if (!cloudDb) return;
+    try {
+        const snapshot = await cloudDb.collection('branch_mappings').get();
+        snapshot.forEach(doc => {
+            // Stores rules like: { "21": "M. tech Thermal Engineering", "CQ": "New Joining" }
+            dynamicBranchMap[doc.id] = doc.data().customName; 
+        });
+    } catch (e) {
+        console.warn("Could not load dynamic mappings:", e);
+    }
+}
 async function fetchSystemNote(roll, college, branch) {
     try {
         if (!cloudDb) return null;
@@ -179,12 +192,18 @@ async function getMappedBranchName(originalCode) {
 }
 
         function deriveBranchFromRoll(roll, college = selectedCollege) {
-            const normalizedCollege = normalizeCollegeForRoll(roll, college);
-            if (normalizedCollege === "AU") {
-                return auBranchMap?.[roll.slice(5, 7)] || roll.slice(5, 7) || "UNKNOWN";
-            }
-            return branchMap?.[roll.slice(6, 8)] || roll.slice(6, 8) || "UNKNOWN";
-        }
+    const normalizedCollege = normalizeCollegeForRoll(roll, college);
+    let rawCode = normalizedCollege === "AU" ? roll.slice(5, 7) : roll.slice(6, 8);
+    let hardcodedName = normalizedCollege === "AU" ? (auBranchMap?.[rawCode] || rawCode) : (branchMap?.[rawCode] || rawCode);
+
+    // 1. HIGHEST PRIORITY: If the raw code (e.g. "21") is permanently mapped, use the new name!
+    if (dynamicBranchMap[rawCode]) return dynamicBranchMap[rawCode];
+    
+    // 2. Check if an old hardcoded name was mapped to something new
+    if (dynamicBranchMap[hardcodedName]) return dynamicBranchMap[hardcodedName];
+
+    return hardcodedName || "UNKNOWN";
+}
 
         function getCloudStudentDocRef(roll, college = selectedCollege) {
             if (!cloudDb) return null;
@@ -1711,5 +1730,6 @@ async function updateVisitorCounter() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    loadDynamicBranchMappings();
     updateVisitorCounter();
 });
