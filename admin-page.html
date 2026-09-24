@@ -900,12 +900,19 @@ async function executeBranchManagement() {
         
         if (operationCount > 0) batches.push(currentBatch);
 
-        // Commit all batched requests synchronously
+       // Commit all batched requests synchronously
         for (let b of batches) {
             await b.commit();
         }
 
-        alert(`Successfully processed ${targetStudents.length} records!`);
+        // --- NEW: Automatically create a routing rule for the main app ---
+        // This ensures if someone searches for a "21" roll number later, 
+        // the app knows to save it under the new name instead of recreating "21".
+        await db.collection('branch_mappings').doc(oldBranch).set({ 
+            customName: newBranchName 
+        }, { merge: true });
+
+        alert(`Successfully processed ${targetStudents.length} records and updated the routing rules!`);
         
         // Force refresh UI to show the new data
         localStorage.removeItem('adminDataCache'); 
