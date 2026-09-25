@@ -202,17 +202,27 @@ async function loadCampusStatuses() {
         console.warn("Could not load campus statuses:", e);
     }
 }
-        function deriveBranchFromRoll(roll, college = selectedCollege) {
+function deriveBranchFromRoll(roll, college = selectedCollege) {
     const normalizedCollege = normalizeCollegeForRoll(roll, college);
     let rawCode = normalizedCollege === "AU" ? roll.slice(5, 7) : roll.slice(6, 8);
     let hardcodedName = normalizedCollege === "AU" ? (auBranchMap?.[rawCode] || rawCode) : (branchMap?.[rawCode] || rawCode);
 
-    // 1. HIGHEST PRIORITY: If the raw code (e.g. "21") is permanently mapped, use the new name!
+    // 1. HIGH-PRIORITY SMART ROUTING (For AU Separated Formats)
+    // If the admin extracted "M11" from "AI", we look for a rule named "M11AI"
+    if (normalizedCollege === "AU" && roll.length >= 8) {
+        const formatSubstring = roll.substring(2, 5); // Grabs 'M11', 'P31', etc.
+        const highlySpecificKey = formatSubstring + rawCode; // Creates 'M11AI'
+        
+        if (dynamicBranchMap[highlySpecificKey]) {
+            return dynamicBranchMap[highlySpecificKey];
+        }
+    }
+
+    // 2. Standard dynamic mapping check (e.g., checking "21" or "CQ")
     if (dynamicBranchMap[rawCode]) return dynamicBranchMap[rawCode];
-    
-    // 2. Check if an old hardcoded name was mapped to something new
     if (dynamicBranchMap[hardcodedName]) return dynamicBranchMap[hardcodedName];
 
+    // 3. Fallback to default lists
     return hardcodedName || "UNKNOWN";
 }
 
