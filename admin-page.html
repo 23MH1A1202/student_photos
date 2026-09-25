@@ -550,7 +550,7 @@
 
         <div style="flex: 1; min-width: 250px; background: #eff6ff; padding: 15px; border-radius: 8px; border: 1px solid #bfdbfe;">
             <label style="font-size: 12px; font-weight: bold;">2. Isolate & Move Data</label>
-            <p style="font-size: 11px; color: #475569; margin: 4px 0 10px 0;">Extract students matching this substring (e.g. <b>M11</b> for Masters, or <b>P31</b> for Ph.D) from the branch above.</p>
+            <p style="font-size: 11px; color: #475569; margin: 4px 0 10px 0;">Extract students matching this substring (e.g. <b>M11</b>) from the branch above.</p>
             
             <div class="form-row">
                 <label>Target Substring Match</label>
@@ -558,11 +558,26 @@
             </div>
             
             <div class="form-row">
-                <label>Move to New Branch Name</label>
+                <label>Destination Type</label>
+                <select id="separator-dest-type" onchange="toggleSeparatorDest()" style="border-color: #93c5fd;">
+                    <option value="new">Create New Branch Name</option>
+                    <option value="existing">Merge into Existing Branch</option>
+                </select>
+            </div>
+
+            <div class="form-row" id="sep-new-row">
+                <label>New Branch Name</label>
                 <input type="text" id="separator-new-branch" placeholder="e.g., M. Tech CSE">
             </div>
+
+            <div class="form-row" id="sep-exist-row" style="display: none;">
+                <label>Select Existing Branch</label>
+                <select id="separator-exist-branch">
+                    <option value="">-- Select Destination --</option>
+                </select>
+            </div>
             
-            <button class="btn btn-danger" style="width: 100%;" onclick="executeSmartSeparation()">Extract & Move Students</button>
+            <button class="btn btn-danger" style="width: 100%; margin-top: 5px;" onclick="executeSmartSeparation()">Extract & Move Students</button>
         </div>
     </div>
 </div>
@@ -852,12 +867,18 @@ fetchAdminData = async function() {
     populateDropdownsWithDelay(); // Fill separator dropdown
 }
 
+// Update your existing populateDropdownsWithDelay function
 function populateDropdownsWithDelay() {
     const branches = new Set(allStudentsData.map(s => s.branch));
     const sepSelect = document.getElementById('separator-source-branch');
+    const existSelect = document.getElementById('separator-exist-branch');
+    
     sepSelect.innerHTML = `<option value="">-- Select Branch --</option>`;
+    existSelect.innerHTML = `<option value="">-- Select Destination Branch --</option>`;
+    
     [...branches].sort().forEach(val => {
         sepSelect.innerHTML += `<option value="${val}">${val}</option>`;
+        existSelect.innerHTML += `<option value="${val}">${val}</option>`;
     });
 }
 
@@ -904,34 +925,45 @@ function analyzeBranchFormats() {
     html += "</ul>";
     resultsDiv.innerHTML = html;
 }
-
-// --- SMART SEPARATOR EXECUTION ---
+// Add this toggle function
+function toggleSeparatorDest() {
+    const type = document.getElementById('separator-dest-type').value;
+    document.getElementById('sep-new-row').style.display = type === 'new' ? 'block' : 'none';
+    document.getElementById('sep-exist-row').style.display = type === 'existing' ? 'block' : 'none';
+}
 async function executeSmartSeparation() {
     const sourceBranch = document.getElementById('separator-source-branch').value;
     const substring = document.getElementById('separator-substring').value.trim().toUpperCase();
-    const targetBranch = document.getElementById('separator-new-branch').value.trim();
+    const destType = document.getElementById('separator-dest-type').value;
+    
+    const targetBranch = destType === 'new' 
+        ? document.getElementById('separator-new-branch').value.trim() 
+        : document.getElementById('separator-exist-branch').value;
 
     if (!sourceBranch || !substring || !targetBranch) return alert("Fill out all fields to separate data.");
 
-    // Isolate exact targets based on substring match
     const targets = allStudentsData.filter(s => s.branch === sourceBranch && s.roll.includes(substring));
-    
     if (targets.length === 0) return alert(`No students found in ${sourceBranch} containing "${substring}".`);
     
-    if (!confirm(`⚠️ Extracting ${targets.length} students containing "${substring}" from "${sourceBranch}" and moving them to a NEW branch: "${targetBranch}". Proceed?`)) return;
+    if (!confirm(`⚠️ Extracting ${targets.length} students containing "${substring}" from "${sourceBranch}" and moving them to "${targetBranch}". Proceed?`)) return;
 
-    // Fix: Select the button reliably by its onclick attribute
     const btn = document.querySelector('button[onclick="executeSmartSeparation()"]');
     const origText = btn.innerText;
-    btn.innerText = "Extracting Data...";
+    btn.innerText = "Extracting & Applying Rules...";
     btn.disabled = true;
 
     try {
         let batches = [];
         let currentBatch = db.batch();
         let opsCount = 0;
+        const rawCodesMoved = new Set(); // To track branch codes for routing rules
 
         for (let student of targets) {
+            // Track the 2-letter AU branch code (e.g., "AI", "CS") for future routing rules
+            if (student.college === "AU" && student.roll.length >= 8) {
+                rawCodesMoved.add(student.roll.slice(5, 7)); 
+            }
+
             const oldDocRef = db.doc(student.docPath);
             const newBranchKey = targetBranch.replace(/[^A-Z0-9_-]+/gi, "_").replace(/^_+|_+$/g, "").toUpperCase();
             const newPath = `colleges/${student.college}/branches/${newBranchKey}/years/${student.year}/students/${student.roll}`;
@@ -947,22 +979,31 @@ async function executeSmartSeparation() {
                 opsCount = 0;
             }
         }
+        
         if (opsCount > 0) batches.push(currentBatch);
         for (let b of batches) await b.commit();
 
-        alert(`Successfully extracted and moved ${targets.length} students to ${targetBranch}!`);
+        // --- NEW: Generate Smart Routing Rules for the Main App ---
+        // Maps e.g., "M11" + "AI" -> "M11AI" -> "M. Tech AIML"
+        for (let code of rawCodesMoved) {
+            const specificRuleKey = substring + code;
+            await db.collection('branch_mappings').doc(specificRuleKey).set({
+                customName: targetBranch
+            }, { merge: true });
+        }
+
+        alert(`Successfully moved ${targets.length} students and secured future routing rules!`);
         localStorage.removeItem('adminDataCache'); 
         fetchAdminData();
         
     } catch (error) {
         console.error(error);
-        alert("Separation failed. Check console for details.");
+        alert("Separation failed. You may have hit a Firestore quota limit.");
     } finally {
         btn.innerText = origText;
         btn.disabled = false;
     }
-}
-        
+}        
         function processAdminData(rawData) {
             allStudentsData = [];
             let todayCount = 0;
