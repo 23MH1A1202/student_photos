@@ -493,7 +493,35 @@
     
     <button id="manage-branch-btn" class="btn btn-danger" style="width: 100%; background: #dc2626;" onclick="executeBranchManagement()">Execute Database Change</button>
 </div>
+<!-- Tool 5: Campus Maintenance Mode -->
+<div class="tool-card">
+    <h3>Campus Maintenance Mode</h3>
+    <p style="font-size: 13px; color: #64748b; margin-top: -10px; margin-bottom: 15px;">Disable photo generation for specific campuses when their servers are down or URLs change.</p>
 
+    <div class="form-row">
+        <label>Select Campus</label>
+        <select id="maint-campus">
+            <option value="AU">Aditya University (AU)</option>
+            <option value="AEC">AEC</option>
+            <option value="ACET">ACET</option>
+        </select>
+    </div>
+    
+    <div class="form-row">
+        <label>Campus Status</label>
+        <select id="maint-status" onchange="toggleMaintMessage()">
+            <option value="active">🟢 Active (Online)</option>
+            <option value="maintenance">🔴 Maintenance Mode (Offline)</option>
+        </select>
+    </div>
+    
+    <div class="form-row" id="maint-msg-row" style="display: none;">
+        <label>Message shown to users</label>
+        <textarea id="maint-msg" rows="2" placeholder="e.g., AU server is under maintenance. Please use AEC or ACET."></textarea>
+    </div>
+    
+    <button class="btn" style="width: 100%; background: #f59e0b;" onclick="updateCampusStatus()">Save Server Status</button>
+</div>
 
         </div>
 
@@ -696,6 +724,38 @@
             }
         }
 
+        // --- Management Tool 5: Campus Maintenance Mode ---
+function toggleMaintMessage() {
+    const status = document.getElementById('maint-status').value;
+    document.getElementById('maint-msg-row').style.display = status === 'maintenance' ? 'block' : 'none';
+}
+
+async function updateCampusStatus() {
+    const campus = document.getElementById('maint-campus').value;
+    const status = document.getElementById('maint-status').value;
+    const message = document.getElementById('maint-msg').value.trim();
+
+    if (status === 'maintenance' && !message) {
+        return alert("Please provide a message explaining the maintenance to users.");
+    }
+
+    try {
+        // We store all statuses in one document to save your read quota!
+        await db.collection('system_notes').doc('campus_status').set({
+            [campus]: {
+                offline: status === 'maintenance',
+                msg: message
+            }
+        }, { merge: true });
+        
+        alert(`Status for ${campus} has been updated successfully!`);
+        document.getElementById('maint-msg').value = "";
+    } catch (error) {
+        console.error("Status update error:", error);
+        alert("Failed to update status. Please check your connection.");
+    }
+}
+        
         function processAdminData(rawData) {
             allStudentsData = [];
             let todayCount = 0;
