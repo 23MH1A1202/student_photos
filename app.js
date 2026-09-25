@@ -20,6 +20,7 @@
         const cloudNameLookupCache = new Map();
         const pendingCloudUpserts = new Map();
         let dynamicBranchMap = {};
+        let campusStatusCache = {};
 
         const CLOUD_DB_CONFIG = {
             apiKey: "AIzaSyDuVC2xdJF-Z6fcDeSgbrgj-1N0p0vYNDo",
@@ -190,7 +191,17 @@ async function getMappedBranchName(originalCode) {
         loader.remove(); // Completely removes it when done
     }
 }
-
+async function loadCampusStatuses() {
+    if (!cloudDb) return;
+    try {
+        const doc = await cloudDb.collection('system_notes').doc('campus_status').get();
+        if (doc.exists) {
+            campusStatusCache = doc.data();
+        }
+    } catch (e) {
+        console.warn("Could not load campus statuses:", e);
+    }
+}
         function deriveBranchFromRoll(roll, college = selectedCollege) {
     const normalizedCollege = normalizeCollegeForRoll(roll, college);
     let rawCode = normalizedCollege === "AU" ? roll.slice(5, 7) : roll.slice(6, 8);
@@ -658,7 +669,13 @@ function scrollToResults() {
             
             // UI text summary removed
             setGenerationLoading(true);
-
+            // --- NEW: Check Maintenance Status ---
+            if (campusStatusCache[selectedCollege] && campusStatusCache[selectedCollege].offline) {
+                setGenerationLoading(false);
+                showError(campusStatusCache[selectedCollege].msg);
+                return; 
+            }
+            // -------------------------------------
             try {
                 const hasNumbers = /\d/.test(input);
                 const isNameSearch = !hasNumbers || input.includes(" ");
@@ -1731,5 +1748,6 @@ async function updateVisitorCounter() {
 
 document.addEventListener("DOMContentLoaded", () => {
     loadDynamicBranchMappings();
+    loadCampusStatuses();
     updateVisitorCounter();
 });
