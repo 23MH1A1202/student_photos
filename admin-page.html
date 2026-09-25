@@ -920,7 +920,8 @@ async function executeSmartSeparation() {
     
     if (!confirm(`⚠️ Extracting ${targets.length} students containing "${substring}" from "${sourceBranch}" and moving them to a NEW branch: "${targetBranch}". Proceed?`)) return;
 
-    const btn = document.querySelector('#separator-new-branch').nextElementSibling;
+    // Fix: Select the button reliably by its onclick attribute
+    const btn = document.querySelector('button[onclick="executeSmartSeparation()"]');
     const origText = btn.innerText;
     btn.innerText = "Extracting Data...";
     btn.disabled = true;
