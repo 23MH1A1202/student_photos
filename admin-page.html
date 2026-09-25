@@ -372,55 +372,60 @@
         <!-- Admin Management Tools -->
         <div class="admin-tools-grid">
             
-            <!-- Tool 1: Branch Mapping -->
-            <div class="tool-card">
-                <h3>Update Branch Mapping</h3>
-                <div class="form-row">
-                    <label>Select Existing Branch Code</label>
-                    <select id="mapping-branch-select">
-                        <option value="">-- Select Branch --</option>
-                    </select>
-                </div>
-                <div class="form-row">
-                    <label>Custom Display Name</label>
-                    <input type="text" id="mapping-custom-name" placeholder="e.g., CQ -- New Joining">
-                </div>
-                <button class="btn" style="width: 100%;" onclick="updateBranchMapping()">Save Mapping</button>
-            </div>
+           <!-- Tool 1: Branch Mapping (Upgraded) -->
+<div class="tool-card">
+    <h3>Update Branch Mapping</h3>
+    <div class="form-row">
+        <label>Select Existing Branch Code</label>
+        <select id="mapping-branch-select"><option value="">-- Select Branch --</option></select>
+    </div>
+    <div class="form-row">
+        <label>Custom Display Name</label>
+        <input type="text" id="mapping-custom-name" placeholder="e.g., M. Tech CSE">
+    </div>
+    <button class="btn" style="width: 100%; margin-bottom: 15px;" onclick="updateBranchMapping()">Save Mapping</button>
+    
+    <label style="font-size: 12px; font-weight: bold; color: #475569;">Active Mappings:</label>
+    <div style="max-height: 150px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 6px;">
+        <table class="merge-table" style="margin-top: 0;">
+            <tbody id="active-mappings-list"><tr><td style="text-align:center;">Loading...</td></tr></tbody>
+        </table>
+    </div>
+</div>
 
-            <!-- Tool 2: Custom Notes System -->
-            <div class="tool-card">
-                <h3>Assign Custom Note</h3>
-                <div class="form-row">
-                    <label>Target Scope</label>
-                    <select id="note-scope" onchange="toggleNoteInput()">
-                        <option value="branch">Specific Branch</option>
-                        <option value="series">Roll Number Series</option>
-                        <option value="single">Single Roll Number</option>
-                    </select>
-                </div>
-                <div class="form-row" id="note-college-row">
-                    <label>Select College</label>
-                    <select id="note-college">
-                        <option value="AU">AU</option>
-                        <option value="AEC">AEC</option>
-                        <option value="ACET">ACET</option>
-                    </select>
-                </div>
-                <div class="form-row">
-                    <label id="note-target-label">Select Branch</label>
-                    <select id="note-target-select">
-                        <option value="">-- Select Branch --</option>
-                    </select>
-                    <input type="text" id="note-target-input" placeholder="e.g., 26P31" style="display: none;">
-                </div>
-                <div class="form-row">
-                    <label>Note Text</label>
-                    <textarea id="note-text" rows="2" placeholder="e.g., Pending university ID allocation."></textarea>
-                </div>
-                <button class="btn" style="width: 100%; background: #8b5cf6;" onclick="saveAdvancedNote()">Apply Custom Note</button>
-            </div>
+<!-- Tool 2: Custom Notes System (Upgraded) -->
+<div class="tool-card">
+    <h3>Assign Custom Note</h3>
+    <div class="form-row">
+        <label>Target Scope</label>
+        <select id="note-scope" onchange="toggleNoteInput()">
+            <option value="branch">Specific Branch</option>
+            <option value="series">Roll Number Series</option>
+            <option value="single">Single Roll Number</option>
+        </select>
+    </div>
+    <div class="form-row" id="note-college-row">
+        <label>Select College</label>
+        <select id="note-college"><option value="AU">AU</option><option value="AEC">AEC</option><option value="ACET">ACET</option></select>
+    </div>
+    <div class="form-row">
+        <label id="note-target-label">Select Branch</label>
+        <select id="note-target-select"><option value="">-- Select Branch --</option></select>
+        <input type="text" id="note-target-input" placeholder="e.g., 26P31" style="display: none;">
+    </div>
+    <div class="form-row">
+        <label>Note Text</label>
+        <textarea id="note-text" rows="2" placeholder="e.g., Pending university ID."></textarea>
+    </div>
+    <button class="btn" style="width: 100%; background: #8b5cf6; margin-bottom: 15px;" onclick="saveAdvancedNote()">Apply Custom Note</button>
 
+    <label style="font-size: 12px; font-weight: bold; color: #475569;">Active Notes:</label>
+    <div style="max-height: 150px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 6px;">
+        <table class="merge-table" style="margin-top: 0;">
+            <tbody id="active-notes-list"><tr><td style="text-align:center;">Loading...</td></tr></tbody>
+        </table>
+    </div>
+</div>
             <!-- Tool 3: Smart Merge System -->
             <div class="tool-card" style="grid-column: 1 / -1;">
                 <h3>
@@ -522,7 +527,45 @@
     
     <button class="btn" style="width: 100%; background: #f59e0b;" onclick="updateCampusStatus()">Save Server Status</button>
 </div>
+<!-- Tool 6: AU Format Analyzer & Smart Separator -->
+<div class="tool-card" style="grid-column: 1 / -1; border-top: 4px solid #3b82f6;">
+    <h3>
+        AU Format Analyzer & Smart Separator
+        <span style="font-size: 11px; background: #dbeafe; color: #1d4ed8; padding: 3px 6px; border-radius: 4px;">DATA SPLITTER</span>
+    </h3>
+    <p style="font-size: 13px; color: #64748b; margin-top: -10px; margin-bottom: 15px;">Analyze a mixed branch and extract specific degree formats (Bachelors, Masters, Ph.D) into a clean, separate branch.</p>
+    
+    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 250px;">
+            <label style="font-size: 12px; font-weight: bold;">1. Select Mixed Branch to Analyze</label>
+            <select id="separator-source-branch" class="filter-select" style="width: 100%; margin-bottom: 10px;">
+                <option value="">-- Select Branch --</option>
+            </select>
+            <button class="btn" style="background: #3b82f6; width: 100%;" onclick="analyzeBranchFormats()">🔍 Analyze Roll Formats</button>
+            
+            <div id="format-analysis-results" style="margin-top: 15px; padding: 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; max-height: 200px; overflow-y: auto;">
+                Select a branch to see its inner roll number formats.
+            </div>
+        </div>
 
+        <div style="flex: 1; min-width: 250px; background: #eff6ff; padding: 15px; border-radius: 8px; border: 1px solid #bfdbfe;">
+            <label style="font-size: 12px; font-weight: bold;">2. Isolate & Move Data</label>
+            <p style="font-size: 11px; color: #475569; margin: 4px 0 10px 0;">Extract students matching this substring (e.g. <b>M11</b> for Masters, or <b>P31</b> for Ph.D) from the branch above.</p>
+            
+            <div class="form-row">
+                <label>Target Substring Match</label>
+                <input type="text" id="separator-substring" placeholder="e.g., M11, M13, or P31">
+            </div>
+            
+            <div class="form-row">
+                <label>Move to New Branch Name</label>
+                <input type="text" id="separator-new-branch" placeholder="e.g., M. Tech CSE">
+            </div>
+            
+            <button class="btn btn-danger" style="width: 100%;" onclick="executeSmartSeparation()">Extract & Move Students</button>
+        </div>
+    </div>
+</div>
         </div>
 
 
@@ -753,6 +796,169 @@ async function updateCampusStatus() {
     } catch (error) {
         console.error("Status update error:", error);
         alert("Failed to update status. Please check your connection.");
+    }
+}
+
+        // --- LOAD ACTIVE MAPPINGS & NOTES ---
+async function loadActiveAdminConfigs() {
+    // Load Mappings
+    const mapBody = document.getElementById('active-mappings-list');
+    try {
+        const mapSnap = await db.collection('branch_mappings').get();
+        mapBody.innerHTML = "";
+        if(mapSnap.empty) mapBody.innerHTML = "<tr><td style='text-align:center;'>No active mappings.</td></tr>";
+        mapSnap.forEach(doc => {
+            mapBody.innerHTML += `<tr>
+                <td><b>${doc.id}</b> → <span style="color:#2563eb">${doc.data().customName}</span></td>
+                <td style="text-align:right;"><button class="btn btn-danger" style="padding:2px 6px; font-size:10px;" onclick="deleteMapping('${doc.id}')">Delete</button></td>
+            </tr>`;
+        });
+    } catch(e) { console.error(e); }
+
+    // Load Notes
+    const notesBody = document.getElementById('active-notes-list');
+    try {
+        const notesSnap = await db.collection('system_notes').get();
+        notesBody.innerHTML = "";
+        let hasNotes = false;
+        notesSnap.forEach(doc => {
+            if (doc.id === 'campus_status') return; // Skip campus status doc
+            hasNotes = true;
+            notesBody.innerHTML += `<tr>
+                <td><b>${doc.id}</b><br><span style="color:#64748b; font-size:11px;">${doc.data().note}</span></td>
+                <td style="text-align:right; vertical-align:top;"><button class="btn btn-danger" style="padding:2px 6px; font-size:10px;" onclick="deleteNote('${doc.id}')">Delete</button></td>
+            </tr>`;
+        });
+        if(!hasNotes) notesBody.innerHTML = "<tr><td style='text-align:center;'>No active notes.</td></tr>";
+    } catch(e) { console.error(e); }
+}
+
+async function deleteMapping(id) {
+    if(!confirm(`Delete mapping for ${id}?`)) return;
+    await db.collection('branch_mappings').doc(id).delete();
+    loadActiveAdminConfigs();
+}
+async function deleteNote(id) {
+    if(!confirm(`Delete note for ${id}?`)) return;
+    await db.collection('system_notes').doc(id).delete();
+    loadActiveAdminConfigs();
+}
+
+// Ensure configs load alongside table data
+const originalFetchAdminData = fetchAdminData;
+fetchAdminData = async function() {
+    await originalFetchAdminData();
+    loadActiveAdminConfigs();
+    populateDropdownsWithDelay(); // Fill separator dropdown
+}
+
+function populateDropdownsWithDelay() {
+    const branches = new Set(allStudentsData.map(s => s.branch));
+    const sepSelect = document.getElementById('separator-source-branch');
+    sepSelect.innerHTML = `<option value="">-- Select Branch --</option>`;
+    [...branches].sort().forEach(val => {
+        sepSelect.innerHTML += `<option value="${val}">${val}</option>`;
+    });
+}
+
+// --- SMART FORMAT ANALYZER ---
+function analyzeBranchFormats() {
+    const targetBranch = document.getElementById('separator-source-branch').value;
+    const resultsDiv = document.getElementById('format-analysis-results');
+    if (!targetBranch) return alert("Select a branch first.");
+
+    const branchStudents = allStudentsData.filter(s => s.branch === targetBranch && s.college === "AU");
+    if (branchStudents.length === 0) {
+        resultsDiv.innerHTML = `<span style="color:red;">No AU students found in "${targetBranch}". Note: This tool analyzes AU formats.</span>`;
+        return;
+    }
+
+    const formatTally = {};
+    branchStudents.forEach(s => {
+        const roll = s.roll;
+        if (roll.length < 8) return;
+        
+        // Extract 3rd character (Degree type) and the specific string block (e.g. B11, M13, P31)
+        const degreeChar = roll.charAt(2);
+        const formatString = roll.substring(2, 5); // Grabs "B11", "M11", "P31"
+        const branchCode = roll.substring(5, 7);   // Grabs "CS", "AI", "CD"
+        
+        let degreeName = "Unknown";
+        if (degreeChar === 'B') degreeName = "Bachelors";
+        if (degreeChar === 'M') degreeName = "Masters";
+        if (degreeChar === 'P') degreeName = "Ph.D";
+        if (degreeChar === 'I') degreeName = "Integrated";
+
+        const key = `${degreeName} Format (Code: ${formatString}${branchCode})`;
+        if (!formatTally[key]) formatTally[key] = { count: 0, sample: roll, substring: formatString };
+        formatTally[key].count++;
+    });
+
+    let html = `<b>Found ${branchStudents.length} total AU students in ${targetBranch}</b><ul style="padding-left: 20px; margin-top: 5px;">`;
+    for (const [key, data] of Object.entries(formatTally)) {
+        html += `<li style="margin-bottom: 6px;">
+            <b>${key}:</b> ${data.count} students 
+            <br><span style="color:#64748b; font-size: 11px;">Example: ${data.sample} (Substring to extract: <b>${data.substring}</b>)</span>
+        </li>`;
+    }
+    html += "</ul>";
+    resultsDiv.innerHTML = html;
+}
+
+// --- SMART SEPARATOR EXECUTION ---
+async function executeSmartSeparation() {
+    const sourceBranch = document.getElementById('separator-source-branch').value;
+    const substring = document.getElementById('separator-substring').value.trim().toUpperCase();
+    const targetBranch = document.getElementById('separator-new-branch').value.trim();
+
+    if (!sourceBranch || !substring || !targetBranch) return alert("Fill out all fields to separate data.");
+
+    // Isolate exact targets based on substring match
+    const targets = allStudentsData.filter(s => s.branch === sourceBranch && s.roll.includes(substring));
+    
+    if (targets.length === 0) return alert(`No students found in ${sourceBranch} containing "${substring}".`);
+    
+    if (!confirm(`⚠️ Extracting ${targets.length} students containing "${substring}" from "${sourceBranch}" and moving them to a NEW branch: "${targetBranch}". Proceed?`)) return;
+
+    const btn = document.querySelector('#separator-new-branch').nextElementSibling;
+    const origText = btn.innerText;
+    btn.innerText = "Extracting Data...";
+    btn.disabled = true;
+
+    try {
+        let batches = [];
+        let currentBatch = db.batch();
+        let opsCount = 0;
+
+        for (let student of targets) {
+            const oldDocRef = db.doc(student.docPath);
+            const newBranchKey = targetBranch.replace(/[^A-Z0-9_-]+/gi, "_").replace(/^_+|_+$/g, "").toUpperCase();
+            const newPath = `colleges/${student.college}/branches/${newBranchKey}/years/${student.year}/students/${student.roll}`;
+            const newDocRef = db.doc(newPath);
+
+            currentBatch.set(newDocRef, { ...student, branch: targetBranch, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+            currentBatch.delete(oldDocRef);
+            opsCount += 2;
+
+            if (opsCount >= 490) {
+                batches.push(currentBatch);
+                currentBatch = db.batch();
+                opsCount = 0;
+            }
+        }
+        if (opsCount > 0) batches.push(currentBatch);
+        for (let b of batches) await b.commit();
+
+        alert(`Successfully extracted and moved ${targets.length} students to ${targetBranch}!`);
+        localStorage.removeItem('adminDataCache'); 
+        fetchAdminData();
+        
+    } catch (error) {
+        console.error(error);
+        alert("Separation failed. Check console for details.");
+    } finally {
+        btn.innerText = origText;
+        btn.disabled = false;
     }
 }
         
